@@ -27,11 +27,13 @@ public final class CurrencyRateInteractorTest
     @Test
     fun getBaseCurrencyNotNull()
     {
-        Mockito.`when`(sharedPrefencesRepo.getBaseCurrencyCode()).thenReturn(Currency.getInstance("USD").currencyCode)
+        val rubCurrency = Currency.getInstance("RUB").currencyCode
+        Mockito.`when`(sharedPrefencesRepo.getBaseCurrencyCode()).thenReturn(rubCurrency)
+        Locale.setDefault(Locale.US)
 
         val result = currencyRateInteractor.getBaseCurrency()
 
-        assertEquals(result.currencyCode, "USD")
+        assertEquals(result.currencyCode, "RUB")
     }
 
     @Test
@@ -53,8 +55,10 @@ public final class CurrencyRateInteractorTest
         testData.add(RateCurrencyDomain("RUB", 0.534786))
         testData.add(RateCurrencyDomain("UKR", 0.563423))
 
-        Mockito.`when`(sharedPrefencesRepo.getBaseCurrencyCode().toString()).thenReturn("USD")
-        Mockito.`when`(currencyRateRepo.getExchangeRates("USD")).thenReturn(testData)
+        val usdCurrency = Currency.getInstance("USD").currencyCode
+
+        Mockito.`when`(sharedPrefencesRepo.getBaseCurrencyCode()).thenReturn(usdCurrency)
+        Mockito.`when`(currencyRateRepo.getExchangeRates(usdCurrency)).thenReturn(testData)
 
         val resultData = currencyRateInteractor.getExchangeRates()
 

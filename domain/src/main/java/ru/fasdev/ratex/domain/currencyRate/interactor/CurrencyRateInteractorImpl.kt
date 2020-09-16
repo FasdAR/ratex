@@ -29,7 +29,7 @@ public class CurrencyRateInteractorImpl (val currencyRateRepo: CurrencyRateRepo,
 
     override fun getExchangeRates(): List<RateCurrencyDomain>
     {
-        return currencyRateRepo.getExchangeRates(sharedPrefencesRepo.getBaseCurrencyCode().toString())
+        return currencyRateRepo.getExchangeRates(getBaseCurrency().currencyCode)
     }
 
     //TODO: EDIT TO NORMAL MAPPER
