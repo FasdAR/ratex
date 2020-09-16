@@ -11,13 +11,15 @@ public class CurrencyRateInteractorImpl (val currencyRateRepo: CurrencyRateRepo,
 {
     override fun getBaseCurrency(): CurrencyDomain
     {
-        var baseCurrency: Currency = Currency.getInstance(Locale.getDefault())
-
-        if (!sharedPrefencesRepo.getBaseCurrencyCode().isNullOrEmpty()) {
-            baseCurrency = Currency.getInstance(sharedPrefencesRepo.getBaseCurrencyCode())
+        if (!sharedPrefencesRepo.getBaseCurrencyCode().isNullOrEmpty())
+        {
+            val baseCurrency = Currency.getInstance(sharedPrefencesRepo.getBaseCurrencyCode())
+            return mapCurrencyToCurrencyDomain(baseCurrency)
         }
-
-        return mapCurrencyToCurrencyDomain(baseCurrency)
+        else
+        {
+            return mapCurrencyToCurrencyDomain(Currency.getInstance(Locale.getDefault()))
+        }
     }
 
     override fun setBaseCurrency(baseCurrency: CurrencyDomain)
