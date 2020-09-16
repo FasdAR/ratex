@@ -42,7 +42,6 @@ public final class CurrencyRateInteractorTest
 
         val result = currencyRateInteractor.getBaseCurrency()
 
-        Mockito.verify(sharedPrefencesRepo).setBaseCurrencyCode("USD")
         assertEquals(result.currencyCode, "USD")
     }
 
