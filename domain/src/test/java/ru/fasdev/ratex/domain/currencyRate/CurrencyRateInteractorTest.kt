@@ -24,14 +24,15 @@ public final class CurrencyRateInteractorTest
         currencyRateInteractor = CurrencyRateInteractorImpl(currencyRateRepo, sharedPrefencesRepo)
     }
 
-    /*
     @Test
-    fun getBaseCurrency()
+    fun getBaseCurrencyNotNull()
     {
-        Mockito.`when`(Locale.getDefault()).thenReturn(Locale.US)
+        Mockito.`when`(sharedPrefencesRepo.getBaseCurrencyCode()).thenReturn(Currency.getInstance("USD").currencyCode)
 
+        val result = currencyRateInteractor.getBaseCurrency()
 
-    }*/
+        assertEquals(result.currencyCode, "USD")
+    }
 
     @Test
     fun getExchangeRates()
