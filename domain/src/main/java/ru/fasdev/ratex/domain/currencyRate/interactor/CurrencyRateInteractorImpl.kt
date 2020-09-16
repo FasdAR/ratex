@@ -7,7 +7,7 @@ import ru.fasdev.ratex.domain.currencyRate.entity.RateCurrencyDomain
 import ru.fasdev.ratex.domain.main.boundaries.SharedPrefencesRepo
 import java.util.*
 
-class CurrencyRateInteractorImpl (val currencyRateRepo: CurrencyRateRepo, val sharedPrefencesRepo: SharedPrefencesRepo): CurrencyRateInteractor
+public class CurrencyRateInteractorImpl (val currencyRateRepo: CurrencyRateRepo, val sharedPrefencesRepo: SharedPrefencesRepo): CurrencyRateInteractor
 {
     override fun getBaseCurrency(): CurrencyDomain
     {
