@@ -35,6 +35,18 @@ public final class CurrencyRateInteractorTest
     }
 
     @Test
+    fun getBaseCurrencyNull()
+    {
+        Mockito.`when`(sharedPrefencesRepo.getBaseCurrencyCode()).thenReturn(null)
+        Locale.setDefault(Locale.US)
+
+        val result = currencyRateInteractor.getBaseCurrency()
+
+        Mockito.verify(sharedPrefencesRepo).setBaseCurrencyCode("USD")
+        assertEquals(result.currencyCode, "USD")
+    }
+
+    @Test
     fun getExchangeRates()
     {
         val testData: MutableList<RateCurrencyDomain> = arrayListOf()
