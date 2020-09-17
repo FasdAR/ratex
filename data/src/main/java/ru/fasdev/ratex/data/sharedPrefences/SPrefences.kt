@@ -2,7 +2,7 @@ package ru.fasdev.ratex.data.sharedPrefences
 
 import android.content.SharedPreferences
 
-class SPrefences (val sPref: SharedPreferences)
+public class SPrefences (val sPref: SharedPreferences)
 {
     companion object {
         const val NAME_SETTINGS = "ratex_shared_pref"
