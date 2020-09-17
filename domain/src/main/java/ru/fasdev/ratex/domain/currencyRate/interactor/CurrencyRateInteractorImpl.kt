@@ -1,5 +1,6 @@
 package ru.fasdev.ratex.domain.currencyRate.interactor
 
+import ru.fasdev.ratex.domain.currency.boundaries.CurrencyInteractor
 import ru.fasdev.ratex.domain.currencyRate.boundaries.CurrencyRateInteractor
 import ru.fasdev.ratex.domain.currencyRate.boundaries.CurrencyRateRepo
 import ru.fasdev.ratex.domain.currencyRate.entity.CurrencyDomain
@@ -7,18 +8,18 @@ import ru.fasdev.ratex.domain.currencyRate.entity.RateCurrencyDomain
 import ru.fasdev.ratex.domain.main.boundaries.SharedPrefencesRepo
 import java.util.*
 
-public class CurrencyRateInteractorImpl (val currencyRateRepo: CurrencyRateRepo, val sharedPrefencesRepo: SharedPrefencesRepo): CurrencyRateInteractor
+public class CurrencyRateInteractorImpl (val currencyInteractor: CurrencyInteractor, val currencyRateRepo: CurrencyRateRepo, val sharedPrefencesRepo: SharedPrefencesRepo): CurrencyRateInteractor
 {
     override fun getBaseCurrency(): CurrencyDomain
     {
         if (!sharedPrefencesRepo.getBaseCurrencyCode().isNullOrEmpty())
         {
             val baseCurrency = Currency.getInstance(sharedPrefencesRepo.getBaseCurrencyCode())
-            return mapCurrencyToCurrencyDomain(baseCurrency)
+            return currencyInteractor.mapCurrencyToCurrencyDomain(baseCurrency)
         }
         else
         {
-            return mapCurrencyToCurrencyDomain(Currency.getInstance(Locale.getDefault()))
+            return currencyInteractor.mapCurrencyToCurrencyDomain(Currency.getInstance(Locale.getDefault()))
         }
     }
 
@@ -30,11 +31,5 @@ public class CurrencyRateInteractorImpl (val currencyRateRepo: CurrencyRateRepo,
     override fun getExchangeRates(): List<RateCurrencyDomain>
     {
         return currencyRateRepo.getExchangeRates(getBaseCurrency().currencyCode)
-    }
-
-    //TODO: EDIT TO NORMAL MAPPER
-    private fun mapCurrencyToCurrencyDomain(currency: Currency): CurrencyDomain
-    {
-        return CurrencyDomain(currency.currencyCode, currency.symbol, currency.displayName)
     }
 }

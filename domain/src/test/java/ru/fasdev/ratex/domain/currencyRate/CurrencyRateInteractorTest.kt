@@ -4,6 +4,8 @@ import junit.framework.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
+import ru.fasdev.ratex.domain.currency.boundaries.CurrencyInteractor
+import ru.fasdev.ratex.domain.currency.interactor.CurrencyInteractorImpl
 import ru.fasdev.ratex.domain.currencyRate.boundaries.CurrencyRateInteractor
 import ru.fasdev.ratex.domain.currencyRate.boundaries.CurrencyRateRepo
 import ru.fasdev.ratex.domain.currencyRate.entity.RateCurrencyDomain
@@ -16,12 +18,14 @@ public final class CurrencyRateInteractorTest
     private lateinit var currencyRateRepo: CurrencyRateRepo;
     private lateinit var sharedPrefencesRepo: SharedPrefencesRepo
     private lateinit var currencyRateInteractor: CurrencyRateInteractor
+    private lateinit var currencyInteractor: CurrencyInteractor
 
     @Before
     fun setUp() {
         currencyRateRepo = Mockito.mock(CurrencyRateRepo::class.java)
         sharedPrefencesRepo = Mockito.mock(SharedPrefencesRepo::class.java)
-        currencyRateInteractor = CurrencyRateInteractorImpl(currencyRateRepo, sharedPrefencesRepo)
+        currencyInteractor = CurrencyInteractorImpl()
+        currencyRateInteractor = CurrencyRateInteractorImpl(currencyInteractor, currencyRateRepo, sharedPrefencesRepo)
     }
 
     @Test
@@ -52,8 +56,8 @@ public final class CurrencyRateInteractorTest
     {
         val testData: MutableList<RateCurrencyDomain> = arrayListOf()
 
-        testData.add(RateCurrencyDomain("RUB", 0.534786))
-        testData.add(RateCurrencyDomain("UKR", 0.563423))
+        testData.add(RateCurrencyDomain(currencyInteractor.getDomainCurrencyByCode("USD"), 0.534786))
+        testData.add(RateCurrencyDomain(currencyInteractor.getDomainCurrencyByCode("RUB"), 0.563423))
 
         val usdCurrency = Currency.getInstance("USD").currencyCode
 

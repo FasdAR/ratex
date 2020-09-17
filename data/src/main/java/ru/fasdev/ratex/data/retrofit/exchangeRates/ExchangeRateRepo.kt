@@ -3,11 +3,13 @@ package ru.fasdev.ratex.data.retrofit.exchangeRates
 import com.google.gson.JsonElement
 import com.google.gson.JsonParser
 import retrofit2.Retrofit
+import ru.fasdev.ratex.domain.currency.boundaries.CurrencyInteractor
+import ru.fasdev.ratex.domain.currencyRate.boundaries.CurrencyRateInteractor
 import ru.fasdev.ratex.domain.currencyRate.boundaries.CurrencyRateRepo
 import ru.fasdev.ratex.domain.currencyRate.entity.RateCurrencyDomain
 
 
-class ExchangeRateRepo(val retrofit: Retrofit, val exchangeRateApi: ExchangeRateApi): CurrencyRateRepo
+class ExchangeRateRepo(val retrofit: Retrofit, val exchangeRateApi: ExchangeRateApi, val currencyInteractor: CurrencyInteractor): CurrencyRateRepo
 {
     override fun getExchangeRates(baseCurrencyCode: String): List<RateCurrencyDomain>
     {
@@ -32,7 +34,7 @@ class ExchangeRateRepo(val retrofit: Retrofit, val exchangeRateApi: ExchangeRate
         val rateList: MutableList<RateCurrencyDomain> = arrayListOf()
 
         setRates.forEach {
-            rateList.add(RateCurrencyDomain(it.key, it.value.asDouble))
+            rateList.add(RateCurrencyDomain(currencyInteractor.getDomainCurrencyByCode(it.key), it.value.asDouble))
         }
 
         return rateList

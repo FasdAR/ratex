@@ -9,6 +9,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import ru.fasdev.ratex.domain.currency.interactor.CurrencyInteractorImpl
 import ru.fasdev.ratex.domain.currencyRate.boundaries.CurrencyRateRepo
 
 @RunWith(RobolectricTestRunner::class)
@@ -32,7 +33,7 @@ class ExchangeRateRepoTest
             .client(okHttpClient)
             .build()
 
-        exchangeRateRepo = ExchangeRateRepo(retrofit, retrofit.create(ExchangeRateApi::class.java))
+        exchangeRateRepo = ExchangeRateRepo(retrofit, retrofit.create(ExchangeRateApi::class.java), CurrencyInteractorImpl())
     }
 
     @Test
