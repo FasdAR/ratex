@@ -11,7 +11,6 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import ru.fasdev.ratex.domain.currencyRate.boundaries.CurrencyRateRepo
 
-@RunWith(RobolectricTestRunner::class)
 class ExchangeRateRepoTest
 {
     lateinit var retrofit: Retrofit
