@@ -34,6 +34,7 @@ class ExchangeRateRepoTest
         exchangeRateRepo = ExchangeRateRepo(retrofit, retrofit.create(ExchangeRateApi::class.java))
     }
 
+    //Тестирование соединения и получения реальных данных
     @Test
     fun getRealData()
     {

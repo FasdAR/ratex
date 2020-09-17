@@ -1,5 +1,9 @@
 package ru.fasdev.ratex.domain.currencyRate
 
+import io.reactivex.Single
+import io.reactivex.observers.TestObserver
+import io.reactivex.rxkotlin.subscribeBy
+import io.reactivex.subscribers.TestSubscriber
 import junit.framework.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -18,51 +22,76 @@ public final class CurrencyRateInteractorTest
     private lateinit var sharedPrefencesRepo: SharedPrefencesRepo
     private lateinit var currencyRateInteractor: CurrencyRateInteractor
 
+    private lateinit var testObserver: TestObserver<List<RateCurrencyDomain>>
+
     @Before
     fun setUp() {
         currencyRateRepo = Mockito.mock(CurrencyRateRepo::class.java)
         sharedPrefencesRepo = Mockito.mock(SharedPrefencesRepo::class.java)
         currencyRateInteractor = CurrencyRateInteractorImpl(currencyRateRepo, sharedPrefencesRepo)
+
+        testObserver = TestObserver()
     }
 
     @Test
     fun getBaseCurrencyNotNull()
     {
-        val rubCurrency = Currency.getInstance("RUB").currencyCode
+        val testObserver: TestObserver<CurrencyDomain> = TestObserver()
+
+        val testedCurrencyCode = "RUB"
+
+        //#region Mock getBaseCurrencyCode and getDefaultLocale
+        val rubCurrency = Currency.getInstance(testedCurrencyCode).currencyCode
         Mockito.`when`(sharedPrefencesRepo.getBaseCurrencyCode()).thenReturn(rubCurrency)
         Locale.setDefault(Locale.US)
+        //#endregion
 
-        val result = currencyRateInteractor.getBaseCurrency()
 
-        assertEquals(result.currencyCode, "RUB")
+        currencyRateInteractor.getBaseCurrency().subscribe(testObserver)
+
+        testObserver.assertComplete()
+        testObserver.assertValue { it -> it.currencyCode == rubCurrency }
     }
 
     @Test
     fun getBaseCurrencyNull()
     {
+        val testObserver: TestObserver<CurrencyDomain> = TestObserver()
+
+        //#region Mock getBaseCurrencyCode and getDefaultLocale
         Mockito.`when`(sharedPrefencesRepo.getBaseCurrencyCode()).thenReturn(null)
         Locale.setDefault(Locale.US)
+        //#endregion
 
-        val result = currencyRateInteractor.getBaseCurrency()
+        currencyRateInteractor.getBaseCurrency().subscribe(testObserver)
 
-        assertEquals(result.currencyCode, "USD")
+        testObserver.assertComplete()
+        testObserver.assertValue { it -> it.currencyCode != "RUB" }
+        testObserver.assertValue { it -> it.currencyCode == "USD" }
     }
 
     @Test
     fun getExchangeRates()
     {
-        val testData: MutableList<RateCurrencyDomain> = arrayListOf()
+        val testObserver: TestObserver<List<RateCurrencyDomain>> = TestObserver()
 
-        testData.add(RateCurrencyDomain(CurrencyDomain.getInstance("USD"), 0.534786))
-        testData.add(RateCurrencyDomain(CurrencyDomain.getInstance("RUB"), 0.563423))
-
+        //#region Mock getBaseCurrencyCode
         val usdCurrency = Currency.getInstance("USD").currencyCode
-
         Mockito.`when`(sharedPrefencesRepo.getBaseCurrencyCode()).thenReturn(usdCurrency)
-        Mockito.`when`(currencyRateRepo.getExchangeRates(usdCurrency)).thenReturn(testData)
+        //#endregion
 
-        val resultData = currencyRateInteractor.getExchangeRates()
+        //#region Mock getExchangeRates
+        val testData: MutableList<RateCurrencyDomain> = arrayListOf(
+            RateCurrencyDomain(CurrencyDomain.getInstance("USD"), 0.534786),
+            RateCurrencyDomain(CurrencyDomain.getInstance("RUB"), 0.563423)
+        )
 
-        assertEquals(testData, resultData)
+        Mockito.`when`(currencyRateRepo.getExchangeRates(usdCurrency)).thenReturn(Single.just(testData))
+        //#endregion
+
+        currencyRateInteractor.getExchangeRates().subscribe(testObserver)
+
+        testObserver.assertComplete()
+        testObserver.assertValue(testData)
     }
 }
