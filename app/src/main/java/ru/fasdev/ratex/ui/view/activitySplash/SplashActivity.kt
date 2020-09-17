@@ -13,7 +13,7 @@ class SplashActivity : AppCompatActivity()
         setTheme(R.style.AppTheme_Splash)
         super.onCreate(savedInstanceState)
 
-        startActivity(Intent(this, MainActivity::class.java))
+        startActivity(Intent(this@SplashActivity, MainActivity::class.java))
         finish()
     }
 }
