@@ -11,7 +11,7 @@ import ru.terrakok.cicerone.Router
 import ru.terrakok.cicerone.android.support.SupportAppNavigator
 
 @Module
-class CiceroneModule(idContainer: Int)
+class CiceroneModule(val idContainer: Int)
 {
     @Provides
     @ActivityScope
@@ -28,5 +28,5 @@ class CiceroneModule(idContainer: Int)
     @Provides
     @ActivityScope
     //Provide Default MainNavigator
-    fun provideNavigator(fragmentActivity: FragmentActivity, idContainer: Int): SupportAppNavigator = MainNavigator(fragmentActivity, idContainer)
+    fun provideNavigator(fragmentActivity: FragmentActivity): SupportAppNavigator = MainNavigator(fragmentActivity, idContainer)
 }

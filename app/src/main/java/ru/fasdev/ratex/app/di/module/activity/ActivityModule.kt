@@ -5,6 +5,8 @@ import androidx.fragment.app.FragmentActivity
 import dagger.Module
 import dagger.Provides
 import ru.fasdev.ratex.app.di.scope.ActivityScope
+import ru.fasdev.ratex.domain.currencyRate.entity.CurrencyDomain
+import javax.inject.Named
 
 @Module
 class ActivityModule (val fragmentActivity: FragmentActivity)
