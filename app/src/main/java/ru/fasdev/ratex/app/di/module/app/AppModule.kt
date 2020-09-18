@@ -1,4 +1,4 @@
-package ru.fasdev.ratex.app.di.module
+package ru.fasdev.ratex.app.di.module.app
 
 import android.content.Context
 import dagger.Module

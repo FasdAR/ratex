@@ -3,13 +3,14 @@ package ru.fasdev.ratex.app
 import android.app.Application
 import ru.fasdev.ratex.app.di.component.AppComponent
 import ru.fasdev.ratex.app.di.component.DaggerAppComponent
-import ru.fasdev.ratex.app.di.module.AppModule
-import ru.fasdev.ratex.app.di.module.SettingsModule
+import ru.fasdev.ratex.app.di.module.app.AppModule
+import ru.fasdev.ratex.app.di.module.app.SettingsModule
 import ru.fasdev.ratex.data.sharedPrefences.SPrefences
 
 class RatexApp : Application()
 {
-    object DI {
+    object DI
+    {
         lateinit var appComponent: AppComponent
     }
 
