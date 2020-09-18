@@ -16,6 +16,7 @@ import ru.fasdev.ratex.app.di.component.DaggerActivityComponent
 import ru.fasdev.ratex.app.di.module.activity.ActivityModule
 import ru.fasdev.ratex.app.di.module.activity.CiceroneModule
 import ru.fasdev.ratex.domain.currencyRate.entity.CurrencyDomain
+import ru.fasdev.ratex.ui.view.fragmentListCurrencyRate.ListCurrencyRateScreen
 import ru.terrakok.cicerone.Cicerone
 import ru.terrakok.cicerone.NavigatorHolder
 import ru.terrakok.cicerone.Router
@@ -53,6 +54,8 @@ class MainActivity : AppCompatActivity()
         setContentView(R.layout.activity_main)
 
         setSystemUiVisibility()
+
+        routerCicerone.newRootScreen(ListCurrencyRateScreen())
     }
 
     override fun onResumeFragments() {
