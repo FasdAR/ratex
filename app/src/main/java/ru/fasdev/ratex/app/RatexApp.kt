@@ -3,6 +3,8 @@ package ru.fasdev.ratex.app
 import android.app.Application
 import ru.fasdev.ratex.app.di.component.AppComponent
 import ru.fasdev.ratex.app.di.component.DaggerAppComponent
+import ru.fasdev.ratex.app.di.module.AppModule
+import ru.fasdev.ratex.app.di.module.SettingsModule
 import ru.fasdev.ratex.data.sharedPrefences.SPrefences
 
 class RatexApp : Application()
@@ -17,8 +19,8 @@ class RatexApp : Application()
 
         DI.appComponent = DaggerAppComponent
             .builder()
-            .context(applicationContext)
-            .nameSettings(SPrefences.NAME_SETTINGS)
+            .appModule(AppModule(applicationContext))
+            .settingsModule(SettingsModule(SPrefences.NAME_SETTINGS))
             .build()
     }
 }

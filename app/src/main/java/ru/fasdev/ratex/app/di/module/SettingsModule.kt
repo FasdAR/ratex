@@ -8,17 +8,13 @@ import ru.fasdev.ratex.app.di.scope.AppScope
 import ru.fasdev.ratex.data.sharedPrefences.SPrefences
 import ru.fasdev.ratex.data.sharedPrefences.SharedPrefencesRepoImpl
 import ru.fasdev.ratex.domain.main.boundaries.SharedPrefencesRepo
-import javax.inject.Inject
-import javax.inject.Named
 
 @Module
-class SettingsModule ()
+class SettingsModule (val nameSettings: String)
 {
-    @set:[Inject Named("name_settings")] var nameSettings: String = ""
-
     @Provides
     @AppScope
-    fun provideSharedPrefences(context: Context): SharedPreferences = context.getSharedPreferences(nameSettings, Context.MODE_PRIVATE)
+    fun provideSharedPreneces(context: Context): SharedPreferences = context.getSharedPreferences(nameSettings, Context.MODE_PRIVATE)
 
     @Provides
     @AppScope
