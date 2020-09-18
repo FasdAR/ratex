@@ -20,6 +20,39 @@
             <include
                 layout="@layout/toolbar"/>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="8dp"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingBottom="16dp"
+                android:id="@+id/layout_base_currency">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/relative_currency"
+                    android:layout_weight="1"
+                    android:textColor="#7B7B7B"
+                    android:textSize="16sp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="RUB"
+                    android:textColor="#7B7B7B"
+                    android:textSize="16sp"
+                    android:id="@+id/base_currency"/>
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#EAEAEA" />
+
+
         </LinearLayout>
 
     </com.google.android.material.appbar.AppBarLayout>

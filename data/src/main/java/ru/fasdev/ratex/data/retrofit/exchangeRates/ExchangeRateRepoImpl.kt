@@ -9,7 +9,7 @@ import ru.fasdev.ratex.domain.currencyRate.boundaries.CurrencyRateRepo
 import ru.fasdev.ratex.domain.currencyRate.entity.CurrencyDomain
 import ru.fasdev.ratex.domain.currencyRate.entity.RateCurrencyDomain
 
-class ExchangeRateRepo(val retrofit: Retrofit, val exchangeRateApi: ExchangeRateApi): CurrencyRateRepo
+class ExchangeRateRepoImpl(val exchangeRateApi: ExchangeRateApi): CurrencyRateRepo
 {
     override fun getExchangeRates(baseCurrencyCode: String): Single<List<RateCurrencyDomain>>
     {

@@ -13,7 +13,7 @@ import ru.fasdev.ratex.domain.currencyRate.entity.RateCurrencyDomain
 import java.util.concurrent.TimeUnit
 
 
-class ExchangeRateRepoTest
+class ExchangeRateRepoImplTest
 {
     @Test
     fun testRealData()
@@ -36,7 +36,7 @@ class ExchangeRateRepoTest
             .client(okHttpClient)
             .build()
 
-        exchangeRateRepo = ExchangeRateRepo(retrofit, retrofit.create(ExchangeRateApi::class.java))
+        exchangeRateRepo = ExchangeRateRepoImpl(retrofit.create(ExchangeRateApi::class.java))
         //#endregion
 
         val testObserver: TestObserver<List<RateCurrencyDomain>> = TestObserver()
