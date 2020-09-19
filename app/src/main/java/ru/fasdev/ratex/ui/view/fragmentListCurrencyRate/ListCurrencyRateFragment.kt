@@ -2,10 +2,12 @@ package ru.fasdev.ratex.ui.view.fragmentListCurrencyRate
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import dev.chrisbanes.insetter.applySystemWindowInsetsToPadding
@@ -61,6 +63,10 @@ class ListCurrencyRateFragment : MvpAppCompatFragment(), ListCurrencyRateView
 
         toolbar.setTitle(resources.getString(R.string.app_name))
 
+        binding.swipeRefresh.setOnRefreshListener {
+            presenter.loadExchangeRates()
+        }
+
         return binding.root
     }
 
@@ -76,5 +82,20 @@ class ListCurrencyRateFragment : MvpAppCompatFragment(), ListCurrencyRateView
 
     override fun setListExchangeRates(rateList: List<RateCurrencyDomain>)
     {
+        //TODO: SET DATA TO RV LIST
+
+        rateList.forEach {
+            Log.d("DATA_RV", it.toString())
+        }
+    }
+
+    override fun setRefreshingState(isRefreshing: Boolean)
+    {
+        binding.swipeRefresh.isRefreshing = isRefreshing
+    }
+
+    override fun setNetworkError(message: String)
+    {
+        Toast.makeText(appCompactActivity, message, Toast.LENGTH_SHORT).show()
     }
 }

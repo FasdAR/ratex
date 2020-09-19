@@ -9,4 +9,6 @@ interface ListCurrencyRateView: MvpView
 {
     fun setBaseCurrency(currency: String)
     fun setListExchangeRates(rateList: List<RateCurrencyDomain>)
+    fun setRefreshingState(isRefreshing: Boolean)
+    fun setNetworkError(message: String)
 }

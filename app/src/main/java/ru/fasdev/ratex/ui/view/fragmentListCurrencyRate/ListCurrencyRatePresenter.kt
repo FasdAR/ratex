@@ -13,6 +13,7 @@ class ListCurrencyRatePresenter @Inject constructor(val currencyRateInteractor: 
     : MvpPresenter<ListCurrencyRateView>()
 {
     var baseCurrencyDispose: Disposable? = null
+    var exchangeRatesDispose: Disposable? = null
 
     override fun onFirstViewAttach()
     {
@@ -30,6 +31,8 @@ class ListCurrencyRatePresenter @Inject constructor(val currencyRateInteractor: 
                     Log.e("ERROR", it.toString())
                 }
             )
+
+        loadExchangeRates()
     }
 
     override fun onDestroy() {
@@ -38,5 +41,30 @@ class ListCurrencyRatePresenter @Inject constructor(val currencyRateInteractor: 
         Log.d("MOXY_ON_DESTROY", "DESTROY")
 
         baseCurrencyDispose?.dispose()
+        exchangeRatesDispose?.dispose()
+    }
+
+    fun loadExchangeRates()
+    {
+        exchangeRatesDispose = currencyRateInteractor
+            .getExchangeRates()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .doOnSubscribe {
+                viewState.setRefreshingState(true)
+            }
+            .doFinally {
+                Log.d("RX", "FINNALY")
+                viewState.setRefreshingState(false)
+            }
+            .subscribeBy (
+                onSuccess = {
+                    viewState.setListExchangeRates(it)
+                },
+                onError = {
+                    //TODO: CHANGE TO NORMAL MESSAGE IN CODE ... 400, 404 ....
+                    viewState.setNetworkError(it.message.toString())
+                }
+            )
     }
 }
