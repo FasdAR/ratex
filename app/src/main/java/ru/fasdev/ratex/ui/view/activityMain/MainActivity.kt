@@ -1,21 +1,14 @@
 package ru.fasdev.ratex.ui.view.activityMain
 
-import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import androidx.fragment.app.Fragment
+import moxy.MvpAppCompatActivity
 import ru.fasdev.ratex.R
 import ru.fasdev.ratex.app.RatexApp
 import ru.fasdev.ratex.app.di.component.DaggerActivityComponent
 import ru.fasdev.ratex.app.di.module.activity.ActivityModule
 import ru.fasdev.ratex.app.di.module.activity.CiceroneModule
-import ru.fasdev.ratex.domain.currencyRate.entity.CurrencyDomain
 import ru.fasdev.ratex.ui.view.fragmentListCurrencyRate.ListCurrencyRateScreen
 import ru.terrakok.cicerone.Cicerone
 import ru.terrakok.cicerone.NavigatorHolder
@@ -23,7 +16,8 @@ import ru.terrakok.cicerone.Router
 import ru.terrakok.cicerone.android.support.SupportAppNavigator
 import javax.inject.Inject
 
-class MainActivity : AppCompatActivity()
+
+class MainActivity : MvpAppCompatActivity()
 {
     @Inject
     lateinit var cicerone: Cicerone<Router>
@@ -55,7 +49,11 @@ class MainActivity : AppCompatActivity()
 
         setSystemUiVisibility()
 
-        routerCicerone.newRootScreen(ListCurrencyRateScreen())
+        val currentFragment: Fragment? =
+            supportFragmentManager.findFragmentById(R.id.main_container)
+
+        if (currentFragment == null)
+            routerCicerone.newRootScreen(ListCurrencyRateScreen())
     }
 
     override fun onResumeFragments() {
