@@ -1,6 +1,8 @@
 package ru.fasdev.ratex.domain.currencyRate.interactor
 
+import io.reactivex.Observable
 import io.reactivex.Single
+import io.reactivex.functions.Function
 import ru.fasdev.ratex.domain.currencyRate.boundaries.CurrencyRateInteractor
 import ru.fasdev.ratex.domain.currencyRate.boundaries.CurrencyRateRepo
 import ru.fasdev.ratex.domain.currencyRate.entity.CurrencyDomain
@@ -35,7 +37,15 @@ public class CurrencyRateInteractorImpl(
 
     override fun getExchangeRates(): Single<List<RateCurrencyDomain>>
     {
-        return getBaseCurrency()
-            .flatMap { currencyRateRepo.getExchangeRates(it.currencyCode) }
+        return  getBaseCurrency()
+            .flatMap {
+                currencyRateRepo.getExchangeRates(it.currencyCode)
+                    .flatMapObservable { item -> Observable.fromIterable(item) }
+                    .filter { item -> item.currency.currencyCode.toLowerCase() != it.currencyCode.toLowerCase() }
+                    .toList()
+            }
+            .map { it -> it.sortedBy {
+                it.currency.displayName
+            } }
     }
 }
