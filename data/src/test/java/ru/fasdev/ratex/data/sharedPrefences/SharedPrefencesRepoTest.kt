@@ -30,6 +30,7 @@ class SharedPrefencesRepoTest
     }
 
     @Test
+    @Config(sdk = intArrayOf(Build.VERSION_CODES.P))
     fun testBaseCurrencyCode()
     {
         val value = "USD"

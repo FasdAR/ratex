@@ -76,8 +76,8 @@ public final class CurrencyRateInteractorTest
         val testObserver: TestObserver<List<RateCurrencyDomain>> = TestObserver()
 
         //#region Mock getBaseCurrencyCode
-        val usdCurrency = Currency.getInstance("USD").currencyCode
-        Mockito.`when`(sharedPrefencesRepo.getBaseCurrencyCode()).thenReturn(usdCurrency)
+        val testCurrency = Currency.getInstance("EUR").currencyCode
+        Mockito.`when`(sharedPrefencesRepo.getBaseCurrencyCode()).thenReturn(testCurrency)
         //#endregion
 
         //#region Mock getExchangeRates
@@ -86,12 +86,12 @@ public final class CurrencyRateInteractorTest
             RateCurrencyDomain(CurrencyDomain.getInstance("RUB"), 0.563423)
         )
 
-        Mockito.`when`(currencyRateRepo.getExchangeRates(usdCurrency)).thenReturn(Single.just(testData))
+        Mockito.`when`(currencyRateRepo.getExchangeRates(testCurrency)).thenReturn(Single.just(testData))
         //#endregion
 
         currencyRateInteractor.getExchangeRates().subscribe(testObserver)
 
         testObserver.assertComplete()
-        testObserver.assertValue(testData)
+        testObserver.assertValue(testData.sortedBy { it -> it.currency.displayName })
     }
 }
