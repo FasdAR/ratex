@@ -18,25 +18,28 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
+        android:maxLines="1"
+        android:layout_marginLeft="16dp"
         android:textSize="16sp"
         android:textColor="#000"
         android:text="Dollar Usa"
+        android:ellipsize="end"
         android:id="@+id/name_currency"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toRightOf="@id/image_currency"/>
+        app:layout_constraintLeft_toRightOf="@id/image_currency" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
+        android:layout_marginRight="10dp"
         android:textSize="13sp"
         android:textColor="#7B7B7B"
         android:text="EUR"
         android:id="@+id/code_currency"
-        app:layout_constraintLeft_toRightOf="@id/name_currency"
-        app:layout_constraintBottom_toBottomOf="@id/name_currency"/>
+        app:layout_constraintBottom_toBottomOf="@id/name_currency"
+        app:layout_constraintLeft_toRightOf="@id/name_currency" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -45,8 +48,9 @@
         android:textColor="#000"
         android:text="75,63"
         android:id="@+id/rate_currency"
+        app:layout_constraintHorizontal_bias="1"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintBottom_toBottomOf="parent" />
     
 </androidx.constraintlayout.widget.ConstraintLayout>

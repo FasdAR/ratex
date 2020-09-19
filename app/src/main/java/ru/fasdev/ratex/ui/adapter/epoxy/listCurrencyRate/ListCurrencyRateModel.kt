@@ -36,7 +36,9 @@ abstract class ListCurrencyRateModel : EpoxyModelWithHolder<ListCurrencyRateMode
 
     override fun bind(holder: Holder)
     {
-        holder.nameCurrency.setText(rateCurrency.currency.displayName)
+        val nameCurrency = rateCurrency.currency.displayName.substring(0,1).toUpperCase() + rateCurrency.currency.displayName.substring(1)
+
+        holder.nameCurrency.setText(nameCurrency)
         holder.codeCurrency.setText(rateCurrency.currency.currencyCode)
         holder.rateCurrency.setText(DecimalFormat("###.##").format(rateCurrency.rate))
     }
