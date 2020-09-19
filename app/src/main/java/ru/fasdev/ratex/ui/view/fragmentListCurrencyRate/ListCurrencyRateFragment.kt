@@ -11,6 +11,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
+import dev.chrisbanes.insetter.applySystemGestureInsetsToMargin
+import dev.chrisbanes.insetter.applySystemWindowInsetsToMargin
 import dev.chrisbanes.insetter.applySystemWindowInsetsToPadding
 import moxy.MvpAppCompatFragment
 import moxy.ktx.moxyPresenter
@@ -60,8 +62,8 @@ class ListCurrencyRateFragment : MvpAppCompatFragment(), ListCurrencyRateView
     {
         binding = ListCurrencyRateFragmentBinding.inflate(inflater)
 
-        binding.root.applySystemWindowInsetsToPadding(bottom = true, top = true)
-
+        binding.root.applySystemWindowInsetsToPadding(top = true, left = true, right = true)
+        binding.listCurrency.applySystemWindowInsetsToPadding(bottom = true)
         val toolbar = binding.root.findViewById<Toolbar>(R.id.toolbar)
 
         appCompactActivity.setSupportActionBar(toolbar)
