@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.recyclerview.widget.LinearLayoutManager
 import dev.chrisbanes.insetter.applySystemWindowInsetsToPadding
 import moxy.MvpAppCompatFragment
 import moxy.ktx.moxyPresenter
@@ -17,6 +18,7 @@ import ru.fasdev.ratex.R
 import ru.fasdev.ratex.app.di.component.DaggerFragmentListCurrencyRateComponent
 import ru.fasdev.ratex.databinding.ListCurrencyRateFragmentBinding
 import ru.fasdev.ratex.domain.currencyRate.entity.RateCurrencyDomain
+import ru.fasdev.ratex.ui.adapter.epoxy.listCurrencyRate.ListCurrencyRateController
 import ru.fasdev.ratex.ui.view.activityMain.MainActivity
 import javax.inject.Inject
 import javax.inject.Provider
@@ -44,6 +46,10 @@ class ListCurrencyRateFragment : MvpAppCompatFragment(), ListCurrencyRateView
            .build()
     }
 
+    private val listRateController by lazy {
+        return@lazy ListCurrencyRateController()
+    }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
@@ -67,6 +73,9 @@ class ListCurrencyRateFragment : MvpAppCompatFragment(), ListCurrencyRateView
             presenter.loadExchangeRates()
         }
 
+        binding.listCurrency.layoutManager = LinearLayoutManager(requireContext())
+        binding.listCurrency.setController(listRateController)
+
         return binding.root
     }
 
@@ -82,11 +91,7 @@ class ListCurrencyRateFragment : MvpAppCompatFragment(), ListCurrencyRateView
 
     override fun setListExchangeRates(rateList: List<RateCurrencyDomain>)
     {
-        //TODO: SET DATA TO RV LIST
-
-        rateList.forEach {
-            Log.d("DATA_RV", it.toString())
-        }
+        listRateController.setData(rateList)
     }
 
     override fun setRefreshingState(isRefreshing: Boolean)

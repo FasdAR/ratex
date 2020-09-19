@@ -62,10 +62,14 @@
         android:id="@+id/swipe_refresh"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <androidx.recyclerview.widget.RecyclerView
+        <com.airbnb.epoxy.EpoxyRecyclerView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/list_currency"/>
+            android:id="@+id/list_currency"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp"
+            android:clipToPadding="false"
+            app:itemSpacing="16dp"/>
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 

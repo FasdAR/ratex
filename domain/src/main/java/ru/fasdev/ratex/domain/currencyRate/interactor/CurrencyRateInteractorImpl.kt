@@ -7,9 +7,13 @@ import ru.fasdev.ratex.domain.currencyRate.entity.CurrencyDomain
 import ru.fasdev.ratex.domain.currencyRate.entity.RateCurrencyDomain
 import ru.fasdev.ratex.domain.currencyRate.entity.extension.toCurrencyDomain
 import ru.fasdev.ratex.domain.main.boundaries.SharedPrefencesRepo
+import java.text.DecimalFormat
 import java.util.*
 
-public class CurrencyRateInteractorImpl (val currencyRateRepo: CurrencyRateRepo, val sharedPrefencesRepo: SharedPrefencesRepo): CurrencyRateInteractor
+public class CurrencyRateInteractorImpl(
+    val currencyRateRepo: CurrencyRateRepo,
+    val sharedPrefencesRepo: SharedPrefencesRepo
+): CurrencyRateInteractor
 {
     override fun getBaseCurrency(): Single<CurrencyDomain>
     {
