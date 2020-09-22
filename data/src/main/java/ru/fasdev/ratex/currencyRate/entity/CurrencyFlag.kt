@@ -2,8 +2,8 @@ package ru.fasdev.ratex.currencyRate.entity
 
 enum class CurrencyFlag (val urlFlag: String)
 {
-    CAD("https://www.countryflags.io/ca/flat/64.png"),
-    HKD("https://www.countryflags.io/hk/flat/64.png"),
+    CAD("https://flagcdn.com/w80/ca.png"),
+    HKD("https://flagcdn.com/w80/hk.png"),
     ISK("https://www.countryflags.io/is/flat/64.png"),
     PHP("https://www.countryflags.io/ph/flat/64.png"),
     DKK("https://www.countryflags.io/dk/flat/64.png"),

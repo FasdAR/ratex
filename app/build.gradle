@@ -112,4 +112,10 @@ dependencies {
     implementation "com.airbnb.android:epoxy:$epoxy_ver"
     implementation "com.airbnb.android:epoxy-databinding:$epoxy_ver"
     kapt "com.airbnb.android:epoxy-processor:$epoxy_ver"
+
+    //Glide
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
+
+    //Circle Image View
+    implementation 'de.hdodenhof:circleimageview:3.1.0'
 }

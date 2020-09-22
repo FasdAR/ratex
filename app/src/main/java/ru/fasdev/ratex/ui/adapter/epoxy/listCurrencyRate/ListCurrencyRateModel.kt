@@ -7,8 +7,15 @@ import com.airbnb.epoxy.EpoxyAttribute
 import com.airbnb.epoxy.EpoxyHolder
 import com.airbnb.epoxy.EpoxyModelClass
 import com.airbnb.epoxy.EpoxyModelWithHolder
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.MultiTransformation
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.load.resource.bitmap.CircleCrop
+import com.bumptech.glide.load.resource.bitmap.FitCenter
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.bumptech.glide.request.RequestOptions
 import ru.fasdev.ratex.R
-import ru.fasdev.ratex.app.di.module.currencyRate.CurrencyRateModule
+import ru.fasdev.ratex.app.util.dp
 import ru.fasdev.ratex.domain.currencyRate.entity.RateCurrencyDomain
 import java.text.DecimalFormat
 
@@ -36,7 +43,16 @@ abstract class ListCurrencyRateModel : EpoxyModelWithHolder<ListCurrencyRateMode
 
     override fun bind(holder: Holder)
     {
-        val nameCurrency = rateCurrency.currency.displayName.substring(0,1).toUpperCase() + rateCurrency.currency.displayName.substring(1)
+        val nameCurrency = rateCurrency.currency.displayName.substring(0, 1).toUpperCase() + rateCurrency.currency.displayName.substring(
+            1
+        )
+
+        Glide
+            .with(holder.imageCurrency.context)
+            .load(rateCurrency.currency.urlImage)
+            .centerCrop()
+            .circleCrop()
+            .into(holder.imageCurrency);
 
         holder.nameCurrency.setText(nameCurrency)
         holder.codeCurrency.setText(rateCurrency.currency.currencyCode)
