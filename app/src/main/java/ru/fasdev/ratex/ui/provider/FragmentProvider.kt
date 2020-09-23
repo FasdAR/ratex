@@ -1,4 +1,4 @@
-package ru.fasdev.ratex.ui.view.provider
+package ru.fasdev.ratex.ui.provider
 
 import androidx.fragment.app.Fragment
 
