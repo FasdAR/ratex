@@ -8,14 +8,13 @@
     android:layout_marginRight="16dp"
     android:gravity="center_vertical">
 
-    <de.hdodenhof.circleimageview.CircleImageView
+    <ImageView
         android:id="@+id/image_currency"
         android:layout_width="36dp"
         android:layout_height="36dp"
         android:scaleType="centerCrop"
-        app:civ_circle_background_color="@color/colorAccent"
-        app:civ_border_width="1dp"
-        app:civ_border_color="#EAEAEA"/>
+        android:padding="1dp"
+        android:background="@drawable/currency_bg"/>
 
     <LinearLayout
         android:layout_width="match_parent"

@@ -8,14 +8,8 @@ import com.airbnb.epoxy.EpoxyHolder
 import com.airbnb.epoxy.EpoxyModelClass
 import com.airbnb.epoxy.EpoxyModelWithHolder
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.MultiTransformation
-import com.bumptech.glide.load.resource.bitmap.CenterCrop
-import com.bumptech.glide.load.resource.bitmap.CircleCrop
-import com.bumptech.glide.load.resource.bitmap.FitCenter
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import com.bumptech.glide.request.RequestOptions
 import ru.fasdev.ratex.R
-import ru.fasdev.ratex.app.util.dp
 import ru.fasdev.ratex.domain.currencyRate.entity.RateCurrencyDomain
 import java.text.DecimalFormat
 
@@ -50,6 +44,7 @@ abstract class ListCurrencyRateModel : EpoxyModelWithHolder<ListCurrencyRateMode
         Glide
             .with(holder.imageCurrency.context)
             .load(rateCurrency.currency.urlImage)
+            .transition(DrawableTransitionOptions.withCrossFade())
             .centerCrop()
             .circleCrop()
             .into(holder.imageCurrency);
