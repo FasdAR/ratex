@@ -8,7 +8,7 @@ class CurrencyImageProviderImpl : CurrencyImageProvider
 {
     override fun getImageUrl(currencyCode: String): String
     {
-        val url = "https://flagcdn.com/w160/${currencyCode.substring(0,2).toLowerCase()}.png"
+        val url = "https://flagcdn.com/w320/${currencyCode.substring(0,2).toLowerCase()}.png"
         return url
     }
 }

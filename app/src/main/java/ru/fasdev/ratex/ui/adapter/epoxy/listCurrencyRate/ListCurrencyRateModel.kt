@@ -1,8 +1,10 @@
 package ru.fasdev.ratex.ui.adapter.epoxy.listCurrencyRate
 
+import android.app.Activity
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.fragment.app.Fragment
 import com.airbnb.epoxy.EpoxyAttribute
 import com.airbnb.epoxy.EpoxyHolder
 import com.airbnb.epoxy.EpoxyModelClass
@@ -42,7 +44,7 @@ abstract class ListCurrencyRateModel : EpoxyModelWithHolder<ListCurrencyRateMode
         )
 
         Glide
-            .with(holder.imageCurrency.context)
+            .with(holder.imageCurrency.context as Activity)
             .load(rateCurrency.currency.urlImage)
             .transition(DrawableTransitionOptions.withCrossFade())
             .centerCrop()
@@ -52,5 +54,13 @@ abstract class ListCurrencyRateModel : EpoxyModelWithHolder<ListCurrencyRateMode
         holder.nameCurrency.setText(nameCurrency)
         holder.codeCurrency.setText(rateCurrency.currency.currencyCode)
         holder.rateCurrency.setText(DecimalFormat("###.##").format(rateCurrency.rate))
+    }
+
+    override fun unbind(holder: Holder) {
+        super.unbind(holder)
+
+        Glide
+            .with(holder.imageCurrency.context as Activity)
+            .clear(holder.imageCurrency)
     }
 }
