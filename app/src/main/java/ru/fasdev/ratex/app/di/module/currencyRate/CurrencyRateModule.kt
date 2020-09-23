@@ -30,5 +30,5 @@ class CurrencyRateModule
 
     @Provides
     @FragmentScope
-    fun provideCurrencyRateInteractor(currencyRateRepo: CurrencyRateRepo, sharedPrefencesRepo: SharedPrefencesRepo) : CurrencyRateInteractor = CurrencyRateInteractorImpl(currencyRateRepo, sharedPrefencesRepo)
+    fun provideCurrencyRateInteractor(currencyRateRepo: CurrencyRateRepo, sharedPrefencesRepo: SharedPrefencesRepo, currencyImageProvider: CurrencyImageProvider) : CurrencyRateInteractor = CurrencyRateInteractorImpl(currencyRateRepo, sharedPrefencesRepo, currencyImageProvider)
 }

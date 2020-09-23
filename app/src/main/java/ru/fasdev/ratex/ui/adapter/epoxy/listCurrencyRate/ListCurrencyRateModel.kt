@@ -41,10 +41,6 @@ abstract class ListCurrencyRateModel : EpoxyModelWithHolder<ListCurrencyRateMode
 
     override fun bind(holder: Holder)
     {
-        val nameCurrency = rateCurrency.currency.displayName.substring(0, 1).toUpperCase() + rateCurrency.currency.displayName.substring(
-            1
-        )
-
         Glide
             .with(holder.imageCurrency.context.applicationContext)
             .load(rateCurrency.currency.urlImage)
@@ -52,7 +48,7 @@ abstract class ListCurrencyRateModel : EpoxyModelWithHolder<ListCurrencyRateMode
             .transform(MultiTransformation(CenterCrop(), RoundedCorners(50.dp)))
             .into(holder.imageCurrency);
 
-        holder.nameCurrency.setText(nameCurrency)
+        holder.nameCurrency.setText(rateCurrency.currency.displayName)
         holder.codeCurrency.setText(rateCurrency.currency.currencyCode)
         holder.rateCurrency.setText(DecimalFormat("###.##").format(rateCurrency.rate))
     }

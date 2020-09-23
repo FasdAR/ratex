@@ -16,6 +16,7 @@ ext {
     rxkotlin_ver = "2.4.0"
     rxandroid_ver = "2.1.1"
     epoxy_ver = "3.9.0"
+    glide_ver = "4.11.0"
 }
 
 android {
@@ -90,6 +91,7 @@ dependencies {
     implementation "com.github.moxy-community:moxy:$moxy_ver"
     implementation "com.github.moxy-community:moxy-androidx:$moxy_ver"
     implementation "com.github.moxy-community:moxy-ktx:$moxy_ver"
+    implementation "com.github.moxy-community:moxy-material:$moxy_ver"
     kapt "com.github.moxy-community:moxy-compiler:$moxy_ver"
 
     //Insetter
@@ -114,8 +116,5 @@ dependencies {
     kapt "com.airbnb.android:epoxy-processor:$epoxy_ver"
 
     //Glide
-    implementation 'com.github.bumptech.glide:glide:4.11.0'
-
-    //Circle Image View
-    implementation 'de.hdodenhof:circleimageview:3.1.0'
+    implementation "com.github.bumptech.glide:glide:$glide_ver"
 }

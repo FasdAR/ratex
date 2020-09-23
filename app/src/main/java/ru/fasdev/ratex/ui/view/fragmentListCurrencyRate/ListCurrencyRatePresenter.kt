@@ -29,6 +29,7 @@ class ListCurrencyRatePresenter @Inject constructor(val currencyRateInteractor: 
                     viewState.setBaseCurrency(it.currencyCode)
                 },
                 onError = {
+                    //TOOD: SEt NORMAL ERROR TO VIEW
                     Log.e("ERROR", it.toString())
                 }
             )

@@ -49,7 +49,11 @@
     <com.airbnb.epoxy.EpoxyRecyclerView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:minHeight="200dp"
         android:id="@+id/currency_list"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:clipToPadding="false"
         app:itemSpacing="16dp"/>
 
 </LinearLayout>

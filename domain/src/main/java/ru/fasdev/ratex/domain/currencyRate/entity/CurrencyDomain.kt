@@ -4,8 +4,14 @@ import ru.fasdev.ratex.domain.currencyRate.boundaries.CurrencyImageProvider
 import ru.fasdev.ratex.domain.currencyRate.entity.extension.toCurrencyDomain
 import java.util.*
 
-data class CurrencyDomain(val currencyCode: String, val symbol: String, val displayName: String, val urlImage: String?)
+class CurrencyDomain(val currencyCode: String, val symbol: String, displayName: String, val urlImage: String?)
 {
+    val displayName: String
+
+    init {
+        this.displayName = displayName.substring(0, 1).toUpperCase() + displayName.substring(1)
+    }
+
     companion object {
         fun getInstance(currencyCode: String): CurrencyDomain = Currency.getInstance(currencyCode).toCurrencyDomain()
 
@@ -17,5 +23,9 @@ data class CurrencyDomain(val currencyCode: String, val symbol: String, val disp
                     imageProvider.getImageUrl(currencyCode)
                 )
         }
+    }
+
+    override fun toString(): String {
+        return "${currencyCode}, ${symbol}, ${displayName}, ${urlImage}"
     }
 }
