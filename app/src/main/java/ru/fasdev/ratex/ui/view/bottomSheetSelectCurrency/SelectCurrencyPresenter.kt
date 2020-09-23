@@ -33,4 +33,9 @@ class SelectCurrencyPresenter @Inject constructor(val currencyRateInteractor: Cu
                 )
         )
     }
+
+    fun searchCurrency(text: String)
+    {
+
+    }
 }

@@ -2,9 +2,12 @@ package ru.fasdev.ratex.ui.view.bottomSheetSelectCurrency
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.widget.addTextChangedListener
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -60,6 +63,10 @@ class SelectCurrencyBottomSheet : MvpBottomSheetDialogFragment(), SelectCurrency
 
         binding.currencyList.layoutManager = LinearLayoutManager(context)
         binding.currencyList.setController(listSelectCurrenyController)
+
+        binding.searchCurrency.doOnTextChanged { text, start, before, count ->
+            presenter.searchCurrency(text.toString())
+        }
 
         return binding.root
     }
