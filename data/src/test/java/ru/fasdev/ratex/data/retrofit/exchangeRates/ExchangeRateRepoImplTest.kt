@@ -8,6 +8,7 @@ import org.junit.Test
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
+import ru.fasdev.ratex.currencyRate.CurrencyImageProviderImpl
 import ru.fasdev.ratex.domain.currencyRate.boundaries.CurrencyRateRepo
 import ru.fasdev.ratex.domain.currencyRate.entity.RateCurrencyDomain
 import java.util.concurrent.TimeUnit
@@ -36,7 +37,7 @@ class ExchangeRateRepoImplTest
             .client(okHttpClient)
             .build()
 
-        exchangeRateRepo = ExchangeRateRepoImpl(retrofit.create(ExchangeRateApi::class.java))
+        exchangeRateRepo = ExchangeRateRepoImpl(retrofit.create(ExchangeRateApi::class.java), CurrencyImageProviderImpl())
         //#endregion
 
         val testObserver: TestObserver<List<RateCurrencyDomain>> = TestObserver()
