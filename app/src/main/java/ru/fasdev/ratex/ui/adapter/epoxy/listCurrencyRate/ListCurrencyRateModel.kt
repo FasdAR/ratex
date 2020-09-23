@@ -13,6 +13,9 @@ import com.airbnb.epoxy.EpoxyHolder
 import com.airbnb.epoxy.EpoxyModelClass
 import com.airbnb.epoxy.EpoxyModelWithHolder
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.MultiTransformation
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
 import ru.fasdev.ratex.R
@@ -54,8 +57,7 @@ abstract class ListCurrencyRateModel : EpoxyModelWithHolder<ListCurrencyRateMode
             .with(holder.imageCurrency.context.applicationContext)
             .load(rateCurrency.currency.urlImage)
             .transition(withCrossFade())
-            .centerCrop()
-            .circleCrop()
+            .transform(MultiTransformation(CenterCrop(), RoundedCorners(15.dp)))
             .into(holder.imageCurrency);
 
         holder.nameCurrency.setText(nameCurrency)
