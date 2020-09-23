@@ -10,8 +10,8 @@
 
     <ImageView
         android:id="@+id/image_currency"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
         android:scaleType="centerCrop"
         android:padding="1dp"
         android:background="@drawable/currency_bg"/>

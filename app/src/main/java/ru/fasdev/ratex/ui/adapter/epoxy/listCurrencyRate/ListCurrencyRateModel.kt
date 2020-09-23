@@ -57,7 +57,7 @@ abstract class ListCurrencyRateModel : EpoxyModelWithHolder<ListCurrencyRateMode
             .with(holder.imageCurrency.context.applicationContext)
             .load(rateCurrency.currency.urlImage)
             .transition(withCrossFade())
-            .transform(MultiTransformation(CenterCrop(), RoundedCorners(15.dp)))
+            .transform(MultiTransformation(CenterCrop(), RoundedCorners(50.dp)))
             .into(holder.imageCurrency);
 
         holder.nameCurrency.setText(nameCurrency)
