@@ -10,6 +10,7 @@ import ru.fasdev.ratex.app.di.component.DaggerActivityComponent
 import ru.fasdev.ratex.app.di.module.activity.ActivityModule
 import ru.fasdev.ratex.app.di.module.activity.CiceroneModule
 import ru.fasdev.ratex.ui.view.fragmentListCurrencyRate.ListCurrencyRateScreen
+import ru.fasdev.ratex.ui.view.provider.FragmentProvider
 import ru.terrakok.cicerone.Cicerone
 import ru.terrakok.cicerone.NavigatorHolder
 import ru.terrakok.cicerone.Router
@@ -17,7 +18,7 @@ import ru.terrakok.cicerone.android.support.SupportAppNavigator
 import javax.inject.Inject
 
 
-class MainActivity : MvpAppCompatActivity()
+class MainActivity : MvpAppCompatActivity(), FragmentProvider
 {
     @Inject
     lateinit var cicerone: Cicerone<Router>
@@ -49,10 +50,7 @@ class MainActivity : MvpAppCompatActivity()
 
         setSystemUiVisibility()
 
-        val currentFragment: Fragment? =
-            supportFragmentManager.findFragmentById(R.id.main_container)
-
-        if (currentFragment == null)
+        if (getCurrentFragment() == null)
             routerCicerone.newRootScreen(ListCurrencyRateScreen())
     }
 
@@ -74,5 +72,10 @@ class MainActivity : MvpAppCompatActivity()
             window.decorView.systemUiVisibility
                     or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
         )
+    }
+
+    override fun getCurrentFragment(): Fragment?
+    {
+        return supportFragmentManager.findFragmentById(R.id.main_container)
     }
 }
