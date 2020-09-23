@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
+
+    <View
+        android:layout_width="30dp"
+        android:layout_height="4dp"
+        android:background="@drawable/shape_drag_indicator"
+        android:layout_marginTop="8dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:textColor="#000"
+        android:textSize="18sp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:text="@string/select_base_currency"
+        android:fontFamily="sans-serif-medium"/>
+
+    <androidx.appcompat.widget.AppCompatEditText
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:textColor="#7B7B7B"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:hint="@string/name_currency_or_index"
+        android:textColorHint="#7b7b7b"
+        android:textSize="16sp"
+        android:background="@drawable/shape_bg_search_ed" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="16dp"
+        android:background="#EAEAEA"/>
+
+    <com.airbnb.epoxy.EpoxyRecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/currency_list"
+        app:itemSpacing="16dp"/>
+
+</LinearLayout>

@@ -22,10 +22,11 @@ import ru.fasdev.ratex.databinding.ListCurrencyRateFragmentBinding
 import ru.fasdev.ratex.domain.currencyRate.entity.RateCurrencyDomain
 import ru.fasdev.ratex.ui.adapter.epoxy.listCurrencyRate.ListCurrencyRateController
 import ru.fasdev.ratex.ui.view.activityMain.MainActivity
+import ru.fasdev.ratex.ui.view.bottomSheetSelectCurrency.SelectCurrencyBottomSheet
 import javax.inject.Inject
 import javax.inject.Provider
 
-class ListCurrencyRateFragment : MvpAppCompatFragment(), ListCurrencyRateView
+class ListCurrencyRateFragment : MvpAppCompatFragment(), ListCurrencyRateView, View.OnClickListener
 {
     companion object
     {
@@ -75,6 +76,8 @@ class ListCurrencyRateFragment : MvpAppCompatFragment(), ListCurrencyRateView
             presenter.loadExchangeRates()
         }
 
+        binding.layoutBaseCurrency.setOnClickListener(this)
+
         binding.listCurrency.layoutManager = LinearLayoutManager(requireContext())
         binding.listCurrency.setController(listRateController)
 
@@ -104,5 +107,15 @@ class ListCurrencyRateFragment : MvpAppCompatFragment(), ListCurrencyRateView
     override fun setNetworkError(message: String)
     {
         Toast.makeText(appCompactActivity, message, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onClick(view: View?)
+    {
+        when (view?.id)
+        {
+            R.id.layout_base_currency -> {
+                SelectCurrencyBottomSheet.show(childFragmentManager)
+            }
+        }
     }
 }

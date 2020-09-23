@@ -1,13 +1,8 @@
 package ru.fasdev.ratex.ui.adapter.epoxy.listCurrencyRate
 
-import android.app.Activity
-import android.content.Context
-import android.graphics.drawable.PictureDrawable
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
 import com.airbnb.epoxy.EpoxyAttribute
 import com.airbnb.epoxy.EpoxyHolder
 import com.airbnb.epoxy.EpoxyModelClass
@@ -16,13 +11,10 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.MultiTransformation
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
 import ru.fasdev.ratex.R
 import ru.fasdev.ratex.app.util.dp
 import ru.fasdev.ratex.domain.currencyRate.entity.RateCurrencyDomain
-import ru.fasdev.ratex.ui.view.activityMain.MainActivity
-import ru.fasdev.ratex.ui.view.provider.FragmentProvider
 import java.text.DecimalFormat
 
 @EpoxyModelClass(layout = R.layout.item_currency_rate)

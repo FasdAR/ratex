@@ -13,4 +13,16 @@
 
         <item name="android:windowBackground">@color/colorBackground</item>
     </style>
+
+    <style name="BaseBottomSheet" parent="Theme.Design.BottomSheetDialog">
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@color/colorSystemUi</item>
+        <item name="android:backgroundDimAmount">.3</item>
+        <item name="bottomSheetStyle">@style/BaseBottomSheetStyle</item>
+    </style>
+
+    <style name="BaseBottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@drawable/shape_bg_bottom_sheet</item>
+    </style>
 </resources>

@@ -27,6 +27,7 @@
                 android:paddingLeft="16dp"
                 android:paddingRight="16dp"
                 android:paddingBottom="16dp"
+                android:background="@drawable/shape_ripple_bg_layout_base_currency"
                 android:id="@+id/layout_base_currency">
 
                 <TextView

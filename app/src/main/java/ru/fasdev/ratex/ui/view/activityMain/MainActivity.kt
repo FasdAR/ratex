@@ -10,7 +10,7 @@ import ru.fasdev.ratex.app.di.component.DaggerActivityComponent
 import ru.fasdev.ratex.app.di.module.activity.ActivityModule
 import ru.fasdev.ratex.app.di.module.activity.CiceroneModule
 import ru.fasdev.ratex.ui.view.fragmentListCurrencyRate.ListCurrencyRateScreen
-import ru.fasdev.ratex.ui.view.provider.FragmentProvider
+import ru.fasdev.ratex.ui.provider.FragmentProvider
 import ru.terrakok.cicerone.Cicerone
 import ru.terrakok.cicerone.NavigatorHolder
 import ru.terrakok.cicerone.Router
