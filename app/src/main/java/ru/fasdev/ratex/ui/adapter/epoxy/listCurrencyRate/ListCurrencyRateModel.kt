@@ -14,7 +14,7 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
 import ru.fasdev.ratex.R
 import ru.fasdev.ratex.app.util.dp
-import ru.fasdev.ratex.domain.currencyRate.entity.RateCurrencyDomain
+import ru.fasdev.ratex.domain.currency.entity.RateCurrencyDomain
 import java.text.DecimalFormat
 
 @EpoxyModelClass(layout = R.layout.item_currency_rate)

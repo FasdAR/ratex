@@ -3,11 +3,10 @@ package ru.fasdev.ratex.ui.view.fragmentListCurrencyRate
 import android.util.Log
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 import moxy.MvpPresenter
-import ru.fasdev.ratex.domain.currencyRate.boundaries.CurrencyRateInteractor
+import ru.fasdev.ratex.domain.currency.boundaries.interactor.CurrencyRateInteractor
 import javax.inject.Inject
 
 class ListCurrencyRatePresenter @Inject constructor(val currencyRateInteractor: CurrencyRateInteractor)

@@ -3,7 +3,7 @@ package ru.fasdev.ratex.app.di.component
 import dagger.Component
 import ru.fasdev.ratex.app.di.module.currencyRate.CurrencyRateModule
 import ru.fasdev.ratex.app.di.scope.FragmentScope
-import ru.fasdev.ratex.domain.currencyRate.boundaries.CurrencyRateInteractor
+import ru.fasdev.ratex.domain.currency.boundaries.interactor.CurrencyRateInteractor
 import ru.fasdev.ratex.domain.main.boundaries.SharedPrefencesRepo
 import ru.fasdev.ratex.ui.view.fragmentListCurrencyRate.ListCurrencyRateFragment
 

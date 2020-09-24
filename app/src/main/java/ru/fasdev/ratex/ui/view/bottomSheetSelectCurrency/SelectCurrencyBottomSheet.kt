@@ -2,21 +2,18 @@ package ru.fasdev.ratex.ui.view.bottomSheetSelectCurrency
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.widget.addTextChangedListener
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import moxy.MvpBottomSheetDialogFragment
 import moxy.ktx.moxyPresenter
 import ru.fasdev.ratex.R
 import ru.fasdev.ratex.app.di.component.DaggerSelectCurrencyBottomSheetComponent
 import ru.fasdev.ratex.databinding.SelectCurrencyBottomSheetBinding
-import ru.fasdev.ratex.domain.currencyRate.entity.CurrencyDomain
+import ru.fasdev.ratex.domain.currency.entity.CurrencyDomain
 import ru.fasdev.ratex.ui.adapter.epoxy.listSelectCurrency.ListSelectCurrencyController
 import ru.fasdev.ratex.ui.view.fragmentListCurrencyRate.ListCurrencyRateFragment
 import javax.inject.Inject

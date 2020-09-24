@@ -2,8 +2,6 @@ package ru.fasdev.ratex.ui.view.fragmentListCurrencyRate
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,15 +9,13 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
-import dev.chrisbanes.insetter.applySystemGestureInsetsToMargin
-import dev.chrisbanes.insetter.applySystemWindowInsetsToMargin
 import dev.chrisbanes.insetter.applySystemWindowInsetsToPadding
 import moxy.MvpAppCompatFragment
 import moxy.ktx.moxyPresenter
 import ru.fasdev.ratex.R
 import ru.fasdev.ratex.app.di.component.DaggerFragmentListCurrencyRateComponent
 import ru.fasdev.ratex.databinding.ListCurrencyRateFragmentBinding
-import ru.fasdev.ratex.domain.currencyRate.entity.RateCurrencyDomain
+import ru.fasdev.ratex.domain.currency.entity.RateCurrencyDomain
 import ru.fasdev.ratex.ui.adapter.epoxy.listCurrencyRate.ListCurrencyRateController
 import ru.fasdev.ratex.ui.view.activityMain.MainActivity
 import ru.fasdev.ratex.ui.view.bottomSheetSelectCurrency.SelectCurrencyBottomSheet

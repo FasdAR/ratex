@@ -1,8 +1,8 @@
-package ru.fasdev.ratex.domain.currencyRate.entity
+package ru.fasdev.ratex.domain.currency.entity
 
 import junit.framework.Assert.*
 import org.junit.Test
-import ru.fasdev.ratex.domain.currencyRate.entity.extension.toCurrencyDomain
+import ru.fasdev.ratex.domain.currency.entity.extension.toCurrencyDomain
 import java.util.*
 
 class CurrencyDomainTest {

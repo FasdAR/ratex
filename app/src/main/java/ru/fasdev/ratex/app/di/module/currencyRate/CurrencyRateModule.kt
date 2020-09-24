@@ -4,13 +4,12 @@ import dagger.Module
 import dagger.Provides
 import retrofit2.Retrofit
 import ru.fasdev.ratex.app.di.scope.FragmentScope
-import ru.fasdev.ratex.currencyRate.FlagCdnProviderImpl
+import ru.fasdev.ratex.currencyRate.FlagCdnRepoImpl
 import ru.fasdev.ratex.data.retrofit.exchangeRates.ExchangeRateApi
-import ru.fasdev.ratex.data.retrofit.exchangeRates.ExchangeRateRepoImpl
-import ru.fasdev.ratex.domain.currencyRate.boundaries.CurrencyImageProvider
-import ru.fasdev.ratex.domain.currencyRate.boundaries.CurrencyRateInteractor
-import ru.fasdev.ratex.domain.currencyRate.boundaries.CurrencyRateRepo
-import ru.fasdev.ratex.domain.currencyRate.interactor.CurrencyRateInteractorImpl
+import ru.fasdev.ratex.domain.currency.boundaries.repo.CurrencyImageRepo
+import ru.fasdev.ratex.domain.currency.boundaries.interactor.CurrencyRateInteractor
+import ru.fasdev.ratex.domain.currency.boundaries.repo.CurrencyRateRepo
+import ru.fasdev.ratex.domain.currency.interactor.CurrencyRateInteractorImpl
 import ru.fasdev.ratex.domain.main.boundaries.SharedPrefencesRepo
 
 @Module
@@ -22,13 +21,13 @@ class CurrencyRateModule
 
     @Provides
     @FragmentScope
-    fun provideCurrencyImageProvider(): CurrencyImageProvider = FlagCdnProviderImpl()
+    fun provideCurrencyImageProvider(): CurrencyImageRepo = FlagCdnRepoImpl()
 
     @Provides
     @FragmentScope
-    fun provideRateRepo(exchangeRateApi: ExchangeRateApi, currencyImageProvider: CurrencyImageProvider): CurrencyRateRepo = ExchangeRateRepoImpl(exchangeRateApi, currencyImageProvider)
+    fun provideRateRepo(exchangeRateApi: ExchangeRateApi, currencyImageProvider: CurrencyImageRepo): CurrencyRateRepo = ExchangeRateRepoImpl(exchangeRateApi, currencyImageProvider)
 
     @Provides
     @FragmentScope
-    fun provideCurrencyRateInteractor(currencyRateRepo: CurrencyRateRepo, sharedPrefencesRepo: SharedPrefencesRepo, currencyImageProvider: CurrencyImageProvider) : CurrencyRateInteractor = CurrencyRateInteractorImpl(currencyRateRepo, sharedPrefencesRepo, currencyImageProvider)
+    fun provideCurrencyRateInteractor(currencyRateRepo: CurrencyRateRepo, sharedPrefencesRepo: SharedPrefencesRepo, currencyImageProvider: CurrencyImageRepo) : CurrencyRateInteractor = CurrencyRateInteractorImpl(currencyRateRepo, sharedPrefencesRepo, currencyImageProvider)
 }

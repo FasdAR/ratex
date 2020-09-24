@@ -1,8 +1,8 @@
 package ru.fasdev.ratex.currencyRate
 
-import ru.fasdev.ratex.domain.currencyRate.boundaries.CurrencyImageProvider
+import ru.fasdev.ratex.domain.currency.boundaries.repo.CurrencyImageRepo
 
-class FlagCdnProviderImpl : CurrencyImageProvider
+class FlagCdnRepoImpl : CurrencyImageRepo
 {
     override fun getImageUrl(currencyCode: String): String
     {

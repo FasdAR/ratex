@@ -1,6 +1,6 @@
-package ru.fasdev.ratex.domain.currencyRate.entity.extension
+package ru.fasdev.ratex.domain.currency.entity.extension
 
-import ru.fasdev.ratex.domain.currencyRate.entity.CurrencyDomain
+import ru.fasdev.ratex.domain.currency.entity.CurrencyDomain
 import java.util.*
 
 fun Currency.toCurrencyDomain(): CurrencyDomain = CurrencyDomain(currencyCode, symbol, displayName, null)

@@ -1,7 +1,7 @@
 package ru.fasdev.ratex.ui.adapter.epoxy.listSelectCurrency
 
 import com.airbnb.epoxy.TypedEpoxyController
-import ru.fasdev.ratex.domain.currencyRate.entity.CurrencyDomain
+import ru.fasdev.ratex.domain.currency.entity.CurrencyDomain
 
 class ListSelectCurrencyController : TypedEpoxyController<List<CurrencyDomain>>()
 {

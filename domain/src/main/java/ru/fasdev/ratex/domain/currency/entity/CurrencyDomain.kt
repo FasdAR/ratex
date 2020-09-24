@@ -1,7 +1,7 @@
-package ru.fasdev.ratex.domain.currencyRate.entity
+package ru.fasdev.ratex.domain.currency.entity
 
-import ru.fasdev.ratex.domain.currencyRate.boundaries.CurrencyImageProvider
-import ru.fasdev.ratex.domain.currencyRate.entity.extension.toCurrencyDomain
+import ru.fasdev.ratex.domain.currency.boundaries.repo.CurrencyImageRepo
+import ru.fasdev.ratex.domain.currency.entity.extension.toCurrencyDomain
 import java.util.*
 
 class CurrencyDomain(val currencyCode: String, val symbol: String, displayName: String, val urlImage: String?)
@@ -15,7 +15,7 @@ class CurrencyDomain(val currencyCode: String, val symbol: String, displayName: 
     companion object {
         fun getInstance(currencyCode: String): CurrencyDomain = Currency.getInstance(currencyCode).toCurrencyDomain()
 
-        fun getInstance(currencyCode: String, imageProvider: CurrencyImageProvider): CurrencyDomain
+        fun getInstance(currencyCode: String, imageProvider: CurrencyImageRepo): CurrencyDomain
         {
             return Currency
                 .getInstance(currencyCode)

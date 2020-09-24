@@ -8,7 +8,7 @@ import com.airbnb.epoxy.EpoxyHolder
 import com.airbnb.epoxy.EpoxyModelClass
 import com.airbnb.epoxy.EpoxyModelWithHolder
 import ru.fasdev.ratex.R
-import ru.fasdev.ratex.domain.currencyRate.entity.CurrencyDomain
+import ru.fasdev.ratex.domain.currency.entity.CurrencyDomain
 
 @EpoxyModelClass(layout = R.layout.item_currency_select)
 abstract class ListSelectCurrencyModel : EpoxyModelWithHolder<ListSelectCurrencyModel.Holder>()
