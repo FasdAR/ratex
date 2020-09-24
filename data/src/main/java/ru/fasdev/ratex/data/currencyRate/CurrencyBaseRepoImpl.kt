@@ -1,4 +1,4 @@
-package ru.fasdev.ratex.currencyRate
+package ru.fasdev.ratex.data.currencyRate
 
 import io.reactivex.Observable
 import io.reactivex.Single

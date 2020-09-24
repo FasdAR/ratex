@@ -1,4 +1,4 @@
-package ru.fasdev.ratex.currencyRate
+package ru.fasdev.ratex.data.currencyRate
 
 import com.google.gson.JsonElement
 import com.google.gson.JsonParser
@@ -9,9 +9,6 @@ import ru.fasdev.ratex.domain.currency.boundaries.repo.CurrencyImageRepo
 import ru.fasdev.ratex.domain.currency.boundaries.repo.CurrencyRateRepo
 import ru.fasdev.ratex.domain.currency.entity.CurrencyDomain
 import ru.fasdev.ratex.domain.currency.entity.RateCurrencyDomain
-import ru.fasdev.ratex.domain.currency.entity.extension.toCurrencyDomain
-import ru.fasdev.ratex.domain.main.boundaries.SharedPrefencesRepo
-import java.util.*
 
 class CurrencyRateRepoImpl (val exchangeRateApi: ExchangeRateApi, val currencyBaseRepo: CurrencyBaseRepo, val currencyImageRepo: CurrencyImageRepo):
     CurrencyRateRepo

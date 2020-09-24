@@ -4,7 +4,7 @@ import dagger.Module
 import dagger.Provides
 import retrofit2.Retrofit
 import ru.fasdev.ratex.app.di.scope.FragmentScope
-import ru.fasdev.ratex.currencyRate.FlagCdnRepoImpl
+import ru.fasdev.ratex.data.currencyRate.FlagCdnRepoImpl
 import ru.fasdev.ratex.data.retrofit.exchangeRates.ExchangeRateApi
 import ru.fasdev.ratex.domain.currency.boundaries.repo.CurrencyImageRepo
 import ru.fasdev.ratex.domain.currency.boundaries.interactor.CurrencyRateInteractor

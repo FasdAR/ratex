@@ -1,4 +1,4 @@
-package ru.fasdev.ratex.currencyRate
+package ru.fasdev.ratex.data.currencyRate
 
 import ru.fasdev.ratex.domain.currency.boundaries.repo.CurrencyImageRepo
 
