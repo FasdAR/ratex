@@ -2,6 +2,7 @@ package ru.fasdev.ratex.domain.currency
 
 import io.reactivex.Single
 import io.reactivex.observers.TestObserver
+import junit.framework.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
@@ -83,8 +84,6 @@ class CurrencyBaseInteractorTest
     @Test
     fun testSearchAvailableCurrenciesCode()
     {
-        val testObserver: TestObserver<List<CurrencyDomain>> = TestObserver()
-
         val findCurrency: CurrencyDomain = CurrencyDomain.getInstance("EUR")
 
         val testData: MutableList<CurrencyDomain> = arrayListOf(
@@ -93,19 +92,14 @@ class CurrencyBaseInteractorTest
             CurrencyDomain.getInstance("EUR")
         )
 
-        Mockito.`when`(currencyBaseRepo.getAvailableCurrencies()).thenReturn(Single.just(testData))
+        val result = currencyBaseInteractor.filterSearchAvailbaleCurrenciesNameCode(testData, findCurrency.currencyCode)
 
-        currencyBaseInteractor.searchAvailableCurrenciesNameCode(findCurrency.currencyCode).subscribe(testObserver)
-
-        testObserver.assertComplete()
-        testObserver.assertValue{ it-> it.get(0).displayName == findCurrency.displayName}
+        assertTrue(result.get(0).displayName == findCurrency.displayName)
     }
 
     @Test
     fun testSearchAvailableCurrenciesName()
     {
-        val testObserver: TestObserver<List<CurrencyDomain>> = TestObserver()
-
         val findCurrency: CurrencyDomain = CurrencyDomain.getInstance("EUR")
 
         val testData: MutableList<CurrencyDomain> = arrayListOf(
@@ -114,19 +108,14 @@ class CurrencyBaseInteractorTest
             CurrencyDomain.getInstance("EUR")
         )
 
-        Mockito.`when`(currencyBaseRepo.getAvailableCurrencies()).thenReturn(Single.just(testData))
+        val result = currencyBaseInteractor.filterSearchAvailbaleCurrenciesNameCode(testData, findCurrency.displayName.substring(0, 3))
 
-        currencyBaseInteractor.searchAvailableCurrenciesNameCode(findCurrency.displayName.substring(0, 3)).subscribe(testObserver)
-
-        testObserver.assertComplete()
-        testObserver.assertValue{ it-> it.get(0).displayName == findCurrency.displayName}
+        assertTrue(result.get(0).displayName == findCurrency.displayName)
     }
 
     @Test
     fun testSearchAvailableCurrenciesNull()
     {
-        val testObserver: TestObserver<List<CurrencyDomain>> = TestObserver()
-
         val findCurrency: CurrencyDomain = CurrencyDomain.getInstance("EUR")
 
         val testData: MutableList<CurrencyDomain> = arrayListOf(
@@ -135,11 +124,8 @@ class CurrencyBaseInteractorTest
             CurrencyDomain.getInstance("EUR")
         )
 
-        Mockito.`when`(currencyBaseRepo.getAvailableCurrencies()).thenReturn(Single.just(testData))
+        val result = currencyBaseInteractor.filterSearchAvailbaleCurrenciesNameCode(testData, findCurrency.displayName.substring(0, 2))
 
-        currencyBaseInteractor.searchAvailableCurrenciesNameCode(findCurrency.displayName.substring(0, 2)).subscribe(testObserver)
-
-        testObserver.assertComplete()
-        testObserver.assertValue{ it-> it.isNullOrEmpty()}
+        assertTrue(result.isEmpty())
     }
 }

@@ -6,10 +6,12 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 import moxy.MvpPresenter
+import ru.fasdev.ratex.domain.currency.boundaries.interactor.CurrencyBaseInteractor
 import ru.fasdev.ratex.domain.currency.boundaries.interactor.CurrencyRateInteractor
+import ru.fasdev.ratex.domain.currency.boundaries.repo.CurrencyBaseRepo
 import javax.inject.Inject
 
-class ListCurrencyRatePresenter @Inject constructor(val currencyRateInteractor: CurrencyRateInteractor)
+class ListCurrencyRatePresenter @Inject constructor(val currencyBaseInteractor: CurrencyBaseInteractor, val currencyRateInteractor: CurrencyRateInteractor)
     : MvpPresenter<ListCurrencyRateView>()
 {
     var disposables: CompositeDisposable = CompositeDisposable()
@@ -19,7 +21,7 @@ class ListCurrencyRatePresenter @Inject constructor(val currencyRateInteractor: 
         super.onFirstViewAttach()
 
         disposables.add(
-            currencyRateInteractor
+            currencyBaseInteractor
             .getBaseCurrency()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())

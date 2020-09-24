@@ -26,18 +26,20 @@ class CurrencyBaseInteractorImpl(val currencyBaseRepo: CurrencyBaseRepo) : Curre
             } }
     }
 
-    override fun searchAvailableCurrenciesNameCode(name: String): Single<List<CurrencyDomain>>
+    override fun filterSearchAvailbaleCurrenciesNameCode(list: List<CurrencyDomain>, nameCode: String?): List<CurrencyDomain>
     {
-        val name = name.toLowerCase()
+        if (nameCode.isNullOrEmpty()) {
+            return list
+        }
+        else
+        {
+            val name = nameCode.toLowerCase()
 
-        return currencyBaseRepo.getAvailableCurrencies()
-            .flatMapObservable{
-                if (name.length > 2)
-                    Observable.fromIterable(it)
-                        .filter { it -> it.displayName.toLowerCase().contains(name) || it.currencyCode.toLowerCase().contains(name) }
-                else
-                    Observable.empty()
+            if (name.length > 2)
+            {
+                return list.filter { it -> it.displayName.toLowerCase().contains(name) || it.currencyCode.toLowerCase().contains(name) }
             }
-            .toList()
+            return emptyList()
+        }
     }
 }
