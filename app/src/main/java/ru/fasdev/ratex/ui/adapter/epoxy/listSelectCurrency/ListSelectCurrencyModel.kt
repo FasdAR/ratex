@@ -27,8 +27,12 @@ abstract class ListSelectCurrencyModel : EpoxyModelWithHolder<ListSelectCurrency
     @EpoxyAttribute
     lateinit var currency: CurrencyDomain
 
+    @EpoxyAttribute
+    var selectedState: Boolean = false
+
     override fun bind(holder: Holder)
     {
         holder.nameCurrency.setText(currency.displayName)
+        holder.checkBox.isChecked = selectedState
     }
 }

@@ -7,5 +7,5 @@ import ru.fasdev.ratex.domain.currency.entity.CurrencyDomain
 @AddToEndSingle
 interface SelectCurrencyView: MvpView
 {
-    fun setListCurrency(list: List<CurrencyDomain>)
+    fun setListCurrency(list: List<CurrencyDomain>, baseCurrency: CurrencyDomain)
 }

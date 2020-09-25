@@ -94,8 +94,8 @@ class SelectCurrencyBottomSheet : MvpBottomSheetDialogFragment(), SelectCurrency
 
     override fun getTheme(): Int = R.style.BaseBottomSheet
 
-    override fun setListCurrency(list: List<CurrencyDomain>)
+    override fun setListCurrency(list: List<CurrencyDomain>, baseCurrency: CurrencyDomain)
     {
-        listSelectCurrenyController.setData(list)
+        listSelectCurrenyController.setData(list, baseCurrency)
     }
 }

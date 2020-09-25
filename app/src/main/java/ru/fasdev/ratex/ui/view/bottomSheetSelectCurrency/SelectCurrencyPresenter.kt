@@ -1,6 +1,7 @@
 package ru.fasdev.ratex.ui.view.bottomSheetSelectCurrency
 
 import android.util.Log
+import io.reactivex.SingleSource
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.subscribeBy
@@ -8,6 +9,7 @@ import io.reactivex.schedulers.Schedulers
 import moxy.MvpPresenter
 import ru.fasdev.ratex.domain.currency.boundaries.interactor.CurrencyBaseInteractor
 import ru.fasdev.ratex.domain.currency.boundaries.interactor.CurrencyRateInteractor
+import ru.fasdev.ratex.domain.currency.entity.CurrencyDomain
 import javax.inject.Inject
 
 class SelectCurrencyPresenter @Inject constructor(val currencyBaseInteractor: CurrencyBaseInteractor): MvpPresenter<SelectCurrencyView>()
@@ -38,8 +40,10 @@ class SelectCurrencyPresenter @Inject constructor(val currencyBaseInteractor: Cu
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy(
-                    onSuccess = {
-                        viewState.setListCurrency(it)
+                    onSuccess = {list->
+                        currencyBaseInteractor.getBaseCurrency().subscribeBy {
+                            viewState.setListCurrency(list, it)
+                        }
                     },
                     onError = {
                         //TODO: SET NORMAL ERRRO to VIEW
