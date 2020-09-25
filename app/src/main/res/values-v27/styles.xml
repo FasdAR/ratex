@@ -20,6 +20,7 @@
         <item name="android:navigationBarColor">@color/colorSystemUi</item>
         <item name="android:backgroundDimAmount">.3</item>
         <item name="bottomSheetStyle">@style/BaseBottomSheetStyle</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
     </style>
 
     <style name="BaseBottomSheetStyle" parent="Widget.Design.BottomSheet.Modal">

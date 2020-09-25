@@ -89,12 +89,6 @@ class SelectCurrencyBottomSheet : MvpBottomSheetDialogFragment(), SelectCurrency
             presenter.searchCurrency(text.toString())
         }
 
-        binding.currencyList.post {
-            binding.currencyList.layoutParams = binding.currencyList.layoutParams.apply {
-                height = ViewGroup.LayoutParams.MATCH_PARENT
-            }
-        }
-
         return binding.root
     }
 
