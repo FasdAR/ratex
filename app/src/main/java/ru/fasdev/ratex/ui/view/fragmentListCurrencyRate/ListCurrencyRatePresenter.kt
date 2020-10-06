@@ -60,7 +60,6 @@ class ListCurrencyRatePresenter @Inject constructor(val currencyBaseInteractor: 
                     viewState.setRefreshingState(true)
                 }
                 .doFinally {
-                    Log.d("RX", "FINNALY")
                     viewState.setRefreshingState(false)
                 }
                 .subscribeBy (
