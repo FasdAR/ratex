@@ -18,7 +18,7 @@
         android:text="Австралийский доллар"
         android:layout_weight="1"/>
 
-    <CheckBox
+    <RadioButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/selected_checkbox"

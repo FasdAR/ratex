@@ -23,11 +23,13 @@ class SelectCurrencyPresenter @Inject constructor(val currencyBaseInteractor: Cu
         super.onFirstViewAttach()
 
         loadAvailableCurrencies()
+
     }
 
     fun searchCurrency(text: String)
     {
         filterSearchCurrency = text
+
         loadAvailableCurrencies()
     }
 
@@ -41,15 +43,25 @@ class SelectCurrencyPresenter @Inject constructor(val currencyBaseInteractor: Cu
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy(
                     onSuccess = {list->
+                        //TODO: CHANGE TO ZIP
                         currencyBaseInteractor.getBaseCurrency().subscribeBy {
                             viewState.setListCurrency(list, it)
                         }
                     },
                     onError = {
-                        //TODO: SET NORMAL ERRRO to VIEW
+                        //TODO: SET NORMAL ERROR to VIEW
                         Log.d("ERROR", it.toString())
                     }
                 )
         )
+    }
+
+    fun selectedCurrency(isChecked: Boolean, currencyDomain: CurrencyDomain)
+    {
+        if (isChecked) {
+            currencyBaseInteractor.setBaseCurrency(currencyDomain)
+
+            loadAvailableCurrencies()
+        }
     }
 }

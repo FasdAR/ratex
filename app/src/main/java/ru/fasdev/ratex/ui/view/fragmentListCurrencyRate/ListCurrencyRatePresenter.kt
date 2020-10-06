@@ -20,22 +20,7 @@ class ListCurrencyRatePresenter @Inject constructor(val currencyBaseInteractor: 
     {
         super.onFirstViewAttach()
 
-        disposables.add(
-            currencyBaseInteractor
-            .getBaseCurrency()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribeBy(
-                onSuccess = {
-                    viewState.setBaseCurrency(it.currencyCode)
-                },
-                onError = {
-                    //TOOD: SEt NORMAL ERROR TO VIEW
-                    Log.e("ERROR", it.toString())
-                }
-            )
-        )
-
+        getBaseCurrency()
         loadExchangeRates()
     }
 
@@ -43,6 +28,25 @@ class ListCurrencyRatePresenter @Inject constructor(val currencyBaseInteractor: 
         super.onDestroy()
 
         disposables.dispose()
+    }
+
+    fun getBaseCurrency()
+    {
+        disposables.add(
+            currencyBaseInteractor
+                .getBaseCurrency()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeBy(
+                    onSuccess = {
+                        viewState.setBaseCurrency(it.currencyCode)
+                    },
+                    onError = {
+                        //TOOD: SEt NORMAL ERROR TO VIEW
+                        Log.e("ERROR", it.toString())
+                    }
+                )
+        )
     }
 
     fun loadExchangeRates()

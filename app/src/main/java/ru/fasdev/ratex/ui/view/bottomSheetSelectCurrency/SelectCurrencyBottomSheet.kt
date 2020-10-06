@@ -3,11 +3,13 @@ package ru.fasdev.ratex.ui.view.bottomSheetSelectCurrency
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.core.widget.doOnTextChanged
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -19,12 +21,13 @@ import ru.fasdev.ratex.app.util.dp
 import ru.fasdev.ratex.databinding.SelectCurrencyBottomSheetBinding
 import ru.fasdev.ratex.domain.currency.entity.CurrencyDomain
 import ru.fasdev.ratex.ui.adapter.epoxy.listSelectCurrency.ListSelectCurrencyController
+import ru.fasdev.ratex.ui.adapter.epoxy.listSelectCurrency.ListSelectCurrencyModel
 import ru.fasdev.ratex.ui.view.fragmentListCurrencyRate.ListCurrencyRateFragment
 import javax.inject.Inject
 import javax.inject.Provider
 
 
-class SelectCurrencyBottomSheet : MvpBottomSheetDialogFragment(), SelectCurrencyView
+class SelectCurrencyBottomSheet : MvpBottomSheetDialogFragment(), SelectCurrencyView, ListSelectCurrencyModel.Listener
 {
     private lateinit var binding: SelectCurrencyBottomSheetBinding
 
@@ -39,7 +42,7 @@ class SelectCurrencyBottomSheet : MvpBottomSheetDialogFragment(), SelectCurrency
             .build()
     }
 
-    val listSelectCurrenyController: ListSelectCurrencyController = ListSelectCurrencyController()
+    val listSelectCurrenyController: ListSelectCurrencyController = ListSelectCurrencyController(this)
 
     companion object
     {
@@ -47,9 +50,11 @@ class SelectCurrencyBottomSheet : MvpBottomSheetDialogFragment(), SelectCurrency
 
         fun newInstance() = SelectCurrencyBottomSheet()
 
-        fun show(fragmentManager: FragmentManager) {
+        fun show(fragmentManager: FragmentManager): Fragment {
             val fragment = newInstance()
             fragment.show(fragmentManager, TAG)
+
+            return fragment
         }
     }
 
@@ -97,5 +102,10 @@ class SelectCurrencyBottomSheet : MvpBottomSheetDialogFragment(), SelectCurrency
     override fun setListCurrency(list: List<CurrencyDomain>, baseCurrency: CurrencyDomain)
     {
         listSelectCurrenyController.setData(list, baseCurrency)
+    }
+
+    override fun selectedCurrency(isChecked: Boolean, currencyDomain: CurrencyDomain)
+    {
+        presenter.selectedCurrency(isChecked, currencyDomain)
     }
 }

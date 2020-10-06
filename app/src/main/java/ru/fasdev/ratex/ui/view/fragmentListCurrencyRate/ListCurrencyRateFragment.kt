@@ -2,12 +2,16 @@ package ru.fasdev.ratex.ui.view.fragmentListCurrencyRate
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
 import androidx.recyclerview.widget.LinearLayoutManager
 import dev.chrisbanes.insetter.applySystemWindowInsetsToPadding
 import moxy.MvpAppCompatFragment
@@ -55,7 +59,11 @@ class ListCurrencyRateFragment : MvpAppCompatFragment(), ListCurrencyRateView, V
         fragmentListCurrencyComponent.inject(this)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View?
     {
         binding = ListCurrencyRateFragmentBinding.inflate(inflater)
 
@@ -85,6 +93,12 @@ class ListCurrencyRateFragment : MvpAppCompatFragment(), ListCurrencyRateView, V
         super.onActivityCreated(savedInstanceState)
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        Log.d("RESUMED", "SDDS")
+    }
+
     override fun setBaseCurrency(currency: String)
     {
         binding.baseCurrency.setText(currency)
@@ -110,7 +124,17 @@ class ListCurrencyRateFragment : MvpAppCompatFragment(), ListCurrencyRateView, V
         when (view?.id)
         {
             R.id.layout_base_currency -> {
-                SelectCurrencyBottomSheet.show(childFragmentManager)
+                val dialog = SelectCurrencyBottomSheet.show(childFragmentManager)
+
+                dialog.lifecycle.addObserver(object : LifecycleObserver
+                {
+                    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+                    fun destoryed()
+                    {
+                        presenter.getBaseCurrency()
+                        presenter.loadExchangeRates()
+                    }
+                })
             }
         }
     }

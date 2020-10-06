@@ -28,4 +28,12 @@ class CurrencyDomain(val currencyCode: String, val symbol: String, displayName: 
     override fun toString(): String {
         return "${currencyCode}, ${symbol}, ${displayName}, ${urlImage}"
     }
+
+    override fun hashCode(): Int {
+        return currencyCode.length + symbol.length + displayName.length + (urlImage?.length ?: 0)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return other.hashCode() == hashCode()
+    }
 }
