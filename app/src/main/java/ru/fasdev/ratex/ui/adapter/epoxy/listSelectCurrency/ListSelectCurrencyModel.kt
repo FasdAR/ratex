@@ -17,10 +17,12 @@ abstract class ListSelectCurrencyModel : EpoxyModelWithHolder<ListSelectCurrency
 {
     class Holder: EpoxyHolder()
     {
+        lateinit var rootView: View
         lateinit var nameCurrency: TextView
         lateinit var radioButton: RadioButton
 
         override fun bindView(itemView: View) {
+            rootView = itemView
             nameCurrency = itemView.findViewById(R.id.name_currency)
             radioButton = itemView.findViewById(R.id.selected_checkbox)
         }
@@ -46,7 +48,17 @@ abstract class ListSelectCurrencyModel : EpoxyModelWithHolder<ListSelectCurrency
         holder.radioButton.isChecked = selectedState
 
         holder.radioButton.setOnClickListener {
-            listener.selectedCurrency(holder.radioButton.isChecked, currency)
+            selectedCurrency(holder.radioButton.isChecked)
         }
+
+        holder.rootView.setOnClickListener {
+            holder.radioButton.isChecked = true
+
+            selectedCurrency(holder.radioButton.isChecked)
+        }
+    }
+
+    fun selectedCurrency(isChecked: Boolean) {
+        listener.selectedCurrency(isChecked, currency)
     }
 }
