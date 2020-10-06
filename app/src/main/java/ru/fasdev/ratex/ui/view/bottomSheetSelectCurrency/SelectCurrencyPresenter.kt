@@ -1,9 +1,14 @@
 package ru.fasdev.ratex.ui.view.bottomSheetSelectCurrency
 
 import android.util.Log
+import io.reactivex.Flowable
+import io.reactivex.Observable
+import io.reactivex.Single
 import io.reactivex.SingleSource
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.functions.BiFunction
+import io.reactivex.functions.Function
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 import moxy.MvpPresenter
@@ -36,23 +41,27 @@ class SelectCurrencyPresenter @Inject constructor(val currencyBaseInteractor: Cu
     private fun loadAvailableCurrencies()
     {
         disposables.add(
-            currencyBaseInteractor
-                .getAvailableCurrencies()
-                .map{it-> currencyBaseInteractor.filterSearchAvailbaleCurrenciesNameCode(it, filterSearchCurrency)}
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeBy(
-                    onSuccess = {list->
-                        //TODO: CHANGE TO ZIP
-                        currencyBaseInteractor.getBaseCurrency().subscribeBy {
-                            viewState.setListCurrency(list, it)
-                        }
-                    },
-                    onError = {
-                        //TODO: SET NORMAL ERROR to VIEW
-                        Log.d("ERROR", it.toString())
-                    }
-                )
+            Single.zip(currencyBaseInteractor.getAvailableCurrencies(), currencyBaseInteractor.getBaseCurrency(),
+                object : BiFunction<List<CurrencyDomain>, CurrencyDomain, Pair<CurrencyDomain, List<CurrencyDomain>>>
+            {
+                override fun apply(t1: List<CurrencyDomain>, t2: CurrencyDomain): Pair<CurrencyDomain, List<CurrencyDomain>>
+                {
+                    return Pair(t2, t1)
+                }
+            })
+            .flatMap {
+                Single.just(Pair(it.first, currencyBaseInteractor.filterSearchAvailbaleCurrenciesNameCode(it.second, filterSearchCurrency)))
+            }
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeBy(
+                onSuccess = {
+                    viewState.setListCurrency(it.second, it.first)
+                },
+                onError = {
+                    Log.d("ERROR", it.toString())
+                }
+            )
         )
     }
 
