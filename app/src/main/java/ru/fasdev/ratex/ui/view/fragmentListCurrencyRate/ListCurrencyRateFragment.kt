@@ -88,17 +88,6 @@ class ListCurrencyRateFragment : MvpAppCompatFragment(), ListCurrencyRateView, V
         return binding.root
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?)
-    {
-        super.onActivityCreated(savedInstanceState)
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        Log.d("RESUMED", "SDDS")
-    }
-
     override fun setBaseCurrency(currency: String)
     {
         binding.baseCurrency.setText(currency)
