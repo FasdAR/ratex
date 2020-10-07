@@ -23,43 +23,48 @@ class CurrencyBaseRepoImplTest
         sharedPrefencesRepo = Mockito.mock(SharedPrefencesRepo::class.java)
         currencyImageRepo = Mockito.mock(CurrencyImageRepo::class.java)
 
-        //Mockito.`when`(currencyImageRepo.getImageUrl("CAD")).thenReturn(null)
-
         currencyBaseRepo = CurrencyBaseRepoImpl(sharedPrefencesRepo, currencyImageRepo)
     }
 
     @Test
-    fun testGetBaseCurrencyNull()
+    fun testGetBaseCurrencyNullPreferences()
     {
         Mockito.`when`(sharedPrefencesRepo.getBaseCurrencyCode()).thenReturn(null)
 
+        val testLocale = Locale.US
+        Locale.setDefault(testLocale)
+
         val testObserver: TestObserver<CurrencyDomain> = TestObserver()
-        Locale.setDefault(Locale.US)
 
         currencyBaseRepo.getBaseCurrency().subscribe(testObserver)
 
-        testObserver.assertComplete()
-        testObserver.assertValue { it -> it.currencyCode == "USD" }
+        testObserver
+            .assertComplete()
+            .assertValue { it.currencyCode == Currency.getInstance(Locale.getDefault()).currencyCode }
     }
 
     @Test
-    fun testGetBaseCurrencyNotNull()
+    fun testGetBaseCurrency()
     {
-        Mockito.`when`(sharedPrefencesRepo.getBaseCurrencyCode()).thenReturn(Currency.getInstance(Locale.US).currencyCode)
+        val testLocale = Locale.US
+        Mockito.`when`(sharedPrefencesRepo.getBaseCurrencyCode()).thenReturn(Currency.getInstance(testLocale).currencyCode)
 
         val testObserver: TestObserver<CurrencyDomain> = TestObserver()
 
         currencyBaseRepo.getBaseCurrency().subscribe(testObserver)
 
-        testObserver.assertComplete()
-        testObserver.assertValue { it -> it.currencyCode == "USD" }
+        testObserver
+            .assertComplete()
+            .assertValue { it.currencyCode == Currency.getInstance(testLocale).currencyCode }
     }
 
     @Test
     fun testSetBaseCurrency()
     {
-        currencyBaseRepo.setBaseCurrency(CurrencyDomain.getInstance("RUB"))
-        Mockito.verify(sharedPrefencesRepo).setBaseCurrencyCode("RUB")
+        val testCurrencyCode = "RUB"
+        currencyBaseRepo.setBaseCurrency(CurrencyDomain.getInstance(testCurrencyCode))
+
+        Mockito.verify(sharedPrefencesRepo).setBaseCurrencyCode(testCurrencyCode)
     }
 
     @Test
@@ -69,8 +74,8 @@ class CurrencyBaseRepoImplTest
 
         currencyBaseRepo.getAvailableCurrencies().subscribe(testObserver)
 
-        testObserver.assertComplete()
-        testObserver.assertValue { it-> !it.isNullOrEmpty() }
-        testObserver.assertValue { it-> it.get(0).currencyCode == "CAD" }
+        testObserver
+            .assertComplete()
+            .assertValue { !it.isNullOrEmpty() }
     }
 }
