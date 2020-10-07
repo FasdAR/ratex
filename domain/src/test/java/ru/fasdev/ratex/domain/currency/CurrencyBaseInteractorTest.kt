@@ -2,7 +2,7 @@ package ru.fasdev.ratex.domain.currency
 
 import io.reactivex.Single
 import io.reactivex.observers.TestObserver
-import junit.framework.Assert.*
+
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test

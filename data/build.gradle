@@ -35,6 +35,7 @@ dependencies {
 
     //Test impl
     testImplementation "junit:junit:${rootProject.ext.ver.jUnit}"
+    testImplementation "org.assertj:assertj-core:${rootProject.ext.ver.assertJ}"
     testImplementation "org.robolectric:robolectric:${rootProject.ext.ver.robolectric}"
     testImplementation "androidx.test:core:${rootProject.ext.ver.androidXTestCore}"
     testImplementation "org.mockito:mockito-core:${rootProject.ext.ver.mockitoCore}"
