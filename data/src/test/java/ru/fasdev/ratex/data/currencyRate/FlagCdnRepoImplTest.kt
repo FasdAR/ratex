@@ -1,10 +1,11 @@
 package ru.fasdev.ratex.data.currencyRate
 
-import android.webkit.URLUtil
+import org.assertj.core.api.Assertions.assertThat
 import junit.framework.Assert.*
 import org.junit.Before
 import org.junit.Test
 import java.net.URL
+import java.util.concurrent.locks.Condition
 
 class FlagCdnRepoImplTest
 {
@@ -19,7 +20,10 @@ class FlagCdnRepoImplTest
     fun testGetImageUrl() {
         val url = flagCdnRepoImpl.getImageUrl("RUB")
 
-        assertTrue(url.endsWith("ru.jpg"))
-        assertTrue(URL(url).toURI() != null)
+        assertThat(url)
+            .endsWith("ru.jpg")
+
+        assertThat(URL(url).toURI())
+            .isNotNull()
     }
 }
