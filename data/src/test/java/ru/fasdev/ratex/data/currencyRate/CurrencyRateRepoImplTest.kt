@@ -11,7 +11,9 @@ import org.mockito.Mockito
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
-import ru.fasdev.ratex.data.retrofit.exchangeRates.ExchangeRateApi
+import ru.fasdev.ratex.data.currencyRate.repo.CurrencyRateRepoImpl
+import ru.fasdev.ratex.data.currencyRate.repo.FlagCdnRepoImpl
+import ru.fasdev.ratex.data.source.retrofit.exchangeRates.ExchangeRateApi
 import ru.fasdev.ratex.domain.currency.boundaries.repo.CurrencyBaseRepo
 import ru.fasdev.ratex.domain.currency.boundaries.repo.CurrencyRateRepo
 import ru.fasdev.ratex.domain.currency.entity.CurrencyDomain

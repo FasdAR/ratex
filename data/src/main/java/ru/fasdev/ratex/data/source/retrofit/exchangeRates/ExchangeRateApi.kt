@@ -1,8 +1,7 @@
-package ru.fasdev.ratex.data.retrofit.exchangeRates
+package ru.fasdev.ratex.data.source.retrofit.exchangeRates
 
 import io.reactivex.Single
 import okhttp3.ResponseBody
-import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Query
 

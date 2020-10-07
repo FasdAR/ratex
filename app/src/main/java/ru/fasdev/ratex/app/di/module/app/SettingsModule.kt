@@ -5,8 +5,8 @@ import android.content.SharedPreferences
 import dagger.Module
 import dagger.Provides
 import ru.fasdev.ratex.app.di.scope.AppScope
-import ru.fasdev.ratex.data.sharedPrefences.SPrefences
-import ru.fasdev.ratex.data.sharedPrefences.SharedPrefencesRepoImpl
+import ru.fasdev.ratex.data.source.sharedPrefences.SPrefences
+import ru.fasdev.ratex.data.source.sharedPrefences.SharedPrefencesRepoImpl
 import ru.fasdev.ratex.domain.main.boundaries.SharedPrefencesRepo
 
 @Module

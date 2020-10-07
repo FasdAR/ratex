@@ -1,4 +1,4 @@
-package ru.fasdev.ratex.data.sharedPrefences
+package ru.fasdev.ratex.data.source.sharedPrefences
 
 import ru.fasdev.ratex.domain.main.boundaries.SharedPrefencesRepo
 

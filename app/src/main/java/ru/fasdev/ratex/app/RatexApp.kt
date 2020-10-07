@@ -5,7 +5,7 @@ import ru.fasdev.ratex.app.di.component.AppComponent
 import ru.fasdev.ratex.app.di.component.DaggerAppComponent
 import ru.fasdev.ratex.app.di.module.app.AppModule
 import ru.fasdev.ratex.app.di.module.app.SettingsModule
-import ru.fasdev.ratex.data.sharedPrefences.SPrefences
+import ru.fasdev.ratex.data.source.sharedPrefences.SPrefences
 
 class RatexApp : Application()
 {

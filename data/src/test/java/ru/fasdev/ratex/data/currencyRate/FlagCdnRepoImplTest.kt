@@ -1,11 +1,10 @@
 package ru.fasdev.ratex.data.currencyRate
 
 import org.assertj.core.api.Assertions.assertThat
-import junit.framework.Assert.*
 import org.junit.Before
 import org.junit.Test
+import ru.fasdev.ratex.data.currencyRate.repo.FlagCdnRepoImpl
 import java.net.URL
-import java.util.concurrent.locks.Condition
 
 class FlagCdnRepoImplTest
 {

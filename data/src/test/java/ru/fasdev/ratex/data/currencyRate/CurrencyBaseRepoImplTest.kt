@@ -4,9 +4,9 @@ import io.reactivex.observers.TestObserver
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
+import ru.fasdev.ratex.data.currencyRate.repo.CurrencyBaseRepoImpl
 import ru.fasdev.ratex.domain.currency.boundaries.repo.CurrencyBaseRepo
 import ru.fasdev.ratex.domain.currency.boundaries.repo.CurrencyImageRepo
-import ru.fasdev.ratex.domain.currency.boundaries.repo.CurrencyRateRepo
 import ru.fasdev.ratex.domain.currency.entity.CurrencyDomain
 import ru.fasdev.ratex.domain.main.boundaries.SharedPrefencesRepo
 import java.util.*
