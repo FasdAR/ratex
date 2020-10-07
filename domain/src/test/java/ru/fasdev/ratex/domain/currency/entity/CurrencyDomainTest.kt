@@ -1,31 +1,37 @@
 package ru.fasdev.ratex.domain.currency.entity
 
 import junit.framework.Assert.*
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.tuple
 import org.junit.Test
 import ru.fasdev.ratex.domain.currency.entity.extension.toCurrencyDomain
 import java.util.*
 
-class CurrencyDomainTest {
-
+class CurrencyDomainTest
+{
     @Test
-    fun getInstance()
+    fun testInstance()
     {
-        val result = CurrencyDomain.getInstance("USD")
+        val testCurrencyCode = "USD"
 
-        assertNotNull(result)
-        assertEquals(result.symbol, "$")
+        val result = CurrencyDomain.getInstance(testCurrencyCode)
+
+        assertThat(result)
+            .isNotNull()
+            .extracting{ it.currencyCode }
+            .isEqualTo(testCurrencyCode)
     }
 
     @Test
-    fun toCurrencyDomain()
+    fun testConvertToCurrencyDomain()
     {
-        val currency = Currency.getInstance("USD")
-        val currencyDomain = currency.toCurrencyDomain()
+        val testCurrency = Currency.getInstance("USD")
+        val currencyDomain = testCurrency.toCurrencyDomain()
 
-        assertNotNull(currencyDomain)
+        assertThat(currencyDomain).isNotNull()
 
-        assertEquals(currencyDomain.symbol, currency.symbol)
-        assertEquals(currencyDomain.currencyCode, currency.currencyCode)
-        assertEquals(currencyDomain.displayName, currency.displayName)
+        assertThat(currencyDomain.currencyCode).isEqualTo(testCurrency.currencyCode)
+        assertThat(currencyDomain.symbol).isEqualTo(testCurrency.symbol)
+        assertThat(currencyDomain.displayName).isEqualTo(testCurrency.displayName)
     }
 }

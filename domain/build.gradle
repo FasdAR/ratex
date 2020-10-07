@@ -8,6 +8,7 @@ dependencies {
 
     testImplementation "junit:junit:${rootProject.ext.ver.jUnit}"
     testImplementation "org.mockito:mockito-core:${rootProject.ext.ver.mockitoCore}"
+    testImplementation "org.assertj:assertj-core:${rootProject.ext.ver.assertJ}"
 
     //RxJava
     implementation "io.reactivex.rxjava2:rxkotlin:${rootProject.ext.ver.rxKotlin}"
