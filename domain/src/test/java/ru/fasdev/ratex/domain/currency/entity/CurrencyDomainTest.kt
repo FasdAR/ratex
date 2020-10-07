@@ -34,4 +34,24 @@ class CurrencyDomainTest
         assertThat(currencyDomain.symbol).isEqualTo(testCurrency.symbol)
         assertThat(currencyDomain.displayName).isEqualTo(testCurrency.displayName)
     }
+
+    @Test
+    fun testEqualsTrue()
+    {
+        val testData = CurrencyDomain("USD", "$", "DOLLAR", null)
+        val testDataTwo = CurrencyDomain("USD", "$", "DOLLAR", null)
+
+        assertThat(testData.equals(testDataTwo))
+            .isTrue()
+    }
+
+    @Test
+    fun testEqualsFalse()
+    {
+        val testData = CurrencyDomain("USD", "$", "DOLLAR", null)
+        val testDataTwo = CurrencyDomain("SDD", "$", "DOLLAR", "httptpt")
+
+        assertThat(testData.equals(testDataTwo))
+            .isFalse()
+    }
 }
