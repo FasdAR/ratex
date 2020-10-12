@@ -10,7 +10,7 @@ import ru.fasdev.ratex.domain.currency.entity.CurrencyDomain
 import ru.fasdev.ratex.domain.main.boundaries.SharedPrefencesRepo
 import java.util.*
 
-class CurrencyBaseRepoImplTest
+class CurrencyBaseRepoTest
 {
     lateinit var sharedPrefencesRepo: SharedPrefencesRepo
     lateinit var currencyImageRepo: CurrencyImageRepo

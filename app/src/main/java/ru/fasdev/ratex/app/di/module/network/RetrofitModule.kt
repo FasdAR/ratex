@@ -24,7 +24,6 @@ class RetrofitModule
     @AppScope
     fun provideGsonConverterFactory(): GsonConverterFactory = GsonConverterFactory.create()
 
-
     @Provides
     @AppScope
     fun provideHttpLogginInteractor(): HttpLoggingInterceptor {

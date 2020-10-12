@@ -6,7 +6,7 @@ import org.junit.Test
 import ru.fasdev.ratex.data.currencyRate.repo.FlagCdnRepoImpl
 import java.net.URL
 
-class FlagCdnRepoImplTest
+class FlagCdnRepoTest
 {
     private lateinit var flagCdnRepoImpl: FlagCdnRepoImpl
 

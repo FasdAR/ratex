@@ -20,7 +20,7 @@ import ru.fasdev.ratex.domain.currency.entity.RateCurrencyDomain
 import java.util.concurrent.TimeUnit
 
 
-class CurrencyRateRepoImplTest
+class CurrencyRateRepoTest
 {
     private lateinit var currencyBaseRepo: CurrencyBaseRepo
     private lateinit var currencyRateDataStore: CurrencyRateDataStore
