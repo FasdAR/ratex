@@ -1,4 +1,4 @@
-package ru.fasdev.ratex.data.currencyRate
+package ru.fasdev.ratex.data.currencyRate.repo
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before

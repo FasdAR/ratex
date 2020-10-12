@@ -1,10 +1,9 @@
-package ru.fasdev.ratex.data.currencyRate
+package ru.fasdev.ratex.data.currencyRate.repo
 
 import io.reactivex.observers.TestObserver
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
-import ru.fasdev.ratex.data.currencyRate.repo.CurrencyBaseRepoImpl
 import ru.fasdev.ratex.domain.currency.boundaries.repo.CurrencyBaseRepo
 import ru.fasdev.ratex.domain.currency.boundaries.repo.CurrencyImageRepo
 import ru.fasdev.ratex.domain.currency.entity.CurrencyDomain
