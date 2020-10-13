@@ -44,6 +44,10 @@ dependencies {
     //Test impl
     testImplementation "junit:junit:${rootProject.ext.ver.jUnit}"
     androidTestImplementation "androidx.test.ext:junit:${rootProject.ext.ver.androidXJunit}"
+    testImplementation "org.assertj:assertj-core:${rootProject.ext.ver.assertJ}"
+    testImplementation "org.robolectric:robolectric:${rootProject.ext.ver.robolectric}"
+    testImplementation "androidx.test:core:${rootProject.ext.ver.androidXTestCore}"
+    testImplementation "org.mockito:mockito-core:${rootProject.ext.ver.mockitoCore}"
 
     /*
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
@@ -98,7 +102,6 @@ dependencies {
     implementation "com.squareup.okhttp3:logging-interceptor:${rootProject.ext.ver.okHttp}"
 
     //RxJava
-    //implementation "io.reactivex.rxjava2:rxjava:$rxjava_ver"
     implementation "io.reactivex.rxjava2:rxkotlin:${rootProject.ext.ver.rxKotlin}"
     implementation "io.reactivex.rxjava2:rxandroid:${rootProject.ext.ver.rxAndroid}"
 
