@@ -10,6 +10,7 @@ import io.reactivex.observers.TestObserver
 import io.reactivex.plugins.RxJavaPlugins
 import io.reactivex.schedulers.Schedulers
 import okhttp3.ResponseBody
+import org.junit.After
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
@@ -20,40 +21,60 @@ import ru.fasdev.ratex.domain.currency.boundaries.interactor.CurrencyBaseInterac
 import ru.fasdev.ratex.domain.currency.boundaries.interactor.CurrencyRateInteractor
 import ru.fasdev.ratex.domain.currency.entity.CurrencyDomain
 import ru.fasdev.ratex.domain.currency.entity.RateCurrencyDomain
-import ru.fasdev.ratex.ui.view.fragmentListCurrencyRate.ListCurrencyRatePresenter
-import ru.fasdev.ratex.ui.view.fragmentListCurrencyRate.`ListCurrencyRateView$$State`
 import java.lang.Exception
 import java.util.concurrent.Callable
 import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
-
+import org.mockito.Mockito.times
+import ru.fasdev.ratex.ui.view.fragmentListCurrencyRate.ListCurrencyRatePresenter
+import ru.fasdev.ratex.ui.view.fragmentListCurrencyRate.ListCurrencyRateView
 
 class ListCurrencyRatePresenterTest
 {
     lateinit var currencyBaseInteractor: CurrencyBaseInteractor
     lateinit var currencyRateInteractor: CurrencyRateInteractor
 
-    lateinit var view: `ListCurrencyRateView$$State`
+    lateinit var view: ListCurrencyRateView
     lateinit var presenter: ListCurrencyRatePresenter
+
+    //#region Test Data
+    val testCurrency = CurrencyDomain.getInstance("USD")
+    val testList = listOf(
+        RateCurrencyDomain(CurrencyDomain.getInstance("RUB"), 77.0),
+        RateCurrencyDomain(CurrencyDomain.getInstance("EUR"), 99.0)
+    )
+    //#endregion
 
     @Before
     fun setUp() {
+        RxJavaPlugins.setIoSchedulerHandler { Schedulers.trampoline() }
         RxAndroidPlugins.setInitMainThreadSchedulerHandler { Schedulers.trampoline() }
 
-        view = Mockito.mock(`ListCurrencyRateView$$State`::class.java)
+        view = Mockito.mock(ListCurrencyRateView::class.java)
 
         currencyBaseInteractor = Mockito.mock(CurrencyBaseInteractor::class.java)
         currencyRateInteractor = Mockito.mock(CurrencyRateInteractor::class.java)
 
         presenter = ListCurrencyRatePresenter(currencyBaseInteractor, currencyRateInteractor)
-        presenter.setViewState(view)
+
+        //#region First Attach
+        Mockito.`when`(currencyBaseInteractor.getBaseCurrency()).thenReturn(Single.just(testCurrency))
+        Mockito.`when`(currencyRateInteractor.getExchangeRates()).thenReturn(Single.just(testList))
+        //#endregion
+
+        presenter.attachView(view)
+    }
+
+    @After
+    fun tearDown() {
+        presenter.detachView(view)
+        RxJavaPlugins.reset()
+        RxAndroidPlugins.reset()
     }
 
     @Test
     fun testGetBaseCurrency()
     {
-        val testCurrency = CurrencyDomain.getInstance("USD")
-
         Mockito.`when`(currencyBaseInteractor.getBaseCurrency()).thenReturn(Single.just(testCurrency))
 
         val testObserver: TestObserver<CurrencyDomain> = TestObserver()
@@ -61,24 +82,17 @@ class ListCurrencyRatePresenterTest
 
         presenter.getBaseCurrency()
 
-        Mockito.verify(view).setBaseCurrency(testCurrency.currencyCode)
+        Mockito.verify(view, times(2)).setBaseCurrency(testCurrency.currencyCode)
     }
 
     @Test
     fun testLoadExchangeRates()
     {
-        val testList = listOf(
-            RateCurrencyDomain(CurrencyDomain.getInstance("RUB"), 77.0),
-            RateCurrencyDomain(CurrencyDomain.getInstance("EUR"), 99.0)
-        )
-
         Mockito.`when`(currencyRateInteractor.getExchangeRates()).thenReturn(Single.just(testList))
 
         presenter.loadExchangeRates()
 
-        Mockito.verify(view).setRefreshingState(true)
-        Mockito.verify(view).setRefreshingState(false)
-        Mockito.verify(view).setListExchangeRates(testList)
+        Mockito.verify(view, times(2)).setListExchangeRates(testList)
     }
 
     @Test
@@ -91,8 +105,6 @@ class ListCurrencyRatePresenterTest
 
         presenter.loadExchangeRates()
 
-        Mockito.verify(view).setRefreshingState(true)
-        Mockito.verify(view).setRefreshingState(false)
         Mockito.verify(view).setNetworkError(testMessage)
     }
 }
