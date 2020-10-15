@@ -10,6 +10,8 @@ import org.junit.Rule
 import org.junit.Test
 import ru.fasdev.ratex.domain.currency.boundaries.interactor.CurrencyBaseInteractor
 import org.mockito.Mockito
+import org.mockito.Mock
+import org.mockito.junit.MockitoJUnit
 import org.mockito.Mockito.times
 import ru.fasdev.ratex.domain.currency.entity.CurrencyDomain
 import ru.fasdev.ratex.domain.currency.entity.RateCurrencyDomain
@@ -18,12 +20,14 @@ import kotlin.text.Typography.times
 
 class SelectCurrencyPresenterTest
 {
-    @get:Rule
-    val InitScheduler = InitScheduler()
+    @get:Rule val initScheduler = InitScheduler()
+    @get:Rule val mockJunit = MockitoJUnit.rule()
 
-    lateinit var currencyBaseInteractor: CurrencyBaseInteractor
+    //region Mock
+    @Mock lateinit var currencyBaseInteractor: CurrencyBaseInteractor
+    @Mock lateinit var view: SelectCurrencyView
+    //#endregion
 
-    lateinit var view: SelectCurrencyView
     lateinit var presenter: SelectCurrencyPresenter
 
     //#region Test Data
@@ -36,10 +40,6 @@ class SelectCurrencyPresenterTest
 
     @Before
     fun setUp() {
-        view = Mockito.mock(SelectCurrencyView::class.java)
-
-        currencyBaseInteractor = Mockito.mock(CurrencyBaseInteractor::class.java)
-
         presenter = SelectCurrencyPresenter(currencyBaseInteractor)
 
         //#region First Attach

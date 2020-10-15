@@ -5,9 +5,12 @@ import io.reactivex.observers.TestObserver
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
+import org.mockito.junit.MockitoJUnit
 import ru.fasdev.ratex.domain.currency.boundaries.interactor.CurrencyBaseInteractor
 import ru.fasdev.ratex.domain.currency.boundaries.interactor.CurrencyRateInteractor
 import ru.fasdev.ratex.domain.currency.boundaries.repo.CurrencyBaseRepo
@@ -22,17 +25,13 @@ import java.util.*
 
 class CurrencyBaseInteractorTest
 {
-    private lateinit var currencyBaseRepo: CurrencyBaseRepo
-    private lateinit var sharedPrefencesRepo: SharedPrefencesRepo
+    @get:Rule val mockitoJunit = MockitoJUnit.rule()
+    @Mock private lateinit var currencyBaseRepo: CurrencyBaseRepo
 
     private lateinit var currencyBaseInteractor: CurrencyBaseInteractor
 
     @Before
     fun setUp() {
-        currencyBaseRepo = mock(CurrencyBaseRepo::class.java)
-
-        sharedPrefencesRepo = mock(SharedPrefencesRepo::class.java)
-
         currencyBaseInteractor = CurrencyBaseInteractorImpl(currencyBaseRepo)
     }
 

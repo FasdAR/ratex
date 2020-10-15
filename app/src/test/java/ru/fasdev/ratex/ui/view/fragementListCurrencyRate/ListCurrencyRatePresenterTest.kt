@@ -23,19 +23,24 @@ import java.util.concurrent.Callable
 import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
 import org.mockito.Mockito.times
+import org.mockito.Mock
+import org.mockito.junit.MockitoJUnit
 import ru.fasdev.ratex.rule.InitScheduler
 import ru.fasdev.ratex.ui.view.fragmentListCurrencyRate.ListCurrencyRatePresenter
 import ru.fasdev.ratex.ui.view.fragmentListCurrencyRate.ListCurrencyRateView
 
 class ListCurrencyRatePresenterTest
 {
-    @get:Rule
-    val InitScheduler = InitScheduler()
+    @get:Rule val initScheduler = InitScheduler()
+    @get:Rule val mockJunit = MockitoJUnit.rule()
 
-    lateinit var currencyBaseInteractor: CurrencyBaseInteractor
-    lateinit var currencyRateInteractor: CurrencyRateInteractor
+    //#region Mock
+    @Mock lateinit var currencyBaseInteractor: CurrencyBaseInteractor
+    @Mock lateinit var currencyRateInteractor: CurrencyRateInteractor
 
-    lateinit var view: ListCurrencyRateView
+    @Mock lateinit var view: ListCurrencyRateView
+    //#endregion
+
     lateinit var presenter: ListCurrencyRatePresenter
 
     //#region Test Data
@@ -48,11 +53,6 @@ class ListCurrencyRatePresenterTest
 
     @Before
     fun setUp() {
-        view = Mockito.mock(ListCurrencyRateView::class.java)
-
-        currencyBaseInteractor = Mockito.mock(CurrencyBaseInteractor::class.java)
-        currencyRateInteractor = Mockito.mock(CurrencyRateInteractor::class.java)
-
         presenter = ListCurrencyRatePresenter(currencyBaseInteractor, currencyRateInteractor)
 
         //#region First Attach

@@ -3,9 +3,12 @@ package ru.fasdev.ratex.domain.currency
 import io.reactivex.Single
 import io.reactivex.observers.TestObserver
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
+import org.mockito.junit.MockitoJUnit
 import ru.fasdev.ratex.domain.currency.boundaries.repo.CurrencyImageRepo
 import ru.fasdev.ratex.domain.currency.boundaries.interactor.CurrencyRateInteractor
 import ru.fasdev.ratex.domain.currency.boundaries.repo.CurrencyRateRepo
@@ -17,14 +20,14 @@ import java.util.*
 
 class CurrencyRateInteractorTest
 {
-    private lateinit var currencyRateRepo: CurrencyRateRepo
+    @get:Rule val mockitoJUnit = MockitoJUnit.rule()
+
+    @Mock private lateinit var currencyRateRepo: CurrencyRateRepo
 
     private lateinit var currencyRateInteractor: CurrencyRateInteractor
 
     @Before
     fun setUp() {
-        currencyRateRepo = mock(CurrencyRateRepo::class.java)
-
         currencyRateInteractor = CurrencyRateInteractorImpl(currencyRateRepo)
     }
 

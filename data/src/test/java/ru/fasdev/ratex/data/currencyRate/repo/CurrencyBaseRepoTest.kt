@@ -2,7 +2,10 @@ package ru.fasdev.ratex.data.currencyRate.repo
 
 import io.reactivex.observers.TestObserver
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.mockito.junit.MockitoJUnit
+import org.mockito.Mock
 import org.mockito.Mockito
 import ru.fasdev.ratex.domain.currency.boundaries.repo.CurrencyBaseRepo
 import ru.fasdev.ratex.domain.currency.boundaries.repo.CurrencyImageRepo
@@ -12,16 +15,15 @@ import java.util.*
 
 class CurrencyBaseRepoTest
 {
-    lateinit var sharedPrefencesRepo: SharedPrefencesRepo
-    lateinit var currencyImageRepo: CurrencyImageRepo
+    @get:Rule val mockitoJUnit = MockitoJUnit.rule()
+
+    @Mock lateinit var sharedPrefencesRepo: SharedPrefencesRepo
+    @Mock lateinit var currencyImageRepo: CurrencyImageRepo
 
     lateinit var currencyBaseRepo: CurrencyBaseRepo
 
     @Before
     fun setUp() {
-        sharedPrefencesRepo = Mockito.mock(SharedPrefencesRepo::class.java)
-        currencyImageRepo = Mockito.mock(CurrencyImageRepo::class.java)
-
         currencyBaseRepo = CurrencyBaseRepoImpl(sharedPrefencesRepo, currencyImageRepo)
     }
 

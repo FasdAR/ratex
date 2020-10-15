@@ -6,7 +6,10 @@ import io.reactivex.schedulers.Schedulers
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.mockito.Mock
+import org.mockito.junit.MockitoJUnit
 import org.mockito.Mockito
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
@@ -22,15 +25,15 @@ import java.util.concurrent.TimeUnit
 
 class CurrencyRateRepoTest
 {
-    private lateinit var currencyBaseRepo: CurrencyBaseRepo
-    private lateinit var currencyRateDataStore: CurrencyRateDataStore
+    @get:Rule val mockitoJUnit = MockitoJUnit.rule()
+
+    @Mock private lateinit var currencyBaseRepo: CurrencyBaseRepo
+    @Mock private lateinit var currencyRateDataStore: CurrencyRateDataStore
+
     private lateinit var currencyRateRepo: CurrencyRateRepo
 
     @Before fun setUp()
     {
-        currencyBaseRepo = Mockito.mock(CurrencyBaseRepo::class.java)
-        currencyRateDataStore = Mockito.mock(CurrencyRateDataStore::class.java)
-
         currencyRateRepo = CurrencyRateRepoImpl(currencyRateDataStore, currencyBaseRepo)
     }
 

@@ -9,8 +9,11 @@ import okhttp3.mockwebserver.QueueDispatcher
 import okhttp3.mockwebserver.RecordedRequest
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mockito
+import org.mockito.Mock
+import org.mockito.junit.MockitoJUnit
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
@@ -20,13 +23,15 @@ import ru.fasdev.ratex.domain.currency.boundaries.repo.CurrencyImageRepo
 import ru.fasdev.ratex.domain.currency.entity.CurrencyDomain
 import ru.fasdev.ratex.domain.currency.entity.RateCurrencyDomain
 
-
 class ExchangeRateDataStoreTest
 {
+    @get:Rule val mockitoJunit = MockitoJUnit.rule()
+
+    @Mock private lateinit var imageRepo: CurrencyImageRepo
+
     private lateinit var mockWebServer: MockWebServer
 
     private lateinit var exchangeRateApi: ExchangeRateApi
-    private lateinit var imageRepo: CurrencyImageRepo
 
     private lateinit var exchangeRateDataStore: ExchangeRateDataStore
 
@@ -52,8 +57,6 @@ class ExchangeRateDataStoreTest
             .client(OkHttpClient())
             .build()
             .create(ExchangeRateApi::class.java)
-
-        imageRepo = Mockito.mock(CurrencyImageRepo::class.java)
 
         exchangeRateDataStore = ExchangeRateDataStore(exchangeRateApi, imageRepo)
     }
