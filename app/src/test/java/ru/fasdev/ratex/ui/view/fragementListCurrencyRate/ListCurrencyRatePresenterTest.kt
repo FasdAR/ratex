@@ -77,9 +77,6 @@ class ListCurrencyRatePresenterTest
     {
         Mockito.`when`(currencyBaseInteractor.getBaseCurrency()).thenReturn(Single.just(testCurrency))
 
-        val testObserver: TestObserver<CurrencyDomain> = TestObserver()
-        currencyBaseInteractor.getBaseCurrency().subscribe(testObserver)
-
         presenter.getBaseCurrency()
 
         Mockito.verify(view, times(2)).setBaseCurrency(testCurrency.currencyCode)

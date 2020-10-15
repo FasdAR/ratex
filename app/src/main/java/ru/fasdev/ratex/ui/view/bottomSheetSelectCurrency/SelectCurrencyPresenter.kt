@@ -28,7 +28,6 @@ class SelectCurrencyPresenter @Inject constructor(val currencyBaseInteractor: Cu
         super.onFirstViewAttach()
 
         loadAvailableCurrencies()
-
     }
 
     fun searchCurrency(text: String)
@@ -38,7 +37,7 @@ class SelectCurrencyPresenter @Inject constructor(val currencyBaseInteractor: Cu
         loadAvailableCurrencies()
     }
 
-    private fun loadAvailableCurrencies()
+    fun loadAvailableCurrencies()
     {
         disposables.add(
             Single.zip(currencyBaseInteractor.getAvailableCurrencies(), currencyBaseInteractor.getBaseCurrency(),
