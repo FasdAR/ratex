@@ -44,6 +44,7 @@ dependencies {
     //Test impl
     testImplementation "junit:junit:${rootProject.ext.ver.jUnit}"
     androidTestImplementation "androidx.test.ext:junit:${rootProject.ext.ver.androidXJunit}"
+    androidTestImplementation "androidx.test.espresso:espresso-core:${rootProject.ext.ver.espressoCore}"
     testImplementation "org.assertj:assertj-core:${rootProject.ext.ver.assertJ}"
     testImplementation "org.robolectric:robolectric:${rootProject.ext.ver.robolectric}"
     testImplementation "androidx.test:core:${rootProject.ext.ver.androidXTestCore}"

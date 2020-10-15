@@ -53,5 +53,6 @@ ext.ver = [
     androidXJunit: "1.1.2",
     mockitoCore: "3.5.13",
     assertJ: "3.17.2",
-    mockWebServer: "4.9.0"
+    mockWebServer: "4.9.0",
+    espressoCore: "3.3.0"
 ]
