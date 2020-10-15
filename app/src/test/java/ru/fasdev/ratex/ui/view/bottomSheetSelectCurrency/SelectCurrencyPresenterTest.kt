@@ -6,16 +6,21 @@ import io.reactivex.plugins.RxJavaPlugins
 import io.reactivex.schedulers.Schedulers
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import ru.fasdev.ratex.domain.currency.boundaries.interactor.CurrencyBaseInteractor
 import org.mockito.Mockito
 import org.mockito.Mockito.times
 import ru.fasdev.ratex.domain.currency.entity.CurrencyDomain
 import ru.fasdev.ratex.domain.currency.entity.RateCurrencyDomain
+import ru.fasdev.ratex.rule.InitScheduler
 import kotlin.text.Typography.times
 
 class SelectCurrencyPresenterTest
 {
+    @get:Rule
+    val InitScheduler = InitScheduler()
+
     lateinit var currencyBaseInteractor: CurrencyBaseInteractor
 
     lateinit var view: SelectCurrencyView
@@ -31,9 +36,6 @@ class SelectCurrencyPresenterTest
 
     @Before
     fun setUp() {
-        RxJavaPlugins.setIoSchedulerHandler { Schedulers.trampoline() }
-        RxAndroidPlugins.setInitMainThreadSchedulerHandler { Schedulers.trampoline() }
-
         view = Mockito.mock(SelectCurrencyView::class.java)
 
         currencyBaseInteractor = Mockito.mock(CurrencyBaseInteractor::class.java)
@@ -55,9 +57,6 @@ class SelectCurrencyPresenterTest
     @After
     fun tearDown() {
         presenter.detachView(view)
-
-        RxJavaPlugins.reset()
-        RxAndroidPlugins.reset()
     }
 
     @Test

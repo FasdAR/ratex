@@ -10,10 +10,7 @@ import io.reactivex.observers.TestObserver
 import io.reactivex.plugins.RxJavaPlugins
 import io.reactivex.schedulers.Schedulers
 import okhttp3.ResponseBody
-import org.junit.After
-import org.junit.Before
-import org.junit.BeforeClass
-import org.junit.Test
+import org.junit.*
 import org.mockito.Mockito
 import retrofit2.HttpException
 import retrofit2.Response
@@ -26,11 +23,15 @@ import java.util.concurrent.Callable
 import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
 import org.mockito.Mockito.times
+import ru.fasdev.ratex.rule.InitScheduler
 import ru.fasdev.ratex.ui.view.fragmentListCurrencyRate.ListCurrencyRatePresenter
 import ru.fasdev.ratex.ui.view.fragmentListCurrencyRate.ListCurrencyRateView
 
 class ListCurrencyRatePresenterTest
 {
+    @get:Rule
+    val InitScheduler = InitScheduler()
+
     lateinit var currencyBaseInteractor: CurrencyBaseInteractor
     lateinit var currencyRateInteractor: CurrencyRateInteractor
 
@@ -47,9 +48,6 @@ class ListCurrencyRatePresenterTest
 
     @Before
     fun setUp() {
-        RxJavaPlugins.setIoSchedulerHandler { Schedulers.trampoline() }
-        RxAndroidPlugins.setInitMainThreadSchedulerHandler { Schedulers.trampoline() }
-
         view = Mockito.mock(ListCurrencyRateView::class.java)
 
         currencyBaseInteractor = Mockito.mock(CurrencyBaseInteractor::class.java)
@@ -68,8 +66,6 @@ class ListCurrencyRatePresenterTest
     @After
     fun tearDown() {
         presenter.detachView(view)
-        RxJavaPlugins.reset()
-        RxAndroidPlugins.reset()
     }
 
     @Test
