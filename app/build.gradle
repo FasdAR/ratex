@@ -42,17 +42,20 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
 
     //Test impl
-    testImplementation "junit:junit:${rootProject.ext.ver.jUnit}"
-    androidTestImplementation "androidx.test.ext:junit:${rootProject.ext.ver.androidXJunit}"
     androidTestImplementation "androidx.test.espresso:espresso-core:${rootProject.ext.ver.espressoCore}"
+
+    androidTestImplementation "androidx.test:core:${rootProject.ext.ver.androidXTestCore}"
+    androidTestImplementation "androidx.test:runner:${rootProject.ext.ver.androidXTestCore}"
+    androidTestImplementation "androidx.test:rules:${rootProject.ext.ver.androidXTestCore}"
+    androidTestImplementation "androidx.test.ext:junit:${rootProject.ext.ver.androidXJunit}"
+    androidTestImplementation "androidx.test.ext:truth:${rootProject.ext.ver.androidXTruth}"
+
+    androidTestImplementation "androidx.test.uiautomator:uiautomator:${rootProject.ext.ver.uiAutomator}"
+
+    testImplementation "junit:junit:${rootProject.ext.ver.jUnit}"
     testImplementation "org.assertj:assertj-core:${rootProject.ext.ver.assertJ}"
     testImplementation "org.robolectric:robolectric:${rootProject.ext.ver.robolectric}"
-    testImplementation "androidx.test:core:${rootProject.ext.ver.androidXTestCore}"
     testImplementation "org.mockito:mockito-core:${rootProject.ext.ver.mockitoCore}"
-
-    /*
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
-     */
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
