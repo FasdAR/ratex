@@ -14,7 +14,7 @@ class ListSelectCurrencyController(val selectListener: ListSelectCurrencyModel.L
 
             val model = ListSelectCurrencyModel_().apply {
                 id(it.currencyCode)
-                listener = selectListener
+                listener = this@ListSelectCurrencyController.selectListener
                 currency = it
                 selectedState = isSelected
             }

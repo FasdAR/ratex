@@ -1,9 +1,9 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
 android {
+    namespace "ru.fasdev.ratex"
     compileSdkVersion (rootProject.ext.androidVer.compileSdk)
     buildToolsVersion (rootProject.ext.androidVer.buildTools)
 
@@ -35,7 +35,12 @@ android {
 
     buildFeatures {
         viewBinding true
+        buildConfig true
     }
+}
+
+kapt {
+    correctErrorTypes = true
 }
 
 dependencies {
@@ -64,22 +69,21 @@ dependencies {
     implementation project(':data')
 
     //AndroidX
-    implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.2'
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation "androidx.core:core-ktx:${rootProject.ext.ver.coreKtx}"
 
     //Material library
     implementation "com.google.android.material:material:${rootProject.ext.ver.materialLib}"
 
     //lifecycle
-    implementation "androidx.lifecycle:lifecycle-extensions:${rootProject.ext.ver.lifecycle}"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:${rootProject.ext.ver.lifecycle}"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:${rootProject.ext.ver.lifecycle}"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:${rootProject.ext.ver.lifecycle}"
 
     //Cicerone
-    implementation "ru.terrakok.cicerone:cicerone:${rootProject.ext.ver.cicerone}"
+    implementation "com.github.terrakok:cicerone:${rootProject.ext.ver.cicerone}"
 
     //Dagger
     api "com.google.dagger:dagger:${rootProject.ext.ver.dagger}"
