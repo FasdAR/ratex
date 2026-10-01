@@ -5,7 +5,6 @@ import moxy.viewstate.strategy.alias.AddToEndSingle
 import ru.fasdev.ratex.domain.currency.entity.CurrencyDomain
 
 @AddToEndSingle
-interface SelectCurrencyView: MvpView
-{
+interface SelectCurrencyView : MvpView {
     fun setListCurrency(list: List<CurrencyDomain>, baseCurrency: CurrencyDomain)
 }

@@ -1,6 +1,5 @@
 package ru.fasdev.ratex.data.currencyRate.dataStore.source
 
-import android.util.Log
 import io.reactivex.observers.TestObserver
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
@@ -11,7 +10,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.Mockito
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnit
 import retrofit2.Retrofit
@@ -23,8 +21,7 @@ import ru.fasdev.ratex.domain.currency.boundaries.repo.CurrencyImageRepo
 import ru.fasdev.ratex.domain.currency.entity.CurrencyDomain
 import ru.fasdev.ratex.domain.currency.entity.RateCurrencyDomain
 
-class ExchangeRateDataStoreTest
-{
+class ExchangeRateDataStoreTest {
     @get:Rule val mockitoJunit = MockitoJUnit.rule()
 
     @Mock private lateinit var imageRepo: CurrencyImageRepo
@@ -76,7 +73,7 @@ class ExchangeRateDataStoreTest
 
         testObserver
             .assertComplete()
-            .assertValue{ it.size == 32 }
-            .assertValue{ it.isNotEmpty() }
+            .assertValue { it.size == 32 }
+            .assertValue { it.isNotEmpty() }
     }
 }

@@ -1,30 +1,25 @@
 package ru.fasdev.ratex.domain.currency.entity
 
-import junit.framework.Assert.*
+import java.util.Currency
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.tuple
 import org.junit.Test
 import ru.fasdev.ratex.domain.currency.entity.extension.toCurrencyDomain
-import java.util.*
 
-class CurrencyDomainTest
-{
+class CurrencyDomainTest {
     @Test
-    fun testInstance()
-    {
+    fun testInstance() {
         val testCurrencyCode = "USD"
 
         val result = CurrencyDomain.getInstance(testCurrencyCode)
 
         assertThat(result)
             .isNotNull()
-            .extracting{ it.currencyCode }
+            .extracting { it.currencyCode }
             .isEqualTo(testCurrencyCode)
     }
 
     @Test
-    fun testConvertToCurrencyDomain()
-    {
+    fun testConvertToCurrencyDomain() {
         val testCurrency = Currency.getInstance("USD")
         val currencyDomain = testCurrency.toCurrencyDomain()
 
@@ -36,8 +31,7 @@ class CurrencyDomainTest
     }
 
     @Test
-    fun testEqualsTrue()
-    {
+    fun testEqualsTrue() {
         val testData = CurrencyDomain("USD", "$", "DOLLAR", null)
         val testDataTwo = CurrencyDomain("USD", "$", "DOLLAR", null)
 
@@ -46,8 +40,7 @@ class CurrencyDomainTest
     }
 
     @Test
-    fun testEqualsFalse()
-    {
+    fun testEqualsFalse() {
         val testData = CurrencyDomain("USD", "$", "DOLLAR", null)
         val testDataTwo = CurrencyDomain("SDD", "$", "DOLLAR", "httptpt")
 

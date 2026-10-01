@@ -1,8 +1,6 @@
 package ru.fasdev.ratex.ui.adapter.epoxy.listSelectCurrency
 
-import android.util.Log
 import android.view.View
-import android.widget.CheckBox
 import android.widget.RadioButton
 import android.widget.TextView
 import com.airbnb.epoxy.EpoxyAttribute
@@ -13,10 +11,8 @@ import ru.fasdev.ratex.R
 import ru.fasdev.ratex.domain.currency.entity.CurrencyDomain
 
 @EpoxyModelClass(layout = R.layout.item_currency_select)
-abstract class ListSelectCurrencyModel : EpoxyModelWithHolder<ListSelectCurrencyModel.Holder>()
-{
-    class Holder: EpoxyHolder()
-    {
+abstract class ListSelectCurrencyModel : EpoxyModelWithHolder<ListSelectCurrencyModel.Holder>() {
+    class Holder : EpoxyHolder() {
         lateinit var rootView: View
         lateinit var nameCurrency: TextView
         lateinit var radioButton: RadioButton
@@ -41,8 +37,7 @@ abstract class ListSelectCurrencyModel : EpoxyModelWithHolder<ListSelectCurrency
     @EpoxyAttribute
     var selectedState: Boolean = false
 
-    override fun bind(holder: Holder)
-    {
+    override fun bind(holder: Holder) {
         holder.nameCurrency.setText(currency.displayName)
 
         holder.radioButton.isChecked = selectedState

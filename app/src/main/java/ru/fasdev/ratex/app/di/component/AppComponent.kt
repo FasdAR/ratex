@@ -12,9 +12,8 @@ import ru.fasdev.ratex.domain.main.boundaries.SharedPrefencesRepo
 
 @AppScope
 @Component(modules = [AppModule::class, SettingsModule::class, RetrofitModule::class])
-interface AppComponent
-{
-    //Child dependencies
+interface AppComponent {
+    // Child dependencies
     fun context(): Context
     fun sharedPrefencesRepo(): SharedPrefencesRepo
     fun retrofit(): Retrofit

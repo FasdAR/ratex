@@ -1,0 +1,13 @@
+{
+  "enabledPlugins": {
+    "ast-index@ast-index-marketplace": true
+  },
+  "extraKnownMarketplaces": {
+    "ast-index-marketplace": {
+      "source": {
+        "source": "github",
+        "repo": "defendend/Claude-ast-index-search"
+      }
+    }
+  }
+}

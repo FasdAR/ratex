@@ -5,8 +5,7 @@ import moxy.viewstate.strategy.alias.AddToEndSingle
 import ru.fasdev.ratex.domain.currency.entity.RateCurrencyDomain
 
 @AddToEndSingle
-interface ListCurrencyRateView: MvpView
-{
+interface ListCurrencyRateView : MvpView {
     fun setBaseCurrency(currency: String)
     fun setListExchangeRates(rateList: List<RateCurrencyDomain>)
     fun setRefreshingState(isRefreshing: Boolean)

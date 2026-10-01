@@ -1,23 +1,23 @@
 package ru.fasdev.ratex.data.currencyRate.repo
 
 import io.reactivex.observers.TestObserver
+import java.util.*
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.junit.MockitoJUnit
 import org.mockito.Mock
 import org.mockito.Mockito
+import org.mockito.junit.MockitoJUnit
 import ru.fasdev.ratex.domain.currency.boundaries.repo.CurrencyBaseRepo
 import ru.fasdev.ratex.domain.currency.boundaries.repo.CurrencyImageRepo
 import ru.fasdev.ratex.domain.currency.entity.CurrencyDomain
 import ru.fasdev.ratex.domain.main.boundaries.SharedPrefencesRepo
-import java.util.*
 
-class CurrencyBaseRepoTest
-{
+class CurrencyBaseRepoTest {
     @get:Rule val mockitoJUnit = MockitoJUnit.rule()
 
     @Mock lateinit var sharedPrefencesRepo: SharedPrefencesRepo
+
     @Mock lateinit var currencyImageRepo: CurrencyImageRepo
 
     lateinit var currencyBaseRepo: CurrencyBaseRepo
@@ -28,8 +28,7 @@ class CurrencyBaseRepoTest
     }
 
     @Test
-    fun testGetBaseCurrencyNullPreferences()
-    {
+    fun testGetBaseCurrencyNullPreferences() {
         Mockito.`when`(sharedPrefencesRepo.getBaseCurrencyCode()).thenReturn(null)
 
         val testLocale = Locale.US
@@ -45,8 +44,7 @@ class CurrencyBaseRepoTest
     }
 
     @Test
-    fun testGetBaseCurrency()
-    {
+    fun testGetBaseCurrency() {
         val testLocale = Locale.US
         Mockito.`when`(sharedPrefencesRepo.getBaseCurrencyCode()).thenReturn(Currency.getInstance(testLocale).currencyCode)
 
@@ -60,8 +58,7 @@ class CurrencyBaseRepoTest
     }
 
     @Test
-    fun testSetBaseCurrency()
-    {
+    fun testSetBaseCurrency() {
         val testCurrencyCode = "RUB"
         currencyBaseRepo.setBaseCurrency(CurrencyDomain.getInstance(testCurrencyCode))
 
@@ -69,8 +66,7 @@ class CurrencyBaseRepoTest
     }
 
     @Test
-    fun testGetAvailableCurrencies()
-    {
+    fun testGetAvailableCurrencies() {
         val testObserver: TestObserver<List<CurrencyDomain>> = TestObserver()
 
         currencyBaseRepo.getAvailableCurrencies().subscribe(testObserver)

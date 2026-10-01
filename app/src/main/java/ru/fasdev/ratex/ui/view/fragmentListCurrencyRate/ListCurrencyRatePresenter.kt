@@ -5,19 +5,18 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
+import javax.inject.Inject
 import moxy.MvpPresenter
 import ru.fasdev.ratex.domain.currency.boundaries.interactor.CurrencyBaseInteractor
 import ru.fasdev.ratex.domain.currency.boundaries.interactor.CurrencyRateInteractor
-import ru.fasdev.ratex.domain.currency.boundaries.repo.CurrencyBaseRepo
-import javax.inject.Inject
 
-class ListCurrencyRatePresenter @Inject constructor(val currencyBaseInteractor: CurrencyBaseInteractor, val currencyRateInteractor: CurrencyRateInteractor)
-    : MvpPresenter<ListCurrencyRateView>()
-{
+class ListCurrencyRatePresenter @Inject constructor(
+    val currencyBaseInteractor: CurrencyBaseInteractor,
+    val currencyRateInteractor: CurrencyRateInteractor
+) : MvpPresenter<ListCurrencyRateView>() {
     var disposables: CompositeDisposable = CompositeDisposable()
 
-    override fun onFirstViewAttach()
-    {
+    override fun onFirstViewAttach() {
         super.onFirstViewAttach()
 
         getBaseCurrency()
@@ -30,8 +29,7 @@ class ListCurrencyRatePresenter @Inject constructor(val currencyBaseInteractor: 
         disposables.dispose()
     }
 
-    fun getBaseCurrency()
-    {
+    fun getBaseCurrency() {
         disposables.add(
             currencyBaseInteractor
                 .getBaseCurrency()
@@ -42,15 +40,14 @@ class ListCurrencyRatePresenter @Inject constructor(val currencyBaseInteractor: 
                         viewState.setBaseCurrency(it.currencyCode)
                     },
                     onError = {
-                        //TOOD: SEt NORMAL ERROR TO VIEW
+                        // TOOD: SEt NORMAL ERROR TO VIEW
                         Log.e("ERROR", it.toString())
                     }
                 )
         )
     }
 
-    fun loadExchangeRates()
-    {
+    fun loadExchangeRates() {
         disposables.add(
             currencyRateInteractor
                 .getExchangeRates()
@@ -62,12 +59,12 @@ class ListCurrencyRatePresenter @Inject constructor(val currencyBaseInteractor: 
                 .doFinally {
                     viewState.setRefreshingState(false)
                 }
-                .subscribeBy (
+                .subscribeBy(
                     onSuccess = {
                         viewState.setListExchangeRates(it)
                     },
                     onError = {
-                        //TODO: CHANGE TO NORMAL MESSAGE IN CODE ... 400, 404 ....
+                        // TODO: CHANGE TO NORMAL MESSAGE IN CODE ... 400, 404 ....
                         viewState.setNetworkError(it.message.toString())
                     }
                 )

@@ -1,55 +1,54 @@
 package ru.fasdev.ratex.ui.view.bottomSheetSelectCurrency
 
 import io.reactivex.Single
-import io.reactivex.android.plugins.RxAndroidPlugins
-import io.reactivex.plugins.RxJavaPlugins
-import io.reactivex.schedulers.Schedulers
+import kotlin.text.Typography.times
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import ru.fasdev.ratex.domain.currency.boundaries.interactor.CurrencyBaseInteractor
-import org.mockito.Mockito
 import org.mockito.Mock
-import org.mockito.junit.MockitoJUnit
+import org.mockito.Mockito
 import org.mockito.Mockito.times
+import org.mockito.junit.MockitoJUnit
+import ru.fasdev.ratex.domain.currency.boundaries.interactor.CurrencyBaseInteractor
 import ru.fasdev.ratex.domain.currency.entity.CurrencyDomain
-import ru.fasdev.ratex.domain.currency.entity.RateCurrencyDomain
 import ru.fasdev.ratex.rule.InitScheduler
-import kotlin.text.Typography.times
 
-class SelectCurrencyPresenterTest
-{
+class SelectCurrencyPresenterTest {
     @get:Rule val initScheduler = InitScheduler()
+
     @get:Rule val mockJunit = MockitoJUnit.rule()
 
     //region Mock
     @Mock lateinit var currencyBaseInteractor: CurrencyBaseInteractor
+
     @Mock lateinit var view: SelectCurrencyView
-    //#endregion
+    // #endregion
 
     lateinit var presenter: SelectCurrencyPresenter
 
-    //#region Test Data
+    // #region Test Data
     val testCurrency = CurrencyDomain.getInstance("USD")
     val testList = listOf(
         CurrencyDomain.getInstance("RUB"),
         CurrencyDomain.getInstance("EUR")
     )
-    //#endregion
+    // #endregion
 
     @Before
     fun setUp() {
         presenter = SelectCurrencyPresenter(currencyBaseInteractor)
 
-        //#region First Attach
-        Mockito.`when`(currencyBaseInteractor
-            .filterSearchAvailbaleCurrenciesNameCode(testList, null))
+        // #region First Attach
+        Mockito.`when`(
+            currencyBaseInteractor
+                .filterSearchAvailbaleCurrenciesNameCode(testList, null)
+        )
             .thenReturn(testList)
 
         Mockito.`when`(currencyBaseInteractor.getBaseCurrency()).thenReturn(Single.just(testCurrency))
         Mockito.`when`(currencyBaseInteractor.getAvailableCurrencies()).thenReturn(Single.just(testList))
-        //#endregion
+        // #endregion
 
         presenter.attachView(view)
     }
@@ -66,8 +65,10 @@ class SelectCurrencyPresenterTest
         )
         val testText: String = "rub"
 
-        Mockito.`when`(currencyBaseInteractor
-            .filterSearchAvailbaleCurrenciesNameCode(testList, testText))
+        Mockito.`when`(
+            currencyBaseInteractor
+                .filterSearchAvailbaleCurrenciesNameCode(testList, testText)
+        )
             .thenReturn(testSearchList)
 
         presenter.searchCurrency("rub")

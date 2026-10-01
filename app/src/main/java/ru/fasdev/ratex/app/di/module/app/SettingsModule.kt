@@ -10,8 +10,7 @@ import ru.fasdev.ratex.data.source.sharedPrefences.SharedPrefencesRepoImpl
 import ru.fasdev.ratex.domain.main.boundaries.SharedPrefencesRepo
 
 @Module
-class SettingsModule (val nameSettings: String)
-{
+class SettingsModule(val nameSettings: String) {
     @Provides
     @AppScope
     fun provideSharedPreneces(context: Context): SharedPreferences = context.getSharedPreferences(nameSettings, Context.MODE_PRIVATE)

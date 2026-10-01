@@ -1,6 +1,5 @@
 package ru.fasdev.ratex.domain.currency.boundaries.repo
 
-interface CurrencyImageRepo
-{
+interface CurrencyImageRepo {
     fun getImageUrl(currencyCode: String): String?
 }

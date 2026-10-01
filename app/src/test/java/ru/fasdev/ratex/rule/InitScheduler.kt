@@ -8,19 +8,16 @@ import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
 class InitScheduler : TestRule {
-    override fun apply(base: Statement?, description: Description?): Statement
-    {
-        return object : Statement() {
-            override fun evaluate() {
-                RxJavaPlugins.setIoSchedulerHandler { Schedulers.trampoline() }
-                RxAndroidPlugins.setInitMainThreadSchedulerHandler { Schedulers.trampoline() }
+    override fun apply(base: Statement?, description: Description?): Statement = object : Statement() {
+        override fun evaluate() {
+            RxJavaPlugins.setIoSchedulerHandler { Schedulers.trampoline() }
+            RxAndroidPlugins.setInitMainThreadSchedulerHandler { Schedulers.trampoline() }
 
-                try {
-                    base?.evaluate()
-                } finally {
-                    RxJavaPlugins.reset()
-                    RxAndroidPlugins.reset()
-                }
+            try {
+                base?.evaluate()
+            } finally {
+                RxJavaPlugins.reset()
+                RxAndroidPlugins.reset()
             }
         }
     }

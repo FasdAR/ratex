@@ -7,8 +7,7 @@ import dagger.Provides
 import ru.fasdev.ratex.app.di.scope.ActivityScope
 
 @Module
-class ActivityModule (val fragmentActivity: FragmentActivity)
-{
+class ActivityModule(val fragmentActivity: FragmentActivity) {
     @Provides
     @ActivityScope
     fun provideFragmentActivity(): FragmentActivity = fragmentActivity

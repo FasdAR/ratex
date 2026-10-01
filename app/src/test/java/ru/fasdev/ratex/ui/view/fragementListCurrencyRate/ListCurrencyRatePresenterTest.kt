@@ -1,64 +1,54 @@
 package ru.fasdev.ratex.ui.view.fragementListCurrencyRate
 
-import androidx.annotation.NonNull
-import io.reactivex.Scheduler
 import io.reactivex.Single
-import io.reactivex.android.plugins.RxAndroidPlugins
-import io.reactivex.disposables.Disposable
-import io.reactivex.internal.schedulers.ExecutorScheduler.ExecutorWorker
-import io.reactivex.observers.TestObserver
-import io.reactivex.plugins.RxJavaPlugins
-import io.reactivex.schedulers.Schedulers
-import okhttp3.ResponseBody
-import org.junit.*
+import java.lang.Exception
+import org.junit.After
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.mockito.Mock
 import org.mockito.Mockito
-import retrofit2.HttpException
-import retrofit2.Response
+import org.mockito.Mockito.times
+import org.mockito.junit.MockitoJUnit
 import ru.fasdev.ratex.domain.currency.boundaries.interactor.CurrencyBaseInteractor
 import ru.fasdev.ratex.domain.currency.boundaries.interactor.CurrencyRateInteractor
 import ru.fasdev.ratex.domain.currency.entity.CurrencyDomain
 import ru.fasdev.ratex.domain.currency.entity.RateCurrencyDomain
-import java.lang.Exception
-import java.util.concurrent.Callable
-import java.util.concurrent.Executor
-import java.util.concurrent.TimeUnit
-import org.mockito.Mockito.times
-import org.mockito.Mock
-import org.mockito.junit.MockitoJUnit
 import ru.fasdev.ratex.rule.InitScheduler
 import ru.fasdev.ratex.ui.view.fragmentListCurrencyRate.ListCurrencyRatePresenter
 import ru.fasdev.ratex.ui.view.fragmentListCurrencyRate.ListCurrencyRateView
 
-class ListCurrencyRatePresenterTest
-{
+class ListCurrencyRatePresenterTest {
     @get:Rule val initScheduler = InitScheduler()
+
     @get:Rule val mockJunit = MockitoJUnit.rule()
 
-    //#region Mock
+    // #region Mock
     @Mock lateinit var currencyBaseInteractor: CurrencyBaseInteractor
+
     @Mock lateinit var currencyRateInteractor: CurrencyRateInteractor
 
     @Mock lateinit var view: ListCurrencyRateView
-    //#endregion
+    // #endregion
 
     lateinit var presenter: ListCurrencyRatePresenter
 
-    //#region Test Data
+    // #region Test Data
     val testCurrency = CurrencyDomain.getInstance("USD")
     val testList = listOf(
         RateCurrencyDomain(CurrencyDomain.getInstance("RUB"), 77.0),
         RateCurrencyDomain(CurrencyDomain.getInstance("EUR"), 99.0)
     )
-    //#endregion
+    // #endregion
 
     @Before
     fun setUp() {
         presenter = ListCurrencyRatePresenter(currencyBaseInteractor, currencyRateInteractor)
 
-        //#region First Attach
+        // #region First Attach
         Mockito.`when`(currencyBaseInteractor.getBaseCurrency()).thenReturn(Single.just(testCurrency))
         Mockito.`when`(currencyRateInteractor.getExchangeRates()).thenReturn(Single.just(testList))
-        //#endregion
+        // #endregion
 
         presenter.attachView(view)
     }
@@ -69,8 +59,7 @@ class ListCurrencyRatePresenterTest
     }
 
     @Test
-    fun testGetBaseCurrency()
-    {
+    fun testGetBaseCurrency() {
         Mockito.`when`(currencyBaseInteractor.getBaseCurrency()).thenReturn(Single.just(testCurrency))
 
         presenter.getBaseCurrency()
@@ -79,8 +68,7 @@ class ListCurrencyRatePresenterTest
     }
 
     @Test
-    fun testLoadExchangeRates()
-    {
+    fun testLoadExchangeRates() {
         Mockito.`when`(currencyRateInteractor.getExchangeRates()).thenReturn(Single.just(testList))
 
         presenter.loadExchangeRates()
@@ -89,8 +77,7 @@ class ListCurrencyRatePresenterTest
     }
 
     @Test
-    fun testLoadExchangeRatesException()
-    {
+    fun testLoadExchangeRatesException() {
         val testMessage = "sdasd"
 
         Mockito.`when`(currencyRateInteractor.getExchangeRates())

@@ -2,30 +2,22 @@ package ru.fasdev.ratex.domain.currency
 
 import io.reactivex.Single
 import io.reactivex.observers.TestObserver
-
+import java.util.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito
-import org.mockito.Mockito.mock
 import org.mockito.junit.MockitoJUnit
 import ru.fasdev.ratex.domain.currency.boundaries.interactor.CurrencyBaseInteractor
-import ru.fasdev.ratex.domain.currency.boundaries.interactor.CurrencyRateInteractor
 import ru.fasdev.ratex.domain.currency.boundaries.repo.CurrencyBaseRepo
-import ru.fasdev.ratex.domain.currency.boundaries.repo.CurrencyImageRepo
-import ru.fasdev.ratex.domain.currency.boundaries.repo.CurrencyRateRepo
 import ru.fasdev.ratex.domain.currency.entity.CurrencyDomain
-import ru.fasdev.ratex.domain.currency.entity.RateCurrencyDomain
 import ru.fasdev.ratex.domain.currency.interactor.CurrencyBaseInteractorImpl
-import ru.fasdev.ratex.domain.currency.interactor.CurrencyRateInteractorImpl
-import ru.fasdev.ratex.domain.main.boundaries.SharedPrefencesRepo
-import java.util.*
 
-class CurrencyBaseInteractorTest
-{
+class CurrencyBaseInteractorTest {
     @get:Rule val mockitoJunit = MockitoJUnit.rule()
+
     @Mock private lateinit var currencyBaseRepo: CurrencyBaseRepo
 
     private lateinit var currencyBaseInteractor: CurrencyBaseInteractor
@@ -36,14 +28,13 @@ class CurrencyBaseInteractorTest
     }
 
     @Test
-    fun testGetBaseCurrency()
-    {
-        //#region Mock getBaseCurrencyCode and getDefaultLocale
+    fun testGetBaseCurrency() {
+        // #region Mock getBaseCurrencyCode and getDefaultLocale
         val testCurrency = CurrencyDomain.getInstance("RUB")
         Locale.setDefault(Locale.US)
 
         Mockito.`when`(currencyBaseRepo.getBaseCurrency()).thenReturn(Single.just(testCurrency))
-        //#endregion
+        // #endregion
 
         val testObserver: TestObserver<CurrencyDomain> = TestObserver()
 
@@ -55,8 +46,7 @@ class CurrencyBaseInteractorTest
     }
 
     @Test
-    fun testSetBaseCurrency()
-    {
+    fun testSetBaseCurrency() {
         val testCurrency = CurrencyDomain.getInstance("RUB")
 
         currencyBaseInteractor.setBaseCurrency(testCurrency)
@@ -65,8 +55,7 @@ class CurrencyBaseInteractorTest
     }
 
     @Test
-    fun testGetAvailableCurrencies()
-    {
+    fun testGetAvailableCurrencies() {
         val testData: MutableList<CurrencyDomain> = arrayListOf(
             CurrencyDomain.getInstance("RUB"),
             CurrencyDomain.getInstance("USD"),
@@ -85,8 +74,7 @@ class CurrencyBaseInteractorTest
     }
 
     @Test
-    fun testSearchAvailableCurrenciesByCode()
-    {
+    fun testSearchAvailableCurrenciesByCode() {
         val findCurrency: CurrencyDomain = CurrencyDomain.getInstance("EUR")
 
         val testData: MutableList<CurrencyDomain> = arrayListOf(
@@ -95,7 +83,10 @@ class CurrencyBaseInteractorTest
             CurrencyDomain.getInstance("EUR")
         )
 
-        val result: List<CurrencyDomain> = currencyBaseInteractor.filterSearchAvailbaleCurrenciesNameCode(testData, findCurrency.currencyCode)
+        val result: List<CurrencyDomain> = currencyBaseInteractor.filterSearchAvailbaleCurrenciesNameCode(
+            testData,
+            findCurrency.currencyCode
+        )
 
         assertThat(result)
             .isNotNull()
@@ -107,8 +98,7 @@ class CurrencyBaseInteractorTest
     }
 
     @Test
-    fun testSearchAvailableCurrenciesByName()
-    {
+    fun testSearchAvailableCurrenciesByName() {
         val findCurrency: CurrencyDomain = CurrencyDomain.getInstance("EUR")
 
         val testData: MutableList<CurrencyDomain> = arrayListOf(
@@ -129,8 +119,7 @@ class CurrencyBaseInteractorTest
     }
 
     @Test
-    fun testSearchAvailableCurrenciesNull()
-    {
+    fun testSearchAvailableCurrenciesNull() {
         val findCurrency: CurrencyDomain = CurrencyDomain.getInstance("EUR")
 
         val testData: MutableList<CurrencyDomain> = arrayListOf(

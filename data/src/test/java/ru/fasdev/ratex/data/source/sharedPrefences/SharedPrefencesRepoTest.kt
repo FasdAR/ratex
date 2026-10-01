@@ -3,18 +3,16 @@ package ru.fasdev.ratex.data.source.sharedPrefences
 import android.content.Context
 import android.os.Build
 import androidx.test.core.app.ApplicationProvider
-import org.junit.Test
-
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import ru.fasdev.ratex.domain.main.boundaries.SharedPrefencesRepo
 
 @RunWith(RobolectricTestRunner::class)
-class SharedPrefencesRepoTest
-{
+class SharedPrefencesRepoTest {
     lateinit var context: Context
     lateinit var sharedPrefencesRepo: SharedPrefencesRepo
 
@@ -23,13 +21,12 @@ class SharedPrefencesRepoTest
         context = ApplicationProvider.getApplicationContext()
 
         val sPrefences = context.getSharedPreferences(SPrefences.NAME_SETTINGS, Context.MODE_PRIVATE)
-        sharedPrefencesRepo = SharedPrefencesRepoImpl(SPrefences(sPrefences));
+        sharedPrefencesRepo = SharedPrefencesRepoImpl(SPrefences(sPrefences))
     }
 
     @Test
     @Config(sdk = intArrayOf(Build.VERSION_CODES.P))
-    fun testGetAndSetBaseCurrencyCode()
-    {
+    fun testGetAndSetBaseCurrencyCode() {
         val testValue = "USD"
 
         sharedPrefencesRepo.setBaseCurrencyCode(testValue)

@@ -6,8 +6,7 @@ import dagger.Provides
 import ru.fasdev.ratex.app.di.scope.AppScope
 
 @Module
-class AppModule (val context: Context)
-{
+class AppModule(val context: Context) {
     @Provides
     @AppScope
     fun provideContext(): Context = context

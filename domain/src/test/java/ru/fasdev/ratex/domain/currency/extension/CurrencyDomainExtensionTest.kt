@@ -1,12 +1,11 @@
 package ru.fasdev.ratex.domain.currency.extension
 
+import java.util.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import ru.fasdev.ratex.domain.currency.entity.extension.toCurrencyDomain
-import java.util.*
 
-class CurrencyDomainExtensionTest
-{
+class CurrencyDomainExtensionTest {
     @Test
     fun testConvertToCurrencyDomain() {
         val currency = Currency.getInstance("USD")

@@ -9,16 +9,15 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import ru.fasdev.ratex.BuildConfig
-import ru.fasdev.ratex.app.di.scope.ActivityScope
 import ru.fasdev.ratex.app.di.scope.AppScope
 
 @Module
-class RetrofitModule
-{
+class RetrofitModule {
     @Provides
     @AppScope
     fun provideRxAdapter(): RxJava2CallAdapterFactory = RxJava2CallAdapterFactory.createWithScheduler(
-        Schedulers.io())
+        Schedulers.io()
+    )
 
     @Provides
     @AppScope
@@ -29,17 +28,19 @@ class RetrofitModule
     fun provideHttpLogginInteractor(): HttpLoggingInterceptor {
         val httpInteractor = HttpLoggingInterceptor()
 
-        if (BuildConfig.DEBUG)
+        if (BuildConfig.DEBUG) {
             httpInteractor.level = HttpLoggingInterceptor.Level.BODY
-        else
+        } else {
             httpInteractor.level = HttpLoggingInterceptor.Level.NONE
+        }
 
         return httpInteractor
     }
 
     @Provides
     @AppScope
-    fun provideOkHttpClient(httpLoggingInterceptor: HttpLoggingInterceptor): OkHttpClient = OkHttpClient.Builder().addInterceptor(httpLoggingInterceptor).build()
+    fun provideOkHttpClient(httpLoggingInterceptor: HttpLoggingInterceptor): OkHttpClient =
+        OkHttpClient.Builder().addInterceptor(httpLoggingInterceptor).build()
 
     @Provides
     @AppScope
@@ -51,6 +52,6 @@ class RetrofitModule
         .client(okHttpClient)
         .addConverterFactory(gsonConverterFactory)
         .addCallAdapterFactory(callAdapterFactory)
-        .baseUrl("https://api.exchangeratesapi.io") //TODO: CHANGE BASE URL TO DYNAMIC
+        .baseUrl("https://api.exchangeratesapi.io") // TODO: CHANGE BASE URL TO DYNAMIC
         .build()
 }

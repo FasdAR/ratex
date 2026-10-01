@@ -1,6 +1,5 @@
 package ru.fasdev.ratex.ui.cicerone.provider
 
-interface BackButtonProvider
-{
+interface BackButtonProvider {
     fun onBackPressed(): Boolean
 }

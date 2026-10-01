@@ -2,7 +2,6 @@ package ru.fasdev.ratex.ui.view.fragmentListCurrencyRate
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +13,8 @@ import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import androidx.recyclerview.widget.LinearLayoutManager
 import dev.chrisbanes.insetter.applySystemWindowInsetsToPadding
+import javax.inject.Inject
+import javax.inject.Provider
 import moxy.MvpAppCompatFragment
 import moxy.ktx.moxyPresenter
 import ru.fasdev.ratex.R
@@ -23,13 +24,12 @@ import ru.fasdev.ratex.domain.currency.entity.RateCurrencyDomain
 import ru.fasdev.ratex.ui.adapter.epoxy.listCurrencyRate.ListCurrencyRateController
 import ru.fasdev.ratex.ui.view.activityMain.MainActivity
 import ru.fasdev.ratex.ui.view.bottomSheetSelectCurrency.SelectCurrencyBottomSheet
-import javax.inject.Inject
-import javax.inject.Provider
 
-class ListCurrencyRateFragment : MvpAppCompatFragment(), ListCurrencyRateView, View.OnClickListener
-{
-    companion object
-    {
+class ListCurrencyRateFragment :
+    MvpAppCompatFragment(),
+    ListCurrencyRateView,
+    View.OnClickListener {
+    companion object {
         fun newInstance() = ListCurrencyRateFragment()
     }
 
@@ -40,13 +40,13 @@ class ListCurrencyRateFragment : MvpAppCompatFragment(), ListCurrencyRateView, V
 
     @Inject
     lateinit var presenterProvider: Provider<ListCurrencyRatePresenter>
-    private val presenter by moxyPresenter {presenterProvider.get()}
+    private val presenter by moxyPresenter { presenterProvider.get() }
 
     val fragmentListCurrencyComponent by lazy {
-       return@lazy DaggerFragmentListCurrencyRateComponent
-           .builder()
-           .activityComponent((requireActivity() as MainActivity).activitySubComponent)
-           .build()
+        return@lazy DaggerFragmentListCurrencyRateComponent
+            .builder()
+            .activityComponent((requireActivity() as MainActivity).activitySubComponent)
+            .build()
     }
 
     private val listRateController by lazy {
@@ -59,12 +59,7 @@ class ListCurrencyRateFragment : MvpAppCompatFragment(), ListCurrencyRateView, V
         fragmentListCurrencyComponent.inject(this)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View?
-    {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = ListCurrencyRateFragmentBinding.inflate(inflater)
 
         binding.root.applySystemWindowInsetsToPadding(top = true, left = true, right = true)
@@ -88,38 +83,30 @@ class ListCurrencyRateFragment : MvpAppCompatFragment(), ListCurrencyRateView, V
         return binding.root
     }
 
-    override fun setBaseCurrency(currency: String)
-    {
+    override fun setBaseCurrency(currency: String) {
         binding.baseCurrency.setText(currency)
     }
 
-    override fun setListExchangeRates(rateList: List<RateCurrencyDomain>)
-    {
+    override fun setListExchangeRates(rateList: List<RateCurrencyDomain>) {
         listRateController.setData(rateList)
     }
 
-    override fun setRefreshingState(isRefreshing: Boolean)
-    {
+    override fun setRefreshingState(isRefreshing: Boolean) {
         binding.swipeRefresh.isRefreshing = isRefreshing
     }
 
-    override fun setNetworkError(message: String)
-    {
+    override fun setNetworkError(message: String) {
         Toast.makeText(appCompactActivity, message, Toast.LENGTH_SHORT).show()
     }
 
-    override fun onClick(view: View?)
-    {
-        when (view?.id)
-        {
+    override fun onClick(view: View?) {
+        when (view?.id) {
             R.id.layout_base_currency -> {
                 val dialog = SelectCurrencyBottomSheet.show(childFragmentManager)
 
-                dialog.lifecycle.addObserver(object : LifecycleObserver
-                {
+                dialog.lifecycle.addObserver(object : LifecycleObserver {
                     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-                    fun destoryed()
-                    {
+                    fun destoryed() {
                         presenter.getBaseCurrency()
                         presenter.loadExchangeRates()
                     }

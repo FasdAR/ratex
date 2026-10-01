@@ -14,15 +14,13 @@ class MainActivityTest {
     var activeRule = ActivityScenarioRule(MainActivity::class.java)
 
     @Test
-    fun testLaunchMainActivity()
-    {
+    fun testLaunchMainActivity() {
         onView(withId(R.id.main_container))
             .check(matches(isDisplayed()))
     }
 
     @Test
-    fun testLaunchRootFragment()
-    {
+    fun testLaunchRootFragment() {
         onView(withId(R.id.fragment_list_currency_rate))
             .check(matches(isDisplayed()))
     }

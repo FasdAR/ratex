@@ -2,15 +2,10 @@ package ru.fasdev.ratex.data.source.sharedPrefences
 
 import ru.fasdev.ratex.domain.main.boundaries.SharedPrefencesRepo
 
-class SharedPrefencesRepoImpl (val sPrefences: SPrefences): SharedPrefencesRepo
-{
-    override fun getBaseCurrencyCode(): String?
-    {
-        return sPrefences.baseCurrencyCode
-    }
+class SharedPrefencesRepoImpl(val sPrefences: SPrefences) : SharedPrefencesRepo {
+    override fun getBaseCurrencyCode(): String? = sPrefences.baseCurrencyCode
 
-    override fun setBaseCurrencyCode(currencyCode: String?)
-    {
+    override fun setBaseCurrencyCode(currencyCode: String?) {
         sPrefences.baseCurrencyCode = currencyCode
     }
 }

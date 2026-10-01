@@ -1,13 +1,12 @@
 package ru.fasdev.ratex.data.currencyRate.repo
 
+import java.net.URL
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
 import ru.fasdev.ratex.data.currencyRate.repo.FlagCdnRepoImpl
-import java.net.URL
 
-class FlagCdnRepoTest
-{
+class FlagCdnRepoTest {
     private lateinit var flagCdnRepoImpl: FlagCdnRepoImpl
 
     @Before
