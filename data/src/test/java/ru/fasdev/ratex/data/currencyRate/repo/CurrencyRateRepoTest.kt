@@ -1,7 +1,7 @@
 package ru.fasdev.ratex.data.currencyRate.repo
 
-import io.reactivex.Single
-import io.reactivex.observers.TestObserver
+import kotlinx.coroutines.test.runTest
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -28,7 +28,7 @@ class CurrencyRateRepoTest {
     }
 
     @Test
-    fun testGetExchangeRates() {
+    fun testGetExchangeRates() = runTest {
         val testCurrencyDomain = CurrencyDomain.getInstance("RUB")
 
         val testListData = listOf(
@@ -37,22 +37,14 @@ class CurrencyRateRepoTest {
         )
 
         Mockito.`when`(currencyBaseRepo.getBaseCurrency())
-            .thenReturn(Single.just(testCurrencyDomain))
+            .thenReturn(testCurrencyDomain)
 
         Mockito
             .`when`(currencyRateDataStore.getExchangeRates(testCurrencyDomain))
-            .thenReturn(
-                Single.just(
-                    testListData
-                )
-            )
+            .thenReturn(testListData)
 
-        val testObserver: TestObserver<List<RateCurrencyDomain>> = TestObserver()
+        val result = currencyRateRepo.getExchangeRates()
 
-        currencyRateRepo.getExchangeRates().subscribe(testObserver)
-
-        testObserver
-            .assertComplete()
-            .assertValue(testListData)
+        assertThat(result).isEqualTo(testListData)
     }
 }

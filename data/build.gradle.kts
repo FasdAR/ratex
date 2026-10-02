@@ -1,69 +1,60 @@
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
+plugins {
+    alias(libs.plugins.android.library)
+}
 
 android {
-    namespace "ru.fasdev.ratex.data"
-    compileSdkVersion (rootProject.ext.androidVer.compileSdk)
-    buildToolsVersion (rootProject.ext.androidVer.buildTools)
+    namespace = "ru.fasdev.ratex.data"
+    compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
-        minSdkVersion (rootProject.ext.androidVer.minSdk)
-        targetSdkVersion (rootProject.ext.androidVer.targetSdk)
-        versionCode 1
-        versionName "1.0"
+        minSdk = libs.versions.minSdk.get().toInt()
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles "consumer-rules.pro"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            isMinifyEnabled = false
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
 
     testOptions {
         unitTests {
-            includeAndroidResources = true
+            isIncludeAndroidResources = true
         }
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-
-    kotlinOptions {
-        jvmTarget = "1.8"
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 }
 
 dependencies {
-    implementation fileTree(dir: "libs", include: ["*.jar"])
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 
-    //Test impl
-    testImplementation "junit:junit:${rootProject.ext.ver.jUnit}"
-    testImplementation "org.assertj:assertj-core:${rootProject.ext.ver.assertJ}"
-    testImplementation "org.robolectric:robolectric:${rootProject.ext.ver.robolectric}"
-    testImplementation "androidx.test:core:${rootProject.ext.ver.androidXTestCore}"
-    testImplementation "org.mockito:mockito-core:${rootProject.ext.ver.mockitoCore}"
-    testImplementation "com.squareup.okhttp3:mockwebserver:${rootProject.ext.ver.mockWebServer}"
-    androidTestImplementation "androidx.test.ext:junit:${rootProject.ext.ver.androidXJunit}"
+    // Test impl
+    testImplementation(libs.junit)
+    testImplementation(libs.assertj.core)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.okhttp.mockwebserver)
+    androidTestImplementation(libs.androidx.test.ext.junit)
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation "androidx.core:core-ktx:${rootProject.ext.ver.coreKtx}"
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.androidx.core.ktx)
 
-    implementation project(':domain')
+    implementation(project(":domain"))
 
-    //Retrofit, Gson-Converter, OkHttp-Loggin, RxJava Adapter
-    implementation "com.squareup.retrofit2:retrofit:${rootProject.ext.ver.retrofit}"
-    implementation "com.squareup.retrofit2:converter-gson:${rootProject.ext.ver.retrofit}"
-    implementation "com.squareup.retrofit2:adapter-rxjava2:${rootProject.ext.ver.retrofit}"
-    implementation "com.squareup.okhttp3:logging-interceptor:${rootProject.ext.ver.okHttp}"
+    // Retrofit, Gson-Converter, OkHttp-Logging
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.okhttp.logging.interceptor)
 
-    //RxJava
-    //implementation "io.reactivex.rxjava2:rxjava:$rxjava_ver"
-    implementation "io.reactivex.rxjava2:rxkotlin:${rootProject.ext.ver.rxKotlin}"
-    implementation "io.reactivex.rxjava2:rxandroid:${rootProject.ext.ver.rxAndroid}"
+    // Coroutines
+    implementation(libs.kotlinx.coroutines.core)
+    testImplementation(libs.kotlinx.coroutines.test)
 }

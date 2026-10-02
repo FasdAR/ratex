@@ -1,30 +1,30 @@
-apply plugin: 'java-library'
-apply plugin: 'kotlin'
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
+plugins {
+    `java-library`
+    alias(libs.plugins.kotlin.jvm)
+}
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
+    implementation(libs.kotlin.stdlib)
 
-    testImplementation "junit:junit:${rootProject.ext.ver.jUnit}"
-    testImplementation "org.mockito:mockito-core:${rootProject.ext.ver.mockitoCore}"
-    testImplementation "org.assertj:assertj-core:${rootProject.ext.ver.assertJ}"
+    testImplementation(libs.junit)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.assertj.core)
 
-    //RxJava
-    implementation "io.reactivex.rxjava2:rxkotlin:${rootProject.ext.ver.rxKotlin}"
+    // Coroutines
+    implementation(libs.kotlinx.coroutines.core)
+    testImplementation(libs.kotlinx.coroutines.test)
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
-
-compileKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
-compileTestKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_1_8)
     }
 }

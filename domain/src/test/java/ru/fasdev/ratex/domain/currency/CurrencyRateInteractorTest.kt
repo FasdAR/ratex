@@ -1,8 +1,8 @@
 package ru.fasdev.ratex.domain.currency
 
-import io.reactivex.Single
-import io.reactivex.observers.TestObserver
 import java.util.*
+import kotlinx.coroutines.test.runTest
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -28,20 +28,16 @@ class CurrencyRateInteractorTest {
     }
 
     @Test
-    fun testGetExchangeRates() {
+    fun testGetExchangeRates() = runTest {
         val testData: MutableList<RateCurrencyDomain> = arrayListOf(
             RateCurrencyDomain(CurrencyDomain.getInstance("USD"), 0.534786),
             RateCurrencyDomain(CurrencyDomain.getInstance("RUB"), 0.563423)
         )
 
-        Mockito.`when`(currencyRateRepo.getExchangeRates()).thenReturn(Single.just(testData))
+        Mockito.`when`(currencyRateRepo.getExchangeRates()).thenReturn(testData)
 
-        val testObserver: TestObserver<List<RateCurrencyDomain>> = TestObserver()
+        val result = currencyRateInteractor.getExchangeRates()
 
-        currencyRateInteractor.getExchangeRates().subscribe(testObserver)
-
-        testObserver
-            .assertComplete()
-            .assertValue(testData.sortedBy { it.currency.displayName })
+        assertThat(result).isEqualTo(testData.sortedBy { it.currency.displayName })
     }
 }

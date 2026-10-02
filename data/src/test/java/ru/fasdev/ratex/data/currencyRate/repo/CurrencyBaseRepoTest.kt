@@ -1,7 +1,9 @@
 package ru.fasdev.ratex.data.currencyRate.repo
 
-import io.reactivex.observers.TestObserver
 import java.util.*
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -24,37 +26,29 @@ class CurrencyBaseRepoTest {
 
     @Before
     fun setUp() {
-        currencyBaseRepo = CurrencyBaseRepoImpl(sharedPrefencesRepo, currencyImageRepo)
+        currencyBaseRepo = CurrencyBaseRepoImpl(sharedPrefencesRepo, currencyImageRepo, UnconfinedTestDispatcher())
     }
 
     @Test
-    fun testGetBaseCurrencyNullPreferences() {
+    fun testGetBaseCurrencyNullPreferences() = runTest {
         Mockito.`when`(sharedPrefencesRepo.getBaseCurrencyCode()).thenReturn(null)
 
         val testLocale = Locale.US
         Locale.setDefault(testLocale)
 
-        val testObserver: TestObserver<CurrencyDomain> = TestObserver()
+        val result = currencyBaseRepo.getBaseCurrency()
 
-        currencyBaseRepo.getBaseCurrency().subscribe(testObserver)
-
-        testObserver
-            .assertComplete()
-            .assertValue { it.currencyCode == Currency.getInstance(Locale.getDefault()).currencyCode }
+        assertThat(result.currencyCode).isEqualTo(Currency.getInstance(Locale.getDefault()).currencyCode)
     }
 
     @Test
-    fun testGetBaseCurrency() {
+    fun testGetBaseCurrency() = runTest {
         val testLocale = Locale.US
         Mockito.`when`(sharedPrefencesRepo.getBaseCurrencyCode()).thenReturn(Currency.getInstance(testLocale).currencyCode)
 
-        val testObserver: TestObserver<CurrencyDomain> = TestObserver()
+        val result = currencyBaseRepo.getBaseCurrency()
 
-        currencyBaseRepo.getBaseCurrency().subscribe(testObserver)
-
-        testObserver
-            .assertComplete()
-            .assertValue { it.currencyCode == Currency.getInstance(testLocale).currencyCode }
+        assertThat(result.currencyCode).isEqualTo(Currency.getInstance(testLocale).currencyCode)
     }
 
     @Test
@@ -66,13 +60,9 @@ class CurrencyBaseRepoTest {
     }
 
     @Test
-    fun testGetAvailableCurrencies() {
-        val testObserver: TestObserver<List<CurrencyDomain>> = TestObserver()
+    fun testGetAvailableCurrencies() = runTest {
+        val result = currencyBaseRepo.getAvailableCurrencies()
 
-        currencyBaseRepo.getAvailableCurrencies().subscribe(testObserver)
-
-        testObserver
-            .assertComplete()
-            .assertValue { !it.isNullOrEmpty() }
+        assertThat(result).isNotEmpty()
     }
 }

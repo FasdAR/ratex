@@ -1,71 +1,23 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
-buildscript {
-    ext.kotlin_version = "1.9.24"
+import org.jlleitschuh.gradle.ktlint.KtlintExtension
 
-    repositories {
-        google()
-        mavenCentral()
-        gradlePluginPortal()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:8.6.1'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "org.jlleitschuh.gradle:ktlint-gradle:14.2.0"
-
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-    }
-}
-
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-        maven { url 'https://jitpack.io' }
-    }
+plugins {
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.android.legacy.kapt) apply false
+    alias(libs.plugins.kotlin.jvm) apply false
+    alias(libs.plugins.ksp) apply false
+    alias(libs.plugins.ktlint) apply false
 }
 
 subprojects {
-    apply plugin: "org.jlleitschuh.gradle.ktlint"
+    apply(plugin = "org.jlleitschuh.gradle.ktlint")
 
-    ktlint {
-        android = true
+    configure<KtlintExtension> {
+        android.set(true)
     }
 }
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+tasks.register<Delete>("clean") {
+    delete(layout.buildDirectory)
 }
-
-ext.androidVer = [
-    compileSdk: 34,
-    minSdk: 23,
-    targetSdk: 34,
-    buildTools: "34.0.0"
-]
-
-ext.ver = [
-    materialLib: "1.12.0",
-    lifecycle: "2.8.4",
-    cicerone: "5.1.1",
-    dagger: "2.51.1",
-    retrofit: "2.11.0",
-    okHttp: "4.12.0",
-    moxy: "2.2.2",
-    insetter: "0.3.1",
-    rxKotlin: "2.4.0",
-    rxAndroid: "2.1.1",
-    epoxy: "5.1.4",
-    glide: "4.16.0",
-    jUnit: "4.13.2",
-    coreKtx: "1.13.1",
-    robolectric: "4.13",
-    androidXTestCore: "1.6.1",
-    androidXJunit: "1.2.1",
-    androidXTruth: "1.6.0",
-    mockitoCore: "5.12.0",
-    assertJ: "3.26.3",
-    mockWebServer: "4.12.0",
-    espressoCore: "3.6.1",
-    uiAutomator: "2.3.0"
-]

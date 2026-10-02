@@ -1,8 +1,7 @@
 package ru.fasdev.ratex.domain.currency
 
-import io.reactivex.Single
-import io.reactivex.observers.TestObserver
 import java.util.*
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Rule
@@ -28,21 +27,17 @@ class CurrencyBaseInteractorTest {
     }
 
     @Test
-    fun testGetBaseCurrency() {
+    fun testGetBaseCurrency() = runTest {
         // #region Mock getBaseCurrencyCode and getDefaultLocale
         val testCurrency = CurrencyDomain.getInstance("RUB")
         Locale.setDefault(Locale.US)
 
-        Mockito.`when`(currencyBaseRepo.getBaseCurrency()).thenReturn(Single.just(testCurrency))
+        Mockito.`when`(currencyBaseRepo.getBaseCurrency()).thenReturn(testCurrency)
         // #endregion
 
-        val testObserver: TestObserver<CurrencyDomain> = TestObserver()
+        val result = currencyBaseInteractor.getBaseCurrency()
 
-        currencyBaseInteractor.getBaseCurrency().subscribe(testObserver)
-
-        testObserver
-            .assertComplete()
-            .assertValue { it.currencyCode == testCurrency.currencyCode }
+        assertThat(result.currencyCode).isEqualTo(testCurrency.currencyCode)
     }
 
     @Test
@@ -55,22 +50,18 @@ class CurrencyBaseInteractorTest {
     }
 
     @Test
-    fun testGetAvailableCurrencies() {
+    fun testGetAvailableCurrencies() = runTest {
         val testData: MutableList<CurrencyDomain> = arrayListOf(
             CurrencyDomain.getInstance("RUB"),
             CurrencyDomain.getInstance("USD"),
             CurrencyDomain.getInstance("EUR")
         )
 
-        Mockito.`when`(currencyBaseRepo.getAvailableCurrencies()).thenReturn(Single.just(testData))
+        Mockito.`when`(currencyBaseRepo.getAvailableCurrencies()).thenReturn(testData)
 
-        val testObserver: TestObserver<List<CurrencyDomain>> = TestObserver()
+        val result = currencyBaseInteractor.getAvailableCurrencies()
 
-        currencyBaseInteractor.getAvailableCurrencies().subscribe(testObserver)
-
-        testObserver
-            .assertComplete()
-            .assertValue(testData.sortedBy { it.displayName })
+        assertThat(result).isEqualTo(testData.sortedBy { it.displayName })
     }
 
     @Test

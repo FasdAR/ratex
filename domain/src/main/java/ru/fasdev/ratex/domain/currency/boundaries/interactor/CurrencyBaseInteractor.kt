@@ -1,11 +1,10 @@
 package ru.fasdev.ratex.domain.currency.boundaries.interactor
 
-import io.reactivex.Single
 import ru.fasdev.ratex.domain.currency.entity.CurrencyDomain
 
 interface CurrencyBaseInteractor {
-    fun getBaseCurrency(): Single<CurrencyDomain>
+    suspend fun getBaseCurrency(): CurrencyDomain
     fun setBaseCurrency(baseCurrency: CurrencyDomain)
-    fun getAvailableCurrencies(): Single<List<CurrencyDomain>>
+    suspend fun getAvailableCurrencies(): List<CurrencyDomain>
     fun filterSearchAvailbaleCurrenciesNameCode(list: List<CurrencyDomain>, nameCode: String?): List<CurrencyDomain>
 }

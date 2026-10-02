@@ -1,7 +1,7 @@
 package ru.fasdev.ratex.ui.view.fragementListCurrencyRate
 
-import io.reactivex.Single
 import java.lang.Exception
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -14,12 +14,12 @@ import ru.fasdev.ratex.domain.currency.boundaries.interactor.CurrencyBaseInterac
 import ru.fasdev.ratex.domain.currency.boundaries.interactor.CurrencyRateInteractor
 import ru.fasdev.ratex.domain.currency.entity.CurrencyDomain
 import ru.fasdev.ratex.domain.currency.entity.RateCurrencyDomain
-import ru.fasdev.ratex.rule.InitScheduler
+import ru.fasdev.ratex.rule.MainDispatcherRule
 import ru.fasdev.ratex.ui.view.fragmentListCurrencyRate.ListCurrencyRatePresenter
 import ru.fasdev.ratex.ui.view.fragmentListCurrencyRate.ListCurrencyRateView
 
 class ListCurrencyRatePresenterTest {
-    @get:Rule val initScheduler = InitScheduler()
+    @get:Rule val mainDispatcherRule = MainDispatcherRule()
 
     @get:Rule val mockJunit = MockitoJUnit.rule()
 
@@ -42,12 +42,12 @@ class ListCurrencyRatePresenterTest {
     // #endregion
 
     @Before
-    fun setUp() {
+    fun setUp() = runTest {
         presenter = ListCurrencyRatePresenter(currencyBaseInteractor, currencyRateInteractor)
 
         // #region First Attach
-        Mockito.`when`(currencyBaseInteractor.getBaseCurrency()).thenReturn(Single.just(testCurrency))
-        Mockito.`when`(currencyRateInteractor.getExchangeRates()).thenReturn(Single.just(testList))
+        Mockito.`when`(currencyBaseInteractor.getBaseCurrency()).thenReturn(testCurrency)
+        Mockito.`when`(currencyRateInteractor.getExchangeRates()).thenReturn(testList)
         // #endregion
 
         presenter.attachView(view)
@@ -59,8 +59,8 @@ class ListCurrencyRatePresenterTest {
     }
 
     @Test
-    fun testGetBaseCurrency() {
-        Mockito.`when`(currencyBaseInteractor.getBaseCurrency()).thenReturn(Single.just(testCurrency))
+    fun testGetBaseCurrency() = runTest {
+        Mockito.`when`(currencyBaseInteractor.getBaseCurrency()).thenReturn(testCurrency)
 
         presenter.getBaseCurrency()
 
@@ -68,8 +68,8 @@ class ListCurrencyRatePresenterTest {
     }
 
     @Test
-    fun testLoadExchangeRates() {
-        Mockito.`when`(currencyRateInteractor.getExchangeRates()).thenReturn(Single.just(testList))
+    fun testLoadExchangeRates() = runTest {
+        Mockito.`when`(currencyRateInteractor.getExchangeRates()).thenReturn(testList)
 
         presenter.loadExchangeRates()
 
@@ -77,11 +77,11 @@ class ListCurrencyRatePresenterTest {
     }
 
     @Test
-    fun testLoadExchangeRatesException() {
+    fun testLoadExchangeRatesException() = runTest {
         val testMessage = "sdasd"
 
         Mockito.`when`(currencyRateInteractor.getExchangeRates())
-            .thenReturn(Single.error(Exception(testMessage)))
+            .thenAnswer { throw Exception(testMessage) }
 
         presenter.loadExchangeRates()
 

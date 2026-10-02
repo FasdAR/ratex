@@ -1,41 +1,38 @@
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
+plugins {
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.android.legacy.kapt)
+    alias(libs.plugins.ksp)
+}
 
 android {
-    namespace "ru.fasdev.ratex"
-    compileSdkVersion (rootProject.ext.androidVer.compileSdk)
-    buildToolsVersion (rootProject.ext.androidVer.buildTools)
+    namespace = "ru.fasdev.ratex"
+    compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId "ru.fasdev.ratex"
-        minSdkVersion (rootProject.ext.androidVer.minSdk)
-        targetSdkVersion (rootProject.ext.androidVer.targetSdk)
-        versionCode 1
-        versionName "1.0"
+        applicationId = "ru.fasdev.ratex"
+        minSdk = libs.versions.minSdk.get().toInt()
+        targetSdk = libs.versions.targetSdk.get().toInt()
+        versionCode = 1
+        versionName = "1.0"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            isMinifyEnabled = false
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-
-    kotlinOptions {
-        jvmTarget = "1.8"
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 
     buildFeatures {
-        viewBinding true
-        buildConfig true
+        viewBinding = true
+        buildConfig = true
     }
 }
 
@@ -44,80 +41,81 @@ kapt {
 }
 
 dependencies {
-    implementation fileTree(dir: "libs", include: ["*.jar"])
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 
-    //Test impl
-    androidTestImplementation "androidx.test.espresso:espresso-core:${rootProject.ext.ver.espressoCore}"
+    // Test impl
+    androidTestImplementation(libs.androidx.test.espresso.core)
 
-    androidTestImplementation "androidx.test:core:${rootProject.ext.ver.androidXTestCore}"
-    androidTestImplementation "androidx.test:runner:${rootProject.ext.ver.androidXTestCore}"
-    androidTestImplementation "androidx.test:rules:${rootProject.ext.ver.androidXTestCore}"
-    androidTestImplementation "androidx.test.ext:junit:${rootProject.ext.ver.androidXJunit}"
-    androidTestImplementation "androidx.test.ext:truth:${rootProject.ext.ver.androidXTruth}"
+    androidTestImplementation(libs.androidx.test.core)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.rules)
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidx.test.ext.truth)
 
-    androidTestImplementation "androidx.test.uiautomator:uiautomator:${rootProject.ext.ver.uiAutomator}"
+    androidTestImplementation(libs.androidx.test.uiautomator)
 
-    testImplementation "junit:junit:${rootProject.ext.ver.jUnit}"
-    testImplementation "org.assertj:assertj-core:${rootProject.ext.ver.assertJ}"
-    testImplementation "org.robolectric:robolectric:${rootProject.ext.ver.robolectric}"
-    testImplementation "org.mockito:mockito-core:${rootProject.ext.ver.mockitoCore}"
+    testImplementation(libs.junit)
+    testImplementation(libs.assertj.core)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.mockito.core)
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation(libs.kotlin.stdlib)
 
-    //Domain lib
-    implementation project(':domain')
-    implementation project(':data')
+    // Domain lib
+    implementation(project(":domain"))
+    implementation(project(":data"))
 
-    //AndroidX
-    implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
-    implementation "androidx.core:core-ktx:${rootProject.ext.ver.coreKtx}"
+    // AndroidX
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.swiperefreshlayout)
+    implementation(libs.androidx.core.ktx)
 
-    //Material library
-    implementation "com.google.android.material:material:${rootProject.ext.ver.materialLib}"
+    // Material library
+    implementation(libs.material)
 
-    //lifecycle
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:${rootProject.ext.ver.lifecycle}"
-    implementation "androidx.lifecycle:lifecycle-runtime-ktx:${rootProject.ext.ver.lifecycle}"
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:${rootProject.ext.ver.lifecycle}"
+    // lifecycle
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.livedata.ktx)
 
-    //Cicerone
-    implementation "com.github.terrakok:cicerone:${rootProject.ext.ver.cicerone}"
+    // Cicerone
+    implementation(libs.cicerone)
 
-    //Dagger
-    api "com.google.dagger:dagger:${rootProject.ext.ver.dagger}"
-    api "com.google.dagger:dagger-android:${rootProject.ext.ver.dagger}"
-    kapt "com.google.dagger:dagger-compiler:${rootProject.ext.ver.dagger}"
-    kapt "com.google.dagger:dagger-android-processor:${rootProject.ext.ver.dagger}"
+    // Dagger
+    api(libs.dagger)
+    ksp(libs.dagger.compiler)
 
-    //Moxy
-    implementation "com.github.moxy-community:moxy:${rootProject.ext.ver.moxy}"
-    implementation "com.github.moxy-community:moxy-androidx:${rootProject.ext.ver.moxy}"
-    implementation "com.github.moxy-community:moxy-ktx:${rootProject.ext.ver.moxy}"
-    implementation "com.github.moxy-community:moxy-material:${rootProject.ext.ver.moxy}"
-    kapt "com.github.moxy-community:moxy-compiler:${rootProject.ext.ver.moxy}"
+    // Moxy
+    implementation(libs.moxy)
+    implementation(libs.moxy.androidx)
+    implementation(libs.moxy.ktx)
+    implementation(libs.moxy.material)
+    kapt(libs.moxy.compiler)
 
-    //Insetter
-    implementation "dev.chrisbanes:insetter:${rootProject.ext.ver.insetter}"
-    implementation "dev.chrisbanes:insetter-dbx:${rootProject.ext.ver.insetter}"
-    implementation "dev.chrisbanes:insetter-ktx:${rootProject.ext.ver.insetter}"
+    // Insetter
+    implementation(libs.insetter)
+    implementation(libs.insetter.dbx)
+    implementation(libs.insetter.ktx)
 
-    //Retrofit, Gson-Converter, OkHttp-Loggin, RxJava Adapter
-    implementation "com.squareup.retrofit2:retrofit:${rootProject.ext.ver.retrofit}"
-    implementation "com.squareup.retrofit2:converter-gson:${rootProject.ext.ver.retrofit}"
-    implementation "com.squareup.retrofit2:adapter-rxjava2:${rootProject.ext.ver.retrofit}"
-    implementation "com.squareup.okhttp3:logging-interceptor:${rootProject.ext.ver.okHttp}"
+    // Retrofit, Gson-Converter, OkHttp-Logging
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.okhttp.logging.interceptor)
 
-    //RxJava
-    implementation "io.reactivex.rxjava2:rxkotlin:${rootProject.ext.ver.rxKotlin}"
-    implementation "io.reactivex.rxjava2:rxandroid:${rootProject.ext.ver.rxAndroid}"
+    // Coroutines
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.android)
+    testImplementation(libs.kotlinx.coroutines.test)
 
-    //Epoxy
-    implementation "com.airbnb.android:epoxy:${rootProject.ext.ver.epoxy}"
-    implementation "com.airbnb.android:epoxy-databinding:${rootProject.ext.ver.epoxy}"
-    kapt "com.airbnb.android:epoxy-processor:${rootProject.ext.ver.epoxy}"
+    // Epoxy
+    implementation(libs.epoxy)
+    implementation(libs.epoxy.databinding)
+    kapt(libs.epoxy.processor)
 
-    //Glide
-    implementation "com.github.bumptech.glide:glide:${rootProject.ext.ver.glide}"
+    // Процессор Epoxy читает метаданные Kotlin максимум версии 2.3.0, нужен более свежий kotlin-metadata-jvm
+    kapt(libs.kotlin.metadata.jvm)
+
+    // Glide
+    implementation(libs.glide)
 }

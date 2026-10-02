@@ -10,8 +10,10 @@ import com.airbnb.epoxy.EpoxyModelWithHolder
 import ru.fasdev.ratex.R
 import ru.fasdev.ratex.domain.currency.entity.CurrencyDomain
 
-@EpoxyModelClass(layout = R.layout.item_currency_select)
+@EpoxyModelClass
 abstract class ListSelectCurrencyModel : EpoxyModelWithHolder<ListSelectCurrencyModel.Holder>() {
+    override fun getDefaultLayout(): Int = R.layout.item_currency_select
+
     class Holder : EpoxyHolder() {
         lateinit var rootView: View
         lateinit var nameCurrency: TextView

@@ -17,8 +17,10 @@ import ru.fasdev.ratex.R
 import ru.fasdev.ratex.app.util.dp
 import ru.fasdev.ratex.domain.currency.entity.RateCurrencyDomain
 
-@EpoxyModelClass(layout = R.layout.item_currency_rate)
+@EpoxyModelClass
 abstract class ListCurrencyRateModel : EpoxyModelWithHolder<ListCurrencyRateModel.Holder>() {
+    override fun getDefaultLayout(): Int = R.layout.item_currency_rate
+
     class Holder : EpoxyHolder() {
         lateinit var imageCurrency: ImageView
         lateinit var nameCurrency: TextView

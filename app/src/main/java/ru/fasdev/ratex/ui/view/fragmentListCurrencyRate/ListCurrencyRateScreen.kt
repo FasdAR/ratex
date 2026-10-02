@@ -1,8 +1,6 @@
 package ru.fasdev.ratex.ui.view.fragmentListCurrencyRate
 
-import androidx.fragment.app.Fragment
-import ru.terrakok.cicerone.android.support.SupportAppScreen
+import com.github.terrakok.cicerone.androidx.FragmentScreen
 
-class ListCurrencyRateScreen : SupportAppScreen() {
-    override fun getFragment(): Fragment? = ListCurrencyRateFragment.newInstance()
-}
+@Suppress("FunctionName")
+fun ListCurrencyRateScreen() = FragmentScreen { ListCurrencyRateFragment.newInstance() }

@@ -1,7 +1,7 @@
 package ru.fasdev.ratex.ui.view.bottomSheetSelectCurrency
 
-import io.reactivex.Single
 import kotlin.text.Typography.times
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -12,10 +12,10 @@ import org.mockito.Mockito.times
 import org.mockito.junit.MockitoJUnit
 import ru.fasdev.ratex.domain.currency.boundaries.interactor.CurrencyBaseInteractor
 import ru.fasdev.ratex.domain.currency.entity.CurrencyDomain
-import ru.fasdev.ratex.rule.InitScheduler
+import ru.fasdev.ratex.rule.MainDispatcherRule
 
 class SelectCurrencyPresenterTest {
-    @get:Rule val initScheduler = InitScheduler()
+    @get:Rule val mainDispatcherRule = MainDispatcherRule()
 
     @get:Rule val mockJunit = MockitoJUnit.rule()
 
@@ -36,7 +36,7 @@ class SelectCurrencyPresenterTest {
     // #endregion
 
     @Before
-    fun setUp() {
+    fun setUp() = runTest {
         presenter = SelectCurrencyPresenter(currencyBaseInteractor)
 
         // #region First Attach
@@ -46,8 +46,8 @@ class SelectCurrencyPresenterTest {
         )
             .thenReturn(testList)
 
-        Mockito.`when`(currencyBaseInteractor.getBaseCurrency()).thenReturn(Single.just(testCurrency))
-        Mockito.`when`(currencyBaseInteractor.getAvailableCurrencies()).thenReturn(Single.just(testList))
+        Mockito.`when`(currencyBaseInteractor.getBaseCurrency()).thenReturn(testCurrency)
+        Mockito.`when`(currencyBaseInteractor.getAvailableCurrencies()).thenReturn(testList)
         // #endregion
 
         presenter.attachView(view)
@@ -59,7 +59,7 @@ class SelectCurrencyPresenterTest {
     }
 
     @Test
-    fun testSearchCurrency() {
+    fun testSearchCurrency() = runTest {
         val testSearchList = listOf(
             CurrencyDomain.getInstance("RUB")
         )
@@ -78,7 +78,7 @@ class SelectCurrencyPresenterTest {
     }
 
     @Test
-    fun testLoadAvailableCurrencies() {
+    fun testLoadAvailableCurrencies() = runTest {
         presenter.loadAvailableCurrencies()
 
         Mockito.verify(view, times(2))
@@ -86,7 +86,7 @@ class SelectCurrencyPresenterTest {
     }
 
     @Test
-    fun testSelectedCurrency() {
+    fun testSelectedCurrency() = runTest {
         val selectedCurrency = CurrencyDomain.getInstance("RUB")
         presenter.selectedCurrency(true, selectedCurrency)
 

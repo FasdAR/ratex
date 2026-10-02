@@ -1,14 +1,14 @@
 package ru.fasdev.ratex.app.di.module.activity
 
 import androidx.fragment.app.FragmentActivity
+import com.github.terrakok.cicerone.Cicerone
+import com.github.terrakok.cicerone.NavigatorHolder
+import com.github.terrakok.cicerone.Router
+import com.github.terrakok.cicerone.androidx.AppNavigator
 import dagger.Module
 import dagger.Provides
 import ru.fasdev.ratex.app.di.scope.ActivityScope
 import ru.fasdev.ratex.ui.cicerone.navigator.MainNavigator
-import ru.terrakok.cicerone.Cicerone
-import ru.terrakok.cicerone.NavigatorHolder
-import ru.terrakok.cicerone.Router
-import ru.terrakok.cicerone.android.support.SupportAppNavigator
 
 @Module
 class CiceroneModule(val idContainer: Int) {
@@ -18,7 +18,7 @@ class CiceroneModule(val idContainer: Int) {
 
     @Provides
     @ActivityScope
-    fun provideCiceroneNavigationHelper(cicerone: Cicerone<Router>): NavigatorHolder = cicerone.navigatorHolder
+    fun provideCiceroneNavigationHelper(cicerone: Cicerone<Router>): NavigatorHolder = cicerone.getNavigatorHolder()
 
     @Provides
     @ActivityScope
@@ -27,5 +27,5 @@ class CiceroneModule(val idContainer: Int) {
     // Provide Default MainNavigator
     @Provides
     @ActivityScope
-    fun provideNavigator(fragmentActivity: FragmentActivity): SupportAppNavigator = MainNavigator(fragmentActivity, idContainer)
+    fun provideNavigator(fragmentActivity: FragmentActivity): AppNavigator = MainNavigator(fragmentActivity, idContainer)
 }

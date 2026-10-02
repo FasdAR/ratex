@@ -1,21 +1,16 @@
 package ru.fasdev.ratex.ui.view.bottomSheetSelectCurrency
 
 import android.util.Log
-import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.functions.BiFunction
-import io.reactivex.rxkotlin.subscribeBy
-import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.launch
 import moxy.MvpPresenter
+import moxy.presenterScope
 import ru.fasdev.ratex.domain.currency.boundaries.interactor.CurrencyBaseInteractor
 import ru.fasdev.ratex.domain.currency.entity.CurrencyDomain
 
 class SelectCurrencyPresenter @Inject constructor(val currencyBaseInteractor: CurrencyBaseInteractor) : MvpPresenter<SelectCurrencyView>() {
     var filterSearchCurrency: String? = null
-
-    var disposables: CompositeDisposable = CompositeDisposable()
 
     override fun onFirstViewAttach() {
         super.onFirstViewAttach()
@@ -30,31 +25,21 @@ class SelectCurrencyPresenter @Inject constructor(val currencyBaseInteractor: Cu
     }
 
     fun loadAvailableCurrencies() {
-        disposables.add(
-            Single.zip(
-                currencyBaseInteractor.getAvailableCurrencies(),
-                currencyBaseInteractor.getBaseCurrency(),
-                object : BiFunction<List<CurrencyDomain>, CurrencyDomain, Pair<CurrencyDomain, List<CurrencyDomain>>> {
-                    override fun apply(t1: List<CurrencyDomain>, t2: CurrencyDomain): Pair<CurrencyDomain, List<CurrencyDomain>> =
-                        Pair(t2, t1)
-                }
-            )
-                .flatMap {
-                    Single.just(
-                        Pair(it.first, currencyBaseInteractor.filterSearchAvailbaleCurrenciesNameCode(it.second, filterSearchCurrency))
-                    )
-                }
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeBy(
-                    onSuccess = {
-                        viewState.setListCurrency(it.second, it.first)
-                    },
-                    onError = {
-                        Log.d("ERROR", it.toString())
-                    }
+        presenterScope.launch {
+            try {
+                val availableCurrencies = currencyBaseInteractor.getAvailableCurrencies()
+                val baseCurrency = currencyBaseInteractor.getBaseCurrency()
+
+                viewState.setListCurrency(
+                    currencyBaseInteractor.filterSearchAvailbaleCurrenciesNameCode(availableCurrencies, filterSearchCurrency),
+                    baseCurrency
                 )
-        )
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.d("ERROR", e.toString())
+            }
+        }
     }
 
     fun selectedCurrency(isChecked: Boolean, currencyDomain: CurrencyDomain) {

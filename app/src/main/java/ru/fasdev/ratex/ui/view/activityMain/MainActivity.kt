@@ -3,6 +3,10 @@ package ru.fasdev.ratex.ui.view.activityMain
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
+import com.github.terrakok.cicerone.Cicerone
+import com.github.terrakok.cicerone.NavigatorHolder
+import com.github.terrakok.cicerone.Router
+import com.github.terrakok.cicerone.androidx.AppNavigator
 import javax.inject.Inject
 import moxy.MvpAppCompatActivity
 import ru.fasdev.ratex.R
@@ -12,10 +16,6 @@ import ru.fasdev.ratex.app.di.module.activity.ActivityModule
 import ru.fasdev.ratex.app.di.module.activity.CiceroneModule
 import ru.fasdev.ratex.ui.provider.FragmentProvider
 import ru.fasdev.ratex.ui.view.fragmentListCurrencyRate.ListCurrencyRateScreen
-import ru.terrakok.cicerone.Cicerone
-import ru.terrakok.cicerone.NavigatorHolder
-import ru.terrakok.cicerone.Router
-import ru.terrakok.cicerone.android.support.SupportAppNavigator
 
 class MainActivity :
     MvpAppCompatActivity(),
@@ -30,7 +30,7 @@ class MainActivity :
     lateinit var routerCicerone: Router
 
     @Inject
-    lateinit var navigator: SupportAppNavigator
+    lateinit var navigator: AppNavigator
 
     val activitySubComponent by lazy {
         return@lazy DaggerActivityComponent

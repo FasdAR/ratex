@@ -8,7 +8,7 @@ class CurrencyDomain(val currencyCode: String, val symbol: String, displayName: 
     val displayName: String
 
     init {
-        this.displayName = displayName.substring(0, 1).toUpperCase() + displayName.substring(1)
+        this.displayName = displayName.substring(0, 1).uppercase() + displayName.substring(1)
     }
 
     companion object {
