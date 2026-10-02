@@ -1,0 +1,61 @@
+package ru.fasdev.ratex.currency.ui.adapter.listSelectCurrency
+
+import android.view.View
+import android.widget.RadioButton
+import android.widget.TextView
+import com.airbnb.epoxy.EpoxyAttribute
+import com.airbnb.epoxy.EpoxyHolder
+import com.airbnb.epoxy.EpoxyModelClass
+import com.airbnb.epoxy.EpoxyModelWithHolder
+import ru.fasdev.ratex.R
+import ru.fasdev.ratex.currency.domain.entity.CurrencyDomain
+
+@EpoxyModelClass
+abstract class ListSelectCurrencyModel : EpoxyModelWithHolder<ListSelectCurrencyModel.Holder>() {
+    override fun getDefaultLayout(): Int = R.layout.item_currency_select
+
+    class Holder : EpoxyHolder() {
+        lateinit var rootView: View
+        lateinit var nameCurrency: TextView
+        lateinit var radioButton: RadioButton
+
+        override fun bindView(itemView: View) {
+            rootView = itemView
+            nameCurrency = itemView.findViewById(R.id.name_currency)
+            radioButton = itemView.findViewById(R.id.selected_checkbox)
+        }
+    }
+
+    interface Listener {
+        fun selectedCurrency(isChecked: Boolean, currencyDomain: CurrencyDomain)
+    }
+
+    @EpoxyAttribute
+    lateinit var listener: Listener
+
+    @EpoxyAttribute
+    lateinit var currency: CurrencyDomain
+
+    @EpoxyAttribute
+    var selectedState: Boolean = false
+
+    override fun bind(holder: Holder) {
+        holder.nameCurrency.setText(currency.displayName)
+
+        holder.radioButton.isChecked = selectedState
+
+        holder.radioButton.setOnClickListener {
+            selectedCurrency(holder.radioButton.isChecked)
+        }
+
+        holder.rootView.setOnClickListener {
+            holder.radioButton.isChecked = true
+
+            selectedCurrency(holder.radioButton.isChecked)
+        }
+    }
+
+    fun selectedCurrency(isChecked: Boolean) {
+        listener.selectedCurrency(isChecked, currency)
+    }
+}

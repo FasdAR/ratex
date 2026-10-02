@@ -16,6 +16,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Ratex"
 
-include(":data")
-include(":domain")
 include(":app")

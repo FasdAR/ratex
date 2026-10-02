@@ -30,6 +30,12 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+        }
+    }
+
     buildFeatures {
         viewBinding = true
         buildConfig = true
@@ -58,12 +64,10 @@ dependencies {
     testImplementation(libs.assertj.core)
     testImplementation(libs.robolectric)
     testImplementation(libs.mockito.core)
+    testImplementation(libs.okhttp.mockwebserver)
+    testImplementation(libs.androidx.test.core)
 
     implementation(libs.kotlin.stdlib)
-
-    // Domain lib
-    implementation(project(":domain"))
-    implementation(project(":data"))
 
     // AndroidX
     implementation(libs.androidx.appcompat)
