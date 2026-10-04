@@ -4,7 +4,7 @@ description: >-
     Проверяет готовое ТЗ по коду проекта: оценивает, можно ли его реализовать,
     подтверждает или опровергает гипотезы о текущем поведении и задаёт пользователю
     вопросы, если код противоречит требованиям.
-disable-model-invocation: true
+disable-model-invocation: false
 allowed-tools: Read, Glob, Grep, Bash(ast-index:*), AskUserQuestion
 ---
 

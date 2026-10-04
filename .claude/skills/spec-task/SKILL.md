@@ -4,7 +4,7 @@ description: >-
     Составляет подробное ТЗ по свободному описанию задачи пользователя, не читая код.
     Задаёт пользователю вопросы о продукте и поведении, а то, что видно из кода,
     оставляет гипотезами для следующего скилла.
-disable-model-invocation: true
+disable-model-invocation: false
 allowed-tools: Read, Bash(ast-index:*), AskUserQuestion
 ---
 
