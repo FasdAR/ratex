@@ -1,6 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.android.legacy.kapt)
+    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
 }
@@ -38,13 +38,9 @@ android {
     }
 
     buildFeatures {
-        viewBinding = true
+        compose = true
         buildConfig = true
     }
-}
-
-kapt {
-    correctErrorTypes = true
 }
 
 dependencies {
@@ -71,37 +67,36 @@ dependencies {
     implementation(libs.kotlin.stdlib)
 
     // AndroidX
-    implementation(libs.androidx.appcompat)
-    implementation(libs.androidx.constraintlayout)
-    implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.activity.compose)
 
-    // Material library
-    implementation(libs.material)
+    // Compose
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    debugImplementation(libs.androidx.compose.ui.tooling)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
 
-    // lifecycle
-    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    // Lifecycle
     implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.navigation3)
 
-    // Cicerone
-    implementation(libs.cicerone)
+    // Navigation 3
+    implementation(libs.androidx.navigation3.runtime)
+    implementation(libs.androidx.navigation3.ui)
+
+    // Coil
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
 
     // Dagger
     api(libs.dagger)
     ksp(libs.dagger.compiler)
-
-    // Moxy
-    implementation(libs.moxy)
-    implementation(libs.moxy.androidx)
-    implementation(libs.moxy.ktx)
-    implementation(libs.moxy.material)
-    kapt(libs.moxy.compiler)
-
-    // Insetter
-    implementation(libs.insetter)
-    implementation(libs.insetter.dbx)
-    implementation(libs.insetter.ktx)
 
     // Ktor Client (движок OkHttp), Kotlin Serialization
     implementation(libs.ktor.client.core)
@@ -115,15 +110,4 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
     testImplementation(libs.kotlinx.coroutines.test)
-
-    // Epoxy
-    implementation(libs.epoxy)
-    implementation(libs.epoxy.databinding)
-    kapt(libs.epoxy.processor)
-
-    // Процессор Epoxy читает метаданные Kotlin максимум версии 2.3.0, нужен более свежий kotlin-metadata-jvm
-    kapt(libs.kotlin.metadata.jvm)
-
-    // Glide
-    implementation(libs.glide)
 }

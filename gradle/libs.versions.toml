@@ -5,24 +5,19 @@ ksp = "2.3.12"
 ktlintGradle = "14.2.0"
 
 compileSdk = "37"
-minSdk = "23"
+minSdk = "24"
 targetSdk = "34"
 
-appcompat = "1.8.0"
-constraintlayout = "2.2.2"
-swiperefreshlayout = "1.2.0"
 coreKtx = "1.19.1"
-material = "1.14.0"
 lifecycle = "2.11.0"
-cicerone = "7.1"
+composeBom = "2026.09.00"
+activityCompose = "1.13.0"
+navigation3 = "1.2.0"
+coil = "3.6.3"
 dagger = "2.60.1"
-moxy = "2.2.2"
-insetter = "0.3.1"
 ktor = "3.6.0"
 coroutines = "1.11.0"
 kotlinxSerialization = "1.11.0"
-epoxy = "5.2.1"
-glide = "5.0.9"
 
 junit = "4.13.2"
 robolectric = "4.17"
@@ -36,33 +31,13 @@ uiautomator = "2.4.0"
 
 [libraries]
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
-kotlin-metadata-jvm = { module = "org.jetbrains.kotlin:kotlin-metadata-jvm", version.ref = "kotlin" }
 
-androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
-androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayout" }
-androidx-swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "swiperefreshlayout" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
-material = { module = "com.google.android.material:material", version.ref = "material" }
 
-androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
 androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle" }
-androidx-lifecycle-livedata-ktx = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "lifecycle" }
-
-cicerone = { module = "com.github.terrakok:cicerone", version.ref = "cicerone" }
 
 dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
 dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "dagger" }
-
-moxy = { module = "com.github.moxy-community:moxy", version.ref = "moxy" }
-moxy-androidx = { module = "com.github.moxy-community:moxy-androidx", version.ref = "moxy" }
-moxy-ktx = { module = "com.github.moxy-community:moxy-ktx", version.ref = "moxy" }
-moxy-material = { module = "com.github.moxy-community:moxy-material", version.ref = "moxy" }
-moxy-compiler = { module = "com.github.moxy-community:moxy-compiler", version.ref = "moxy" }
-
-insetter = { module = "dev.chrisbanes:insetter", version.ref = "insetter" }
-insetter-dbx = { module = "dev.chrisbanes:insetter-dbx", version.ref = "insetter" }
-insetter-ktx = { module = "dev.chrisbanes:insetter-ktx", version.ref = "insetter" }
-
 
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
@@ -76,12 +51,6 @@ kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-c
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 
-epoxy = { module = "com.airbnb.android:epoxy", version.ref = "epoxy" }
-epoxy-databinding = { module = "com.airbnb.android:epoxy-databinding", version.ref = "epoxy" }
-epoxy-processor = { module = "com.airbnb.android:epoxy-processor", version.ref = "epoxy" }
-
-glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
-
 junit = { module = "junit:junit", version.ref = "junit" }
 assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj" }
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
@@ -94,10 +63,27 @@ androidx-test-ext-truth = { module = "androidx.test.ext:truth", version.ref = "a
 androidx-test-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso" }
 androidx-test-uiautomator = { module = "androidx.test.uiautomator:uiautomator", version.ref = "uiautomator" }
 
+androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
+androidx-compose-ui = { module = "androidx.compose.ui:ui" }
+androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
+androidx-compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
+androidx-compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
+androidx-compose-material3 = { module = "androidx.compose.material3:material3" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
+androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
+androidx-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "lifecycle" }
+androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
+androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "navigation3" }
+androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "navigation3" }
+
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
+coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coil" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
-android-legacy-kapt = { id = "com.android.legacy-kapt", version.ref = "agp" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintGradle" }

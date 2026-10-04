@@ -1,15 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#fff</color>
-    <color name="colorPrimaryDark">#fff</color>
-    <color name="colorAccent">#EAEAEA</color>
-
-    <color name="colorSystemUi">#B3FFFFFF</color>
-    <color name="colorSystemUiDark">#B3000000</color>
-
     <color name="colorBackground">#fff</color>
-
-    <color name="colorToolbarPrimaryText">#000</color>
-    <color name="colorToolbarSecondaryText">#000</color>
-    <color name="colorToolbarActionMenuText">#000</color>
 </resources>

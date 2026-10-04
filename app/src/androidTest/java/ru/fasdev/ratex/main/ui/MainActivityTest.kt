@@ -1,27 +1,28 @@
 package ru.fasdev.ratex.main.ui
 
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.ext.junit.rules.ActivityScenarioRule
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
 import org.junit.Rule
 import org.junit.Test
-import ru.fasdev.ratex.R
+import ru.fasdev.ratex.currency.ui.listCurrencyRate.TAG_BASE_CURRENCY
+import ru.fasdev.ratex.currency.ui.listCurrencyRate.TAG_LIST_CURRENCY_RATE
+import ru.fasdev.ratex.currency.ui.selectCurrency.TAG_SELECT_CURRENCY_SHEET
 
 class MainActivityTest {
     @get:Rule
-    var activeRule = ActivityScenarioRule(MainActivity::class.java)
+    val composeRule = createAndroidComposeRule<MainActivity>()
 
     @Test
-    fun testLaunchMainActivity() {
-        onView(withId(R.id.main_container))
-            .check(matches(isDisplayed()))
+    fun testLaunchRootScreen() {
+        composeRule.onNodeWithTag(TAG_LIST_CURRENCY_RATE).assertIsDisplayed()
     }
 
     @Test
-    fun testLaunchRootFragment() {
-        onView(withId(R.id.fragment_list_currency_rate))
-            .check(matches(isDisplayed()))
+    fun testOpenSelectCurrencySheet() {
+        composeRule.onNodeWithTag(TAG_BASE_CURRENCY).performClick()
+
+        composeRule.onNodeWithTag(TAG_SELECT_CURRENCY_SHEET).assertIsDisplayed()
     }
 }
