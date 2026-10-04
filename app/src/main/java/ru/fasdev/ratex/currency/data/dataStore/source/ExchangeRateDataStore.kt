@@ -1,6 +1,5 @@
 package ru.fasdev.ratex.currency.data.dataStore.source
 
-import com.google.gson.JsonParser
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -18,13 +17,10 @@ class ExchangeRateDataStore(
     override suspend fun getExchangeRates(baseCurrency: CurrencyDomain): List<RateCurrencyDomain> = withContext(ioDispatcher) {
         exchangeRateApi
             .getProducts(baseCurrency.currencyCode)
-            .string()
-            .let { JsonParser().parse(it) }
-            .asJsonObject
-            .getAsJsonObject("rates")
-            .entrySet()
+            .rates
+            .entries
             .map {
-                RateCurrencyDomain(CurrencyDomain.getInstance(it.key, imageRepo), it.value.asDouble)
+                RateCurrencyDomain(CurrencyDomain.getInstance(it.key, imageRepo), it.value)
             }
             .filter {
                 it.currency.currencyCode != baseCurrency.currencyCode

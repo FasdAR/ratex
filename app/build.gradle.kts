@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.android.legacy.kapt)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
 }
 
@@ -102,9 +103,10 @@ dependencies {
     implementation(libs.insetter.dbx)
     implementation(libs.insetter.ktx)
 
-    // Retrofit, Gson-Converter, OkHttp-Logging
+    // Retrofit, Kotlin Serialization-Converter, OkHttp-Logging
     implementation(libs.retrofit)
-    implementation(libs.retrofit.converter.gson)
+    implementation(libs.retrofit.converter.kotlinx.serialization)
+    implementation(libs.kotlinx.serialization.json)
     implementation(libs.okhttp.logging.interceptor)
 
     // Coroutines

@@ -40,4 +40,17 @@ object TestData {
         "    \"base\": \"RUB\",\n" +
         "    \"date\": \"2020-10-12\"\n" +
         "}"
+
+    val JSON_EXCHANGE_RATES_EXTRA_FIELDS: String = "{\n" +
+        "    \"rates\": {\n" +
+        "        \"CAD\": 0.0170693549,\n" +
+        "        \"HKD\": 0.100746984\n" +
+        "    },\n" +
+        "    \"base\": \"RUB\",\n" +
+        "    \"date\": \"2020-10-12\",\n" +
+        "    \"success\": true,\n" +
+        "    \"timestamp\": 1602460800\n" +
+        "}"
+
+    const val JSON_INVALID: String = "<html>not a json</html>"
 }

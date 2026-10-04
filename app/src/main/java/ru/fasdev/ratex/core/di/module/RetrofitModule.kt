@@ -2,10 +2,13 @@ package ru.fasdev.ratex.core.di.module
 
 import dagger.Module
 import dagger.Provides
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Converter
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import ru.fasdev.ratex.BuildConfig
 import ru.fasdev.ratex.main.di.scope.AppScope
 
@@ -13,7 +16,11 @@ import ru.fasdev.ratex.main.di.scope.AppScope
 class RetrofitModule {
     @Provides
     @AppScope
-    fun provideGsonConverterFactory(): GsonConverterFactory = GsonConverterFactory.create()
+    fun provideJson(): Json = Json { ignoreUnknownKeys = true }
+
+    @Provides
+    @AppScope
+    fun provideConverterFactory(json: Json): Converter.Factory = json.asConverterFactory("application/json".toMediaType())
 
     @Provides
     @AppScope
@@ -36,9 +43,9 @@ class RetrofitModule {
 
     @Provides
     @AppScope
-    fun provideRetrofit(okHttpClient: OkHttpClient, gsonConverterFactory: GsonConverterFactory): Retrofit = Retrofit.Builder()
+    fun provideRetrofit(okHttpClient: OkHttpClient, converterFactory: Converter.Factory): Retrofit = Retrofit.Builder()
         .client(okHttpClient)
-        .addConverterFactory(gsonConverterFactory)
+        .addConverterFactory(converterFactory)
         .baseUrl("https://api.exchangeratesapi.io") // TODO: CHANGE BASE URL TO DYNAMIC
         .build()
 }
