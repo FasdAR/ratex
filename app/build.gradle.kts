@@ -65,7 +65,7 @@ dependencies {
     testImplementation(libs.assertj.core)
     testImplementation(libs.robolectric)
     testImplementation(libs.mockito.core)
-    testImplementation(libs.okhttp.mockwebserver)
+    testImplementation(libs.ktor.client.mock)
     testImplementation(libs.androidx.test.core)
 
     implementation(libs.kotlin.stdlib)
@@ -103,11 +103,13 @@ dependencies {
     implementation(libs.insetter.dbx)
     implementation(libs.insetter.ktx)
 
-    // Retrofit, Kotlin Serialization-Converter, OkHttp-Logging
-    implementation(libs.retrofit)
-    implementation(libs.retrofit.converter.kotlinx.serialization)
+    // Ktor Client (движок OkHttp), Kotlin Serialization
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.client.logging)
+    implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.kotlinx.serialization.json)
-    implementation(libs.okhttp.logging.interceptor)
 
     // Coroutines
     implementation(libs.kotlinx.coroutines.core)

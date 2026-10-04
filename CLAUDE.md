@@ -32,23 +32,23 @@ Gradle не работает с Java 25 (JBR из Android Studio) — запус
 
 Один Gradle-модуль `:app`. Внутри — фичи в пакете `ru.fasdev.ratex`, каждая делится на слои `ui` / `domain` / `data` (и `di`, если нужно). Зависимости направлены внутрь: `ui → domain ← data`, `domain` не знает про Android-классы и `data`. Если функционал общий и не привязан к одному бизнес-юниту — он живёт в `core`.
 
-- **`core`** — общее без привязки к бизнес-логике: `util/` (`ConvertUtil`: `dp`/`px`), `data/sharedPrefences` (`SPrefences`, `SharedPrefencesRepoImpl`), `domain/boundaries` (`SharedPrefencesRepo`), `di/module` (`SettingsModule`, `RetrofitModule`), `rule/` в тестах (`MainDispatcherRule`).
+- **`core`** — общее без привязки к бизнес-логике: `util/` (`ConvertUtil`: `dp`/`px`), `data/sharedPrefences` (`SPrefences`, `SharedPrefencesRepoImpl`), `domain/boundaries` (`SharedPrefencesRepo`), `di/module` (`SettingsModule`, `HttpClientModule`), `rule/` в тестах (`MainDispatcherRule`).
 - **`currency`** — бизнес-логика валют, список курсов и базовая валюта:
   - `domain/` — сущности (`CurrencyDomain`, `RateCurrencyDomain`), интерфейсы `boundaries/` (интеракторы и репозитории), реализации интеракторов (`*InteractorImpl`). Репозитории здесь только интерфейсы.
-  - `data/` — реализации репозиториев (`repo/*RepoImpl`), `dataStore/` (`CurrencyRateDataStore`, `source/ExchangeRateDataStore`), Retrofit `api/ExchangeRateApi`. Цепочка получения курсов: `CurrencyRateRepoImpl` берёт базовую валюту из `CurrencyBaseRepo` и передаёт её в `CurrencyRateDataStore`. Ответ API описан `@Serializable`-классом `api/model/ExchangeRatesResponse`, `ExchangeRateApi` возвращает его напрямую (конвертер kotlinx-serialization в `RetrofitModule`, `Json` с `ignoreUnknownKeys = true`).
+  - `data/` — реализации репозиториев (`repo/*RepoImpl`), `dataStore/` (`CurrencyRateDataStore`, `source/ExchangeRateDataStore`), `api/ExchangeRateApi` (интерфейс) и `api/ExchangeRateApiImpl` на Ktor Client. Цепочка получения курсов: `CurrencyRateRepoImpl` берёт базовую валюту из `CurrencyBaseRepo` и передаёт её в `CurrencyRateDataStore`. Ответ API описан `@Serializable`-классом `api/model/ExchangeRatesResponse`, `ExchangeRateApi` возвращает его напрямую (`ContentNegotiation` с kotlinx-serialization в `HttpClientModule`, `Json` с `ignoreUnknownKeys = true`; `expectSuccess = true` — ответы не 2xx дают `ResponseException`).
   - `ui/` — MVP на Moxy (`MvpPresenter` + `*View` интерфейс + Fragment/BottomSheet: `fragmentListCurrencyRate`, `bottomSheetSelectCurrency`), списки на Epoxy (`adapter/`), экраны Cicerone — фабрики `FragmentScreen` (например `ListCurrencyRateScreen()`), картинки через Glide.
   - `di/` — `CurrencyModule` (Api → репозитории → интеракторы) и компоненты `FragmentListCurrencyRateComponent`, `SelectCurrencyBottomSheetComponent`.
 - **`main`** — точка входа, собирает всё вместе: `RatexApp`, `ui/` (`MainActivity`, `SplashActivity`), `navigation/` (`MainNavigator`, `BackButtonProvider`, `FragmentProvider`; навигация через Cicerone 7), `di/` (`AppComponent`, `ActivityComponent`, модули `AppModule`, `ActivityModule`, `CiceroneModule`, scope-аннотации).
 
 Новую общую вещь кладите в `core`, а не в `main` и не в конкретную фичу; код конкретной предметной области — в её фичу (или новую папку-фичу рядом с `currency`). Тесты лежат в тех же пакетах, что и тестируемый код (`app/src/test/.../<фича>/<слой>/`).
 
-Асинхронность — везде Kotlin Coroutines: одноразовые операции в интерфейсах `boundaries` — `suspend fun`, Retrofit-методы `ExchangeRateApi` тоже `suspend`. Блокирующую работу (SharedPreferences, чтение/разбор ответа) репозитории и `ExchangeRateDataStore` выполняют через `withContext(ioDispatcher)` — `CoroutineDispatcher` принимается в конструкторе (по умолчанию `Dispatchers.IO`). Презентеры запускают корутины в `presenterScope` (`moxy-ktx`, отменяется в `onDestroy`), ошибки ловят через `try/catch` (с `CancellationException` — rethrow).
+Асинхронность — везде Kotlin Coroutines: одноразовые операции в интерфейсах `boundaries` — `suspend fun`, методы `ExchangeRateApi` тоже `suspend`. Блокирующую работу (SharedPreferences, чтение/разбор ответа) репозитории и `ExchangeRateDataStore` выполняют через `withContext(ioDispatcher)` — `CoroutineDispatcher` принимается в конструкторе (по умолчанию `Dispatchers.IO`). Презентеры запускают корутины в `presenterScope` (`moxy-ktx`, отменяется в `onDestroy`), ошибки ловят через `try/catch` (с `CancellationException` — rethrow).
 
 ### DI (Dagger 2, генерация через KSP) — иерархия компонентов через `dependencies`
 
-`AppComponent` (`@AppScope`: Context, SharedPreferences, Retrofit; пакет `main/di`) → `ActivityComponent` (`@ActivityScope`, Cicerone) → `FragmentListCurrencyRateComponent` (`currency/di`, `@FragmentScope`, модуль `CurrencyModule` собирает Api → репозитории → интеракторы) → `SelectCurrencyBottomSheetComponent` (`currency/di`, `@BottomSheetScope`; зависит от фрагментного компонента и переиспользует его интеракторы).
+`AppComponent` (`@AppScope`: Context, SharedPreferences, HttpClient; пакет `main/di`) → `ActivityComponent` (`@ActivityScope`, Cicerone) → `FragmentListCurrencyRateComponent` (`currency/di`, `@FragmentScope`, модуль `CurrencyModule` собирает Api → репозитории → интеракторы) → `SelectCurrencyBottomSheetComponent` (`currency/di`, `@BottomSheetScope`; зависит от фрагментного компонента и переиспользует его интеракторы).
 
-Это не subcomponents: дочерний компонент видит только то, что родитель явно **объявил provision-методом** (`fun retrofit(): Retrofit` и т. п.). Если дочернему компоненту нужна новая зависимость из родителя — добавляйте provision-метод в каждый промежуточный компонент. `AppComponent` хранится в `RatexApp.DI.appComponent`, `ActivityComponent` — в `MainActivity.activitySubComponent`; фрагменты строят свои компоненты лениво через `Dagger*Component.builder().activityComponent(...)`.
+Это не subcomponents: дочерний компонент видит только то, что родитель явно **объявил provision-методом** (`fun httpClient(): HttpClient` и т. п.). Если дочернему компоненту нужна новая зависимость из родителя — добавляйте provision-метод в каждый промежуточный компонент. `AppComponent` хранится в `RatexApp.DI.appComponent`, `ActivityComponent` — в `MainActivity.activitySubComponent`; фрагменты строят свои компоненты лениво через `Dagger*Component.builder().activityComponent(...)`.
 
 ### Особенности сборки
 
@@ -56,11 +56,11 @@ Gradle не работает с Java 25 (JBR из Android Studio) — запус
 - Kotlin встроен в AGP 9 (плагин `kotlin-android` не применяется). Dagger-компилятор подключён через KSP (`ksp`), а Moxy и Epoxy остаются на kapt через `com.android.legacy-kapt` (Moxy-компилятор не поддерживает KSP, Epoxy не переводили). В kapt-конфигурации нужен явный `kotlin-metadata-jvm`: процессор Epoxy иначе падает на метаданных Kotlin 2.4. Модуль компилируется с Java 11 (этого требуют inline-функции новых AndroidX).
 - В корневом `build.gradle.kts` оставлен `alias(libs.plugins.kotlin.jvm) apply false`, хотя Kotlin-JVM-модулей нет: он закрепляет Kotlin Gradle plugin 2.4.20 на classpath, без него ktlint-плагин тянет 2.2.10 и kapt падает на метаданных stdlib.
 - Epoxy-модели задают layout через `override fun getDefaultLayout()`, а не `@EpoxyModelClass(layout = ...)`: в AGP 9 идентификаторы `R` не константы, флаг `android.nonFinalResIds=false` устарел и удалён.
-- Базовый URL API (`https://api.exchangeratesapi.io`) захардкожен в `RetrofitModule` (есть TODO).
+- Базовый URL API (`https://api.exchangeratesapi.io`) захардкожен в `HttpClientModule` (есть TODO).
 
 ## Тесты
 
-- Unit-тесты презентеров/репозиториев/интеракторов на JUnit4 + Mockito + AssertJ; репозитории (`currency/data`, `core/data`) тестируются с MockWebServer и Robolectric.
+- Unit-тесты презентеров/репозиториев/интеракторов на JUnit4 + Mockito + AssertJ; репозитории (`currency/data`, `core/data`) тестируются с Ktor `MockEngine` и Robolectric.
 - Для презентеров с корутинами используйте правило `ru.fasdev.ratex.core.rule.MainDispatcherRule` (`app/src/test`) — подменяет `Dispatchers.Main` на `UnconfinedTestDispatcher` (`Dispatchers.setMain`), тесты пишутся через `runTest`. В тестах data-слоя в репозитории/`ExchangeRateDataStore` передавайте `UnconfinedTestDispatcher()` вместо `Dispatchers.IO`.
 - `app/src/androidTest` — Espresso-тесты `MainActivity` (`main/ui`).
 

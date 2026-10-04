@@ -2,8 +2,8 @@ package ru.fasdev.ratex.main.di.component
 
 import android.content.Context
 import dagger.Component
-import retrofit2.Retrofit
-import ru.fasdev.ratex.core.di.module.RetrofitModule
+import io.ktor.client.HttpClient
+import ru.fasdev.ratex.core.di.module.HttpClientModule
 import ru.fasdev.ratex.core.di.module.SettingsModule
 import ru.fasdev.ratex.core.domain.boundaries.SharedPrefencesRepo
 import ru.fasdev.ratex.main.RatexApp
@@ -11,12 +11,12 @@ import ru.fasdev.ratex.main.di.module.AppModule
 import ru.fasdev.ratex.main.di.scope.AppScope
 
 @AppScope
-@Component(modules = [AppModule::class, SettingsModule::class, RetrofitModule::class])
+@Component(modules = [AppModule::class, SettingsModule::class, HttpClientModule::class])
 interface AppComponent {
     // Child dependencies
     fun context(): Context
     fun sharedPrefencesRepo(): SharedPrefencesRepo
-    fun retrofit(): Retrofit
+    fun httpClient(): HttpClient
 
     fun inject(app: RatexApp)
 }

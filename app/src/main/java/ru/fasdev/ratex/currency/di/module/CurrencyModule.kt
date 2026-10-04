@@ -2,9 +2,10 @@ package ru.fasdev.ratex.currency.di.module
 
 import dagger.Module
 import dagger.Provides
-import retrofit2.Retrofit
+import io.ktor.client.HttpClient
 import ru.fasdev.ratex.core.domain.boundaries.SharedPrefencesRepo
 import ru.fasdev.ratex.currency.data.api.ExchangeRateApi
+import ru.fasdev.ratex.currency.data.api.ExchangeRateApiImpl
 import ru.fasdev.ratex.currency.data.dataStore.CurrencyRateDataStore
 import ru.fasdev.ratex.currency.data.dataStore.source.ExchangeRateDataStore
 import ru.fasdev.ratex.currency.data.repo.CurrencyBaseRepoImpl
@@ -23,7 +24,7 @@ import ru.fasdev.ratex.main.di.scope.FragmentScope
 class CurrencyModule {
     @Provides
     @FragmentScope
-    fun provideExchangeRateApi(retrofit: Retrofit): ExchangeRateApi = retrofit.create(ExchangeRateApi::class.java)
+    fun provideExchangeRateApi(httpClient: HttpClient): ExchangeRateApi = ExchangeRateApiImpl(httpClient)
 
     @Provides
     @FragmentScope

@@ -1,15 +1,19 @@
 package ru.fasdev.ratex.currency.data.dataStore.source
 
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respond
+import io.ktor.client.plugins.ResponseException
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.defaultRequest
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.headersOf
+import io.ktor.serialization.JsonConvertException
+import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.OkHttpClient
-import okhttp3.mockwebserver.Dispatcher
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
-import okhttp3.mockwebserver.RecordedRequest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Before
@@ -17,11 +21,9 @@ import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnit
-import retrofit2.HttpException
-import retrofit2.Retrofit
-import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import ru.fasdev.ratex.currency.data.TestData
 import ru.fasdev.ratex.currency.data.api.ExchangeRateApi
+import ru.fasdev.ratex.currency.data.api.ExchangeRateApiImpl
 import ru.fasdev.ratex.currency.domain.boundaries.repo.CurrencyImageRepo
 import ru.fasdev.ratex.currency.domain.entity.CurrencyDomain
 
@@ -30,11 +32,12 @@ class ExchangeRateDataStoreTest {
 
     @Mock private lateinit var imageRepo: CurrencyImageRepo
 
-    private var usdResponse: MockResponse = MockResponse().setResponseCode(200).setBody(TestData.JSON_EXCHANGE_RATES)
+    private var usdStatus: HttpStatusCode = HttpStatusCode.OK
+    private var usdBody: String = TestData.JSON_EXCHANGE_RATES
 
     private val json = Json { ignoreUnknownKeys = true }
 
-    private lateinit var mockWebServer: MockWebServer
+    private lateinit var httpClient: HttpClient
 
     private lateinit var exchangeRateApi: ExchangeRateApi
 
@@ -42,31 +45,29 @@ class ExchangeRateDataStoreTest {
 
     @Before
     fun setUp() {
-        mockWebServer = MockWebServer()
-        mockWebServer.start()
-
-        mockWebServer.dispatcher = object : Dispatcher() {
-            override fun dispatch(request: RecordedRequest): MockResponse {
-                when (request.path) {
-                    "/latest?base=USD" -> return usdResponse
-                    else -> return MockResponse().setResponseCode(404)
-                }
+        val engine = MockEngine { request ->
+            val url = request.url
+            if (url.encodedPath == "/latest" && url.parameters["base"] == "USD") {
+                respond(usdBody, usdStatus, headersOf(HttpHeaders.ContentType, "application/json"))
+            } else {
+                respond("", HttpStatusCode.NotFound)
             }
         }
 
-        exchangeRateApi = Retrofit.Builder()
-            .baseUrl(mockWebServer.url("/"))
-            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
-            .client(OkHttpClient())
-            .build()
-            .create(ExchangeRateApi::class.java)
+        httpClient = HttpClient(engine) {
+            expectSuccess = true
+            install(ContentNegotiation) { json(json) }
+            defaultRequest { url("https://api.test/") }
+        }
+
+        exchangeRateApi = ExchangeRateApiImpl(httpClient)
 
         exchangeRateDataStore = ExchangeRateDataStore(exchangeRateApi, imageRepo, UnconfinedTestDispatcher())
     }
 
     @After
     fun teardown() {
-        mockWebServer.shutdown()
+        httpClient.close()
     }
 
     @Test
@@ -87,7 +88,7 @@ class ExchangeRateDataStoreTest {
 
     @Test
     fun testGetExchangeRatesIgnoresUnknownFields() = runTest {
-        usdResponse = MockResponse().setResponseCode(200).setBody(TestData.JSON_EXCHANGE_RATES_EXTRA_FIELDS)
+        usdBody = TestData.JSON_EXCHANGE_RATES_EXTRA_FIELDS
 
         val result = exchangeRateDataStore.getExchangeRates(CurrencyDomain.getInstance("USD"))
 
@@ -97,19 +98,20 @@ class ExchangeRateDataStoreTest {
 
     @Test
     fun testGetExchangeRatesInvalidJson() = runTest {
-        usdResponse = MockResponse().setResponseCode(200).setBody(TestData.JSON_INVALID)
+        usdBody = TestData.JSON_INVALID
 
         val error = runCatching { exchangeRateDataStore.getExchangeRates(CurrencyDomain.getInstance("USD")) }.exceptionOrNull()
 
-        assertThat(error).isInstanceOf(SerializationException::class.java)
+        assertThat(error).isInstanceOf(JsonConvertException::class.java)
     }
 
     @Test
     fun testGetExchangeRatesHttpError() = runTest {
-        usdResponse = MockResponse().setResponseCode(500).setBody("{\"error\":\"server\"}")
+        usdStatus = HttpStatusCode.InternalServerError
+        usdBody = "{\"error\":\"server\"}"
 
         val error = runCatching { exchangeRateDataStore.getExchangeRates(CurrencyDomain.getInstance("USD")) }.exceptionOrNull()
 
-        assertThat(error).isInstanceOf(HttpException::class.java)
+        assertThat(error).isInstanceOf(ResponseException::class.java)
     }
 }

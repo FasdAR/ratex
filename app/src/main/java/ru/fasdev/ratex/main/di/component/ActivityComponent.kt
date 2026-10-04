@@ -3,7 +3,7 @@ package ru.fasdev.ratex.main.di.component
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import dagger.Component
-import retrofit2.Retrofit
+import io.ktor.client.HttpClient
 import ru.fasdev.ratex.core.domain.boundaries.SharedPrefencesRepo
 import ru.fasdev.ratex.main.di.module.ActivityModule
 import ru.fasdev.ratex.main.di.module.CiceroneModule
@@ -17,7 +17,7 @@ interface ActivityComponent {
     fun context(): Context
     fun sharedPrefencesRepo(): SharedPrefencesRepo
     fun appCompatActivity(): AppCompatActivity
-    fun retrofit(): Retrofit
+    fun httpClient(): HttpClient
 
     fun inject(mainActivity: MainActivity)
 }
