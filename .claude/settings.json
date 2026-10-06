@@ -1,4 +1,10 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(ya tool ast-index *)",
+      "Bash(ast-index *)"
+    ]
+  },
   "enabledPlugins": {
     "ast-index@ast-index-marketplace": true,
     "superpowers@claude-plugins-official": true
