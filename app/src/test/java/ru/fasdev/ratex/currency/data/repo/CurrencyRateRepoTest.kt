@@ -142,4 +142,53 @@ class CurrencyRateRepoTest {
         assertThat(result).isEqualTo(snapshotV2)
         assertThat(source.fetchCount).isEqualTo(1)
     }
+
+    @Test
+    fun testFailedFetchIsNotRetriedWithinBackoff() = runTest {
+        source.error = IOException("no network")
+        val repo = createRepo()
+
+        repeat(3) { runCatching { repo.getSnapshot() } }
+
+        assertThat(source.fetchCount).isEqualTo(1)
+    }
+
+    @Test
+    fun testFailedFetchWithinBackoffServesStaleSnapshot() = runTest {
+        storage.saved["fake"] = storedAgo(hours = 30)
+        source.error = IOException("no network")
+        val repo = createRepo()
+
+        val first = repo.getSnapshot()
+        val second = repo.getSnapshot()
+
+        assertThat(first).isEqualTo(snapshotV1)
+        assertThat(second).isEqualTo(snapshotV1)
+        assertThat(source.fetchCount).isEqualTo(1)
+    }
+
+    @Test
+    fun testFailedFetchWithinBackoffRethrowsWithoutSnapshot() = runTest {
+        source.error = IOException("no network")
+        val repo = createRepo()
+        runCatching { repo.getSnapshot() }
+
+        val error = runCatching { repo.getSnapshot() }.exceptionOrNull()
+
+        assertThat(error).isInstanceOf(IOException::class.java)
+    }
+
+    @Test
+    fun testFetchIsRetriedAfterBackoff() = runTest {
+        source.error = IOException("no network")
+        val repo = createRepo()
+        runCatching { repo.getSnapshot() }
+
+        now += 60_000
+        source.error = null
+        val result = repo.getSnapshot()
+
+        assertThat(result).isEqualTo(snapshotV2)
+        assertThat(source.fetchCount).isEqualTo(2)
+    }
 }

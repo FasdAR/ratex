@@ -41,6 +41,9 @@ class ListCurrencyRateViewModel @Inject constructor(
             try {
                 val rates = currencyRateInteractor.getExchangeRates()
                 _state.update { it.copy(rates = rates, isRefreshing = false) }
+
+                // Если начальная загрузка базы упала (нет сети), успешное обновление должно её восстановить
+                if (_state.value.baseCurrency == null) loadBaseCurrency()
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
