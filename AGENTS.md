@@ -40,6 +40,22 @@ This file provides guidance to AI coding agents (Claude Code, etc.) when working
 
 Иерархия компонентов через `dependencies`: корневой `AppComponent` (`main/di`) → компонент каждой фичи (`<фича>/di`). Это не subcomponents: дочерний компонент видит только то, что родитель явно **объявил provision-методом**. Если фиче нужна новая зависимость из `AppComponent` — добавляйте provision-метод. Новая ViewModel — `@Inject constructor` + ветка в фабрике ViewModel соответствующей фичи.
 
+## Git flow
+
+- `master` — стабильная ветка релизов. Напрямую в неё не коммитим; в ней только слияния из `develop` (и `hotfix/*`) и теги `vX.Y.Z`.
+- `develop` — ветка разработки, сюда вливаются готовые фичи.
+- `feature/NN-<название>` — ветка одной фичи. Создаётся **от `develop`**, `NN-<название>` совпадает с файлом задачи в `docs-ai/planning` (например `feature/07-git_flow`).
+- `hotfix/<название>` — срочное исправление `master`; создаём только при необходимости: от `master`, вливаем и в `master`, и в `develop`. Ветки `release/*` не используем.
+
+Слияние — локально, всегда с merge-коммитом (`--no-ff`), без PR:
+
+```bash
+git switch develop && git merge --no-ff feature/NN-name -m "Merge feature/NN-name: <кратко>"   # фича готова
+git switch master && git merge --no-ff develop -m "Release vX.Y.Z" && git tag vX.Y.Z           # релиз
+```
+
+Агентам: ветку фичи создавать от `develop`; коммитить, вливать, ставить теги и пушить только по явной просьбе пользователя.
+
 ## docs-ai
 
 В `docs-ai/` лежит информация о работе AI в проекте: что и почему было сделано, принятые решения, отложенные задачи. Правила ведения — в `docs-ai/README.md`.
