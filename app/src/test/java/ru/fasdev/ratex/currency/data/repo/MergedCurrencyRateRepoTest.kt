@@ -66,6 +66,23 @@ class MergedCurrencyRateRepoTest {
     }
 
     @Test
+    fun testUsdBaseSourcesOnlyAddMissingCurrenciesInPriorityOrder() = runTest {
+        // JPY есть у всех, VES у ФРС и Treasury, KES только у Treasury
+        val fed = RateSnapshotDomain("USD", "2026-10-02", mapOf("JPY" to 150.0, "VES" to 800.0))
+        val treasury = RateSnapshotDomain("USD", "2026-09-30", mapOf("JPY" to 140.0, "VES" to 600.0, "KES" to 129.0))
+        val repo = MergedCurrencyRateRepo(listOf(FakeRateRepo(ecb), FakeRateRepo(cbr), FakeRateRepo(fed), FakeRateRepo(treasury)))
+
+        val result = repo.getSnapshot()
+
+        assertThat(result.baseCode).isEqualTo("EUR")
+        assertThat(result.rates.getValue("JPY")).isEqualTo(160.0)
+        // 1 EUR = 1.10 USD: курсы к USD пересчитываются в шкалу ЕЦБ
+        assertThat(result.rates.getValue("VES")).isCloseTo(800.0 * 1.10, offset)
+        assertThat(result.rates.getValue("KES")).isCloseTo(129.0 * 1.10, offset)
+        assertThat(result.date).isEqualTo("2026-10-06")
+    }
+
+    @Test
     fun testOrderIsPriority() = runTest {
         val repo = MergedCurrencyRateRepo(listOf(FakeRateRepo(cbr), FakeRateRepo(ecb)))
 
@@ -156,7 +173,12 @@ class MergedCurrencyRateRepoTest {
     }
 
     @Test
-    fun testPriorityEnumOrderIsEcbThenCbr() {
-        assertThat(RateSourcePriority.entries).containsExactly(RateSourcePriority.ECB, RateSourcePriority.CBR)
+    fun testPriorityEnumOrderIsDailySourcesThenWeeklyThenQuarterly() {
+        assertThat(RateSourcePriority.entries).containsExactly(
+            RateSourcePriority.ECB,
+            RateSourcePriority.CBR,
+            RateSourcePriority.FED,
+            RateSourcePriority.TREASURY
+        )
     }
 }

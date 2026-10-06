@@ -13,4 +13,19 @@
             <certificates src="@raw/sectigo_ov_e36" />
         </trust-anchors>
     </domain-config>
+
+    <!--
+        api.fiscaldata.treasury.gov (Минфин США): цепочка Entrust OV TLS Issuing RSA CA 2 -> Sectigo Public Server Authentication Root R46.
+        Корня R46, скорее всего, нет в системном хранилище части образов Android (та же история, что с E46 у ЕЦБ), поэтому к системным корням
+        добавлен промежуточный CA (действует до 2027-12-10). Проверка сертификатов остаётся включённой.
+        Если Entrust сменит промежуточный CA или срок истечёт, файл res/raw/entrust_ov_rsa_ca2.pem нужно обновить
+        (тест TreasuryTrustAnchorTest упадёт после истечения). Не проверено на эмуляторе API 34.
+    -->
+    <domain-config>
+        <domain includeSubdomains="true">api.fiscaldata.treasury.gov</domain>
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="@raw/entrust_ov_rsa_ca2" />
+        </trust-anchors>
+    </domain-config>
 </network-security-config>
