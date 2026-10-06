@@ -2,6 +2,8 @@ package ru.fasdev.ratex.currency.data.repo
 
 import java.io.IOException
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.data.Offset
@@ -11,8 +13,10 @@ import ru.fasdev.ratex.currency.domain.boundaries.repo.CurrencyRateRepo
 import ru.fasdev.ratex.currency.domain.entity.RateSnapshotDomain
 
 class MergedCurrencyRateRepoTest {
-    private class FakeRateRepo(var snapshot: RateSnapshotDomain? = null, var error: Exception? = null) : CurrencyRateRepo {
+    private class FakeRateRepo(var snapshot: RateSnapshotDomain? = null, var error: Exception? = null, var delayMs: Long = 0L) :
+        CurrencyRateRepo {
         override suspend fun getSnapshot(): RateSnapshotDomain {
+            if (delayMs > 0) delay(delayMs)
             error?.let { throw it }
             return snapshot!!
         }
@@ -110,6 +114,26 @@ class MergedCurrencyRateRepoTest {
         val repo = MergedCurrencyRateRepo(listOf(FakeRateRepo(ecb), FakeRateRepo(error = IOException("offline"))))
 
         assertThat(repo.getSnapshot()).isEqualTo(ecb)
+    }
+
+    @Test
+    fun testSlowSecondarySourceDoesNotDelayPrimary() = runTest {
+        val repo = MergedCurrencyRateRepo(listOf(FakeRateRepo(ecb), FakeRateRepo(cbr, delayMs = 60_000)), secondaryTimeout = 3.seconds)
+
+        val result = repo.getSnapshot()
+
+        assertThat(result).isEqualTo(ecb)
+        assertThat(testScheduler.currentTime).isLessThan(60_000)
+    }
+
+    @Test
+    fun testSlowPrimarySourceIsNotCutOff() = runTest {
+        val repo = MergedCurrencyRateRepo(listOf(FakeRateRepo(ecb, delayMs = 10_000), FakeRateRepo(cbr)), secondaryTimeout = 3.seconds)
+
+        val result = repo.getSnapshot()
+
+        assertThat(result.baseCode).isEqualTo("EUR")
+        assertThat(result.availableCodes).contains("RUB")
     }
 
     @Test
