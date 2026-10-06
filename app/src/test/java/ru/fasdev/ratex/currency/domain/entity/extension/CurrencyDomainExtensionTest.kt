@@ -12,7 +12,7 @@ class CurrencyDomainExtensionTest {
         val convert = currency.toCurrencyDomain()
 
         assertThat(convert.currencyCode).isEqualTo(currency.currencyCode)
-        assertThat(convert.displayName).isEqualTo(currency.displayName)
+        assertThat(convert.displayName).isEqualTo(currency.displayName.replaceFirstChar { it.uppercase() })
         assertThat(convert.symbol).isEqualTo(currency.symbol)
     }
 
