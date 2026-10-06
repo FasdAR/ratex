@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!--
+        ЕЦБ выпускает сертификаты через Sectigo Root E46 (2021). На части образов Android корня E46 в системном хранилище нет, а Chrome
+        достраивает цепочку через AIA, чего OkHttp не делает. Поэтому для домена ЕЦБ к системным корням добавлен промежуточный CA
+        Sectigo Public Server Authentication CA OV E36 (действует до 2036-03-21). Проверка сертификатов остаётся включённой.
+        Если Sectigo сменит промежуточный CA, файл res/raw/sectigo_ov_e36.pem нужно обновить.
+    -->
+    <domain-config>
+        <domain includeSubdomains="true">ecb.europa.eu</domain>
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="@raw/sectigo_ov_e36" />
+        </trust-anchors>
+    </domain-config>
+</network-security-config>
