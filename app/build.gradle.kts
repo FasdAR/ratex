@@ -43,6 +43,10 @@ android {
     }
 }
 
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
+
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 
@@ -97,6 +101,11 @@ dependencies {
     // Dagger
     api(libs.dagger)
     ksp(libs.dagger.compiler)
+
+    // Room
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
 
     // Ktor Client (движок OkHttp), Kotlin Serialization
     implementation(libs.ktor.client.core)
