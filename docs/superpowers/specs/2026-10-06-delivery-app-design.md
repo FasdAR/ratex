@@ -31,7 +31,7 @@
 - `versionCode` = `git rev-list --count HEAD`.
 - Оба значения можно переопределить через Gradle-property / env (для CI).
 - Без тегов (локально, свежий клон) fallback: `versionName = "0.0.0-dev"`; сборка не ломается.
-- Реализация: script plugin `gradle/versioning.gradle.kts` (без `buildSrc`), значения отдаются через `extra`; `app/build.gradle.kts` подключает его через `apply(from = ...)` и читает `val appVersionName: String by extra` / `val appVersionCode: Int by extra`.
+- Реализация в `app/build.gradle.kts` (функция `gitOutput` и значения `appVersionName` / `appVersionCode`), без отдельного модуля, `buildSrc` и script plugins.
 - Ограничение: счётчик коммитов не монотонен между ветками (release с `master` может иметь меньший `versionCode`, чем ранее установленный alpha с `develop`), перед release нужно влить `develop` в `master`.
 
 ## 3. Flavors и build types
