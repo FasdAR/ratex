@@ -1,0 +1,71 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+      - '[0-9]+.[0-9]+.[0-9]+-alpha'
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Classify tag and verify branch
+        id: classify
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          set +e
+          kind=$(.github/scripts/classify-tag.sh "$TAG" "$GITHUB_SHA")
+          code=$?
+          set -e
+          case $code in
+            0) echo "kind=$kind" >> "$GITHUB_OUTPUT" ;;
+            2) echo "kind=skip" >> "$GITHUB_OUTPUT" ;;
+            *) exit "$code" ;;
+          esac
+
+      - uses: actions/setup-java@v4
+        if: steps.classify.outputs.kind != 'skip'
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+        if: steps.classify.outputs.kind != 'skip'
+
+      - name: Decode release keystore
+        if: steps.classify.outputs.kind != 'skip'
+        uses: ./.github/actions/decode-keystore
+        with:
+          prefix: RELEASE
+          keystore-base64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+          store-password: ${{ secrets.RELEASE_STORE_PASSWORD }}
+          key-alias: ${{ secrets.RELEASE_KEY_ALIAS }}
+          key-password: ${{ secrets.RELEASE_KEY_PASSWORD }}
+
+      - name: Lint, tests, signed release build
+        if: steps.classify.outputs.kind != 'skip'
+        env:
+          TAG: ${{ github.ref_name }}
+        run: ./gradlew ktlintCheck :app:testProdReleaseUnitTest :app:assembleProdRelease "-PappVersionName=$TAG"
+
+      - name: Publish GitHub release
+        if: steps.classify.outputs.kind != 'skip'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+          KIND: ${{ steps.classify.outputs.kind }}
+        run: |
+          apk="ratex-prod-release-$TAG.apk"
+          cp app/build/outputs/apk/prod/release/app-prod-release.apk "$apk"
+          flags=()
+          if [ "$KIND" = "alpha" ]; then flags+=(--prerelease); fi
+          gh release create "$TAG" "$apk" --title "$TAG" --generate-notes --verify-tag "${flags[@]}"

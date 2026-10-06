@@ -1,0 +1,42 @@
+name: Decode keystore
+description: Decodes a base64 keystore into RUNNER_TEMP and exports RATEX_<PREFIX>_* variables for Gradle. Does nothing if the keystore is empty.
+inputs:
+  prefix:
+    description: RELEASE or DEBUG
+    required: true
+  keystore-base64:
+    description: Base64-encoded keystore
+    required: false
+    default: ''
+  store-password:
+    required: false
+    default: ''
+  key-alias:
+    required: false
+    default: ''
+  key-password:
+    required: false
+    default: ''
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        PREFIX: ${{ inputs.prefix }}
+        KEYSTORE_BASE64: ${{ inputs.keystore-base64 }}
+        STORE_PASSWORD: ${{ inputs.store-password }}
+        KEY_ALIAS: ${{ inputs.key-alias }}
+        KEY_PASSWORD: ${{ inputs.key-password }}
+      run: |
+        if [ -z "$KEYSTORE_BASE64" ]; then
+          echo "No $PREFIX keystore provided, skipping"
+          exit 0
+        fi
+        path="$RUNNER_TEMP/${PREFIX,,}.jks"
+        echo "$KEYSTORE_BASE64" | base64 --decode > "$path"
+        {
+          echo "RATEX_${PREFIX}_STORE_FILE=$path"
+          echo "RATEX_${PREFIX}_STORE_PASSWORD=$STORE_PASSWORD"
+          echo "RATEX_${PREFIX}_KEY_ALIAS=$KEY_ALIAS"
+          echo "RATEX_${PREFIX}_KEY_PASSWORD=$KEY_PASSWORD"
+        } >> "$GITHUB_ENV"

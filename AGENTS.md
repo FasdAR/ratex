@@ -9,10 +9,10 @@ This file provides guidance to AI coding agents (Claude Code, etc.) when working
 - Актуальные зависимости, плагины, SDK и все их версии в [version catalog](gradle/libs.versions.toml)
 
 ```bash
-./gradlew assembleDebug                                                  # сборка debug APK
+./gradlew assembleDevDebug                                               # сборка debug APK (dev); prod: assembleProdDebug
 ./gradlew test                                                           # все unit-тесты
-./gradlew :app:testDebugUnitTest --tests "package.ClassTest"             # один класс
-./gradlew :app:testDebugUnitTest --tests "*ClassTest.someMethod"         # один метод
+./gradlew :app:testDevDebugUnitTest --tests "package.ClassTest"          # один класс
+./gradlew :app:testDevDebugUnitTest --tests "*ClassTest.someMethod"      # один метод
 ./gradlew ktlintCheck                                                    # проверка стиля (правила — в .editorconfig)
 ./gradlew ktlintFormat                                                   # автоисправление стиля
 ```
@@ -42,7 +42,7 @@ This file provides guidance to AI coding agents (Claude Code, etc.) when working
 
 ## Git flow
 
-- `master` — стабильная ветка релизов. Напрямую в неё не коммитим; в ней только слияния из `develop` (и `hotfix/*`) и теги `vX.Y.Z`.
+- `master` — стабильная ветка релизов. Напрямую в неё не коммитим; в ней только слияния из `develop` (и `hotfix/*`) и теги `X.Y.Z`.
 - `develop` — ветка разработки, сюда вливаются готовые фичи.
 - `feature/NN-<название>` — ветка одной фичи. Создаётся **от `develop`**, `NN-<название>` совпадает с файлом задачи в `docs-ai/planning` (например `feature/07-git_flow`).
 - `hotfix/<название>` — срочное исправление `master`; создаём только при необходимости: от `master`, вливаем и в `master`, и в `develop`. Ветки `release/*` не используем.
@@ -51,10 +51,18 @@ This file provides guidance to AI coding agents (Claude Code, etc.) when working
 
 ```bash
 git switch develop && git merge --no-ff feature/NN-name -m "Merge feature/NN-name: <кратко>"   # фича готова
-git switch master && git merge --no-ff develop -m "Release vX.Y.Z" && git tag vX.Y.Z           # релиз
+git switch master && git merge --no-ff develop -m "Release X.Y.Z" && git tag X.Y.Z               # релиз
 ```
 
 Агентам: ветку фичи создавать от `develop`; коммитить, вливать, ставить теги и пушить только по явной просьбе пользователя.
+
+## Релизы и сборки
+
+- Окружения (flavor `env`): `dev` (`ru.fasdev.ratex.dev`, «Ratex Dev») и `prod` (`ru.fasdev.ratex`, «Ratex»). Типы сборки: `debug` (суффикс `.debug`, логи, отладка) и `release` (R8, без отладки). Варианты: `devDebug`, `devRelease`, `prodDebug`, `prodRelease`.
+- Версия берётся из git: `versionName` = `git describe --tags --match "[0-9]*.[0-9]*.[0-9]*"`, `versionCode` = число коммитов (`git rev-list --count HEAD`). Без тегов `0.0.0-dev`. Счётчик коммитов не монотонен между ветками: release с `master` с меньшим числом коммитов, чем у ранее установленного alpha с `develop`, Android не поставит поверх (`INSTALL_FAILED_VERSION_DOWNGRADE`), нужно сначала влить `develop` в `master`.
+- Тестовый билд (pre-release): тег `X.Y.Z-alpha` на коммит из `develop`. Релиз: тег `X.Y.Z` на коммит из `master`. Префикса `v` и номера нет. GitHub Actions (`publish.yml`) проверит ветку, прогонит ktlint и тесты, соберёт подписанный `prodRelease` и опубликует его в GitHub Releases.
+- Повторный alpha той же версии: удалить тег (локально и на origin) и GitHub release, поставить заново.
+- Подпись: release- и debug-ключи берутся из env `RATEX_<NAME>` или `keystore.properties` (в `.gitignore`), имена `RELEASE_STORE_FILE`, `RELEASE_STORE_PASSWORD`, `RELEASE_KEY_ALIAS`, `RELEASE_KEY_PASSWORD` и `DEBUG_*`. Без release-ключа падают `assemble*Release`, `package*Release`, `bundle*Release`, а также `assemble` и `build` (они включают release). Debug-ключ без настройки заменяется `~/.android/debug.keystore`. Агентам теги не ставить и не пушить.
 
 ## docs-ai
 

@@ -9,3 +9,6 @@
 .cxx
 /docs-ai/artifact
 /.kotlin
+/keystore.properties
+*.jks
+*.keystore
