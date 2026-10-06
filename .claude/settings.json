@@ -1,6 +1,7 @@
 {
   "enabledPlugins": {
-    "ast-index@ast-index-marketplace": true
+    "ast-index@ast-index-marketplace": true,
+    "superpowers@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "ast-index-marketplace": {
