@@ -15,4 +15,11 @@ class CurrencyDomainExtensionTest {
         assertThat(convert.displayName).isEqualTo(currency.displayName)
         assertThat(convert.symbol).isEqualTo(currency.symbol)
     }
+
+    @Test
+    fun testIsKnownCurrencyCode() {
+        assertThat(isKnownCurrencyCode("USD")).isTrue()
+        assertThat(isKnownCurrencyCode("ZZZ")).isFalse()
+        assertThat(isKnownCurrencyCode("")).isFalse()
+    }
 }
