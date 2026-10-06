@@ -8,8 +8,8 @@ import ru.fasdev.ratex.core.domain.boundaries.SharedPrefencesRepo
 import ru.fasdev.ratex.currency.data.repo.CurrencyBaseRepoImpl
 import ru.fasdev.ratex.currency.data.repo.CurrencyRateRepoImpl
 import ru.fasdev.ratex.currency.data.repo.FlagCdnRepoImpl
-import ru.fasdev.ratex.currency.data.source.CurrencyRateSource
-import ru.fasdev.ratex.currency.data.source.ecb.EcbRateSource
+import ru.fasdev.ratex.currency.data.repo.MergedCurrencyRateRepo
+import ru.fasdev.ratex.currency.data.source.RateSourcePriority
 import ru.fasdev.ratex.currency.data.storage.CurrencyDatabase
 import ru.fasdev.ratex.currency.data.storage.RateSnapshotStorage
 import ru.fasdev.ratex.currency.data.storage.RoomRateSnapshotStorage
@@ -27,10 +27,6 @@ import ru.fasdev.ratex.currency.domain.interactor.CurrencyRateInteractorImpl
 class CurrencyModule {
     @Provides
     @CurrencyScope
-    fun provideCurrencyRateSource(httpClient: HttpClient): CurrencyRateSource = EcbRateSource(httpClient)
-
-    @Provides
-    @CurrencyScope
     fun provideRateSnapshotStorage(database: CurrencyDatabase): RateSnapshotStorage = RoomRateSnapshotStorage(database.rateSnapshotDao())
 
     @Provides
@@ -39,8 +35,9 @@ class CurrencyModule {
 
     @Provides
     @CurrencyScope
-    fun provideCurrencyRateRepo(source: CurrencyRateSource, storage: RateSnapshotStorage): CurrencyRateRepo =
-        CurrencyRateRepoImpl(source, storage)
+    fun provideCurrencyRateRepo(httpClient: HttpClient, storage: RateSnapshotStorage): CurrencyRateRepo = MergedCurrencyRateRepo(
+        RateSourcePriority.entries.map { CurrencyRateRepoImpl(it.create(httpClient), storage) }
+    )
 
     @Provides
     @CurrencyScope

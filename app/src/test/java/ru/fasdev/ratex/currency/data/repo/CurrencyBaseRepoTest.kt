@@ -92,6 +92,18 @@ class CurrencyBaseRepoTest {
     }
 
     @Test
+    fun testGetBaseCurrencyRussianLocaleWithMergedSnapshotIsRub() = runTest {
+        Mockito.`when`(currencyRateRepo.getSnapshot())
+            .thenReturn(RateSnapshotDomain("EUR", "2026-10-05", mapOf("USD" to 1.1, "RUB" to 99.0)))
+        Mockito.`when`(sharedPrefencesRepo.getBaseCurrencyCode()).thenReturn(null)
+        Locale.setDefault(Locale("ru", "RU"))
+
+        val result = currencyBaseRepo.getBaseCurrency()
+
+        assertThat(result.currencyCode).isEqualTo("RUB")
+    }
+
+    @Test
     fun testGetBaseCurrencyLocaleWithoutCurrencyFallsBackToSourceBase() = runTest {
         Mockito.`when`(sharedPrefencesRepo.getBaseCurrencyCode()).thenReturn(null)
         Locale.setDefault(Locale.ROOT)
