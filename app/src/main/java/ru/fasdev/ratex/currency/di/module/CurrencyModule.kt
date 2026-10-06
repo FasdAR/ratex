@@ -5,13 +5,14 @@ import dagger.Module
 import dagger.Provides
 import io.ktor.client.HttpClient
 import ru.fasdev.ratex.core.domain.boundaries.SharedPrefencesRepo
-import ru.fasdev.ratex.currency.data.api.ExchangeRateApi
-import ru.fasdev.ratex.currency.data.api.ExchangeRateApiImpl
-import ru.fasdev.ratex.currency.data.dataStore.CurrencyRateDataStore
-import ru.fasdev.ratex.currency.data.dataStore.source.ExchangeRateDataStore
 import ru.fasdev.ratex.currency.data.repo.CurrencyBaseRepoImpl
 import ru.fasdev.ratex.currency.data.repo.CurrencyRateRepoImpl
 import ru.fasdev.ratex.currency.data.repo.FlagCdnRepoImpl
+import ru.fasdev.ratex.currency.data.source.CurrencyRateSource
+import ru.fasdev.ratex.currency.data.source.ecb.EcbRateSource
+import ru.fasdev.ratex.currency.data.storage.CurrencyDatabase
+import ru.fasdev.ratex.currency.data.storage.RateSnapshotStorage
+import ru.fasdev.ratex.currency.data.storage.RoomRateSnapshotStorage
 import ru.fasdev.ratex.currency.di.CurrencyViewModelFactory
 import ru.fasdev.ratex.currency.di.scope.CurrencyScope
 import ru.fasdev.ratex.currency.domain.boundaries.interactor.CurrencyBaseInteractor
@@ -26,7 +27,11 @@ import ru.fasdev.ratex.currency.domain.interactor.CurrencyRateInteractorImpl
 class CurrencyModule {
     @Provides
     @CurrencyScope
-    fun provideExchangeRateApi(httpClient: HttpClient): ExchangeRateApi = ExchangeRateApiImpl(httpClient)
+    fun provideCurrencyRateSource(httpClient: HttpClient): CurrencyRateSource = EcbRateSource(httpClient)
+
+    @Provides
+    @CurrencyScope
+    fun provideRateSnapshotStorage(database: CurrencyDatabase): RateSnapshotStorage = RoomRateSnapshotStorage(database.rateSnapshotDao())
 
     @Provides
     @CurrencyScope
@@ -34,23 +39,24 @@ class CurrencyModule {
 
     @Provides
     @CurrencyScope
-    fun provideCurrencyBaseRepo(sharedPrefencesRepo: SharedPrefencesRepo, currencyImageRepo: CurrencyImageRepo): CurrencyBaseRepo =
-        CurrencyBaseRepoImpl(sharedPrefencesRepo, currencyImageRepo)
+    fun provideCurrencyRateRepo(source: CurrencyRateSource, storage: RateSnapshotStorage): CurrencyRateRepo =
+        CurrencyRateRepoImpl(source, storage)
 
     @Provides
     @CurrencyScope
-    fun currencyRateDataStore(exchangeRateApi: ExchangeRateApi, currencyImageRepo: CurrencyImageRepo): CurrencyRateDataStore =
-        ExchangeRateDataStore(exchangeRateApi, currencyImageRepo)
+    fun provideCurrencyBaseRepo(
+        sharedPrefencesRepo: SharedPrefencesRepo,
+        currencyImageRepo: CurrencyImageRepo,
+        currencyRateRepo: CurrencyRateRepo
+    ): CurrencyBaseRepo = CurrencyBaseRepoImpl(sharedPrefencesRepo, currencyImageRepo, currencyRateRepo)
 
     @Provides
     @CurrencyScope
-    fun provideCurrencyRateRepo(currencyRateDataStore: CurrencyRateDataStore, currencyBaseRepo: CurrencyBaseRepo): CurrencyRateRepo =
-        CurrencyRateRepoImpl(currencyRateDataStore, currencyBaseRepo)
-
-    @Provides
-    @CurrencyScope
-    fun provideCurrencyRateInteractor(currencyRateRepo: CurrencyRateRepo): CurrencyRateInteractor =
-        CurrencyRateInteractorImpl(currencyRateRepo)
+    fun provideCurrencyRateInteractor(
+        currencyRateRepo: CurrencyRateRepo,
+        currencyBaseRepo: CurrencyBaseRepo,
+        currencyImageRepo: CurrencyImageRepo
+    ): CurrencyRateInteractor = CurrencyRateInteractorImpl(currencyRateRepo, currencyBaseRepo, currencyImageRepo)
 
     @Provides
     @CurrencyScope

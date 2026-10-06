@@ -4,6 +4,7 @@ import java.util.*
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -13,7 +14,9 @@ import org.mockito.junit.MockitoJUnit
 import ru.fasdev.ratex.core.domain.boundaries.SharedPrefencesRepo
 import ru.fasdev.ratex.currency.domain.boundaries.repo.CurrencyBaseRepo
 import ru.fasdev.ratex.currency.domain.boundaries.repo.CurrencyImageRepo
+import ru.fasdev.ratex.currency.domain.boundaries.repo.CurrencyRateRepo
 import ru.fasdev.ratex.currency.domain.entity.CurrencyDomain
+import ru.fasdev.ratex.currency.domain.entity.RateSnapshotDomain
 
 class CurrencyBaseRepoTest {
     @get:Rule val mockitoJUnit = MockitoJUnit.rule()
@@ -22,47 +25,94 @@ class CurrencyBaseRepoTest {
 
     @Mock lateinit var currencyImageRepo: CurrencyImageRepo
 
+    @Mock lateinit var currencyRateRepo: CurrencyRateRepo
+
     lateinit var currencyBaseRepo: CurrencyBaseRepo
 
+    private val defaultLocale = Locale.getDefault()
+    private val snapshot = RateSnapshotDomain("EUR", "2026-10-05", mapOf("USD" to 1.1, "JPY" to 160.0, "ZZZ" to 3.0))
+
     @Before
-    fun setUp() {
-        currencyBaseRepo = CurrencyBaseRepoImpl(sharedPrefencesRepo, currencyImageRepo, UnconfinedTestDispatcher())
+    fun setUp() = runTest {
+        Mockito.`when`(currencyRateRepo.getSnapshot()).thenReturn(snapshot)
+        currencyBaseRepo = CurrencyBaseRepoImpl(sharedPrefencesRepo, currencyImageRepo, currencyRateRepo, UnconfinedTestDispatcher())
+    }
+
+    @After
+    fun tearDown() {
+        Locale.setDefault(defaultLocale)
     }
 
     @Test
-    fun testGetBaseCurrencyNullPreferences() = runTest {
+    fun testGetBaseCurrencyNullPreferencesUsesLocale() = runTest {
         Mockito.`when`(sharedPrefencesRepo.getBaseCurrencyCode()).thenReturn(null)
-
-        val testLocale = Locale.US
-        Locale.setDefault(testLocale)
+        Locale.setDefault(Locale.US)
 
         val result = currencyBaseRepo.getBaseCurrency()
 
-        assertThat(result.currencyCode).isEqualTo(Currency.getInstance(Locale.getDefault()).currencyCode)
+        assertThat(result.currencyCode).isEqualTo("USD")
     }
 
     @Test
-    fun testGetBaseCurrency() = runTest {
-        val testLocale = Locale.US
-        Mockito.`when`(sharedPrefencesRepo.getBaseCurrencyCode()).thenReturn(Currency.getInstance(testLocale).currencyCode)
+    fun testGetBaseCurrencyFromPreferences() = runTest {
+        Mockito.`when`(sharedPrefencesRepo.getBaseCurrencyCode()).thenReturn("JPY")
 
         val result = currencyBaseRepo.getBaseCurrency()
 
-        assertThat(result.currencyCode).isEqualTo(Currency.getInstance(testLocale).currencyCode)
+        assertThat(result.currencyCode).isEqualTo("JPY")
+    }
+
+    @Test
+    fun testGetBaseCurrencySourceBaseIsAvailable() = runTest {
+        Mockito.`when`(sharedPrefencesRepo.getBaseCurrencyCode()).thenReturn("EUR")
+
+        val result = currencyBaseRepo.getBaseCurrency()
+
+        assertThat(result.currencyCode).isEqualTo("EUR")
+    }
+
+    @Test
+    fun testGetBaseCurrencyFromPreferencesMissingInSourceFallsBackToSourceBase() = runTest {
+        Mockito.`when`(sharedPrefencesRepo.getBaseCurrencyCode()).thenReturn("RUB")
+
+        val result = currencyBaseRepo.getBaseCurrency()
+
+        assertThat(result.currencyCode).isEqualTo("EUR")
+        Mockito.verify(sharedPrefencesRepo, Mockito.never()).setBaseCurrencyCode(Mockito.anyString())
+    }
+
+    @Test
+    fun testGetBaseCurrencyLocaleMissingInSourceFallsBackToSourceBase() = runTest {
+        Mockito.`when`(sharedPrefencesRepo.getBaseCurrencyCode()).thenReturn(null)
+        Locale.setDefault(Locale("ru", "RU"))
+
+        val result = currencyBaseRepo.getBaseCurrency()
+
+        assertThat(result.currencyCode).isEqualTo("EUR")
+    }
+
+    @Test
+    fun testGetBaseCurrencyLocaleWithoutCurrencyFallsBackToSourceBase() = runTest {
+        Mockito.`when`(sharedPrefencesRepo.getBaseCurrencyCode()).thenReturn(null)
+        Locale.setDefault(Locale.ROOT)
+
+        val result = currencyBaseRepo.getBaseCurrency()
+
+        assertThat(result.currencyCode).isEqualTo("EUR")
     }
 
     @Test
     fun testSetBaseCurrency() {
-        val testCurrencyCode = "RUB"
+        val testCurrencyCode = "JPY"
         currencyBaseRepo.setBaseCurrency(CurrencyDomain.getInstance(testCurrencyCode))
 
         Mockito.verify(sharedPrefencesRepo).setBaseCurrencyCode(testCurrencyCode)
     }
 
     @Test
-    fun testGetAvailableCurrencies() = runTest {
+    fun testGetAvailableCurrenciesComeFromSnapshotWithoutUnknownCodes() = runTest {
         val result = currencyBaseRepo.getAvailableCurrencies()
 
-        assertThat(result).isNotEmpty()
+        assertThat(result.map { it.currencyCode }).containsExactlyInAnyOrder("EUR", "USD", "JPY")
     }
 }

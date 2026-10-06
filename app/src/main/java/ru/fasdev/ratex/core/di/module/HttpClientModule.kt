@@ -5,7 +5,6 @@ import dagger.Provides
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.ANDROID
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
@@ -34,10 +33,6 @@ class HttpClientModule {
         install(Logging) {
             logger = Logger.ANDROID
             level = if (BuildConfig.DEBUG) LogLevel.BODY else LogLevel.NONE
-        }
-
-        defaultRequest {
-            url("https://api.exchangeratesapi.io/") // TODO: CHANGE BASE URL TO DYNAMIC
         }
     }
 }

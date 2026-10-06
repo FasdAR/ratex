@@ -1,7 +1,7 @@
 package ru.fasdev.ratex.currency.domain.boundaries.repo
 
-import ru.fasdev.ratex.currency.domain.entity.RateCurrencyDomain
+import ru.fasdev.ratex.currency.domain.entity.RateSnapshotDomain
 
 interface CurrencyRateRepo {
-    suspend fun getExchangeRates(): List<RateCurrencyDomain>
+    suspend fun getSnapshot(): RateSnapshotDomain
 }

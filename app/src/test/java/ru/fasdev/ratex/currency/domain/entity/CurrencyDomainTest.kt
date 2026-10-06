@@ -27,7 +27,7 @@ class CurrencyDomainTest {
 
         assertThat(currencyDomain.currencyCode).isEqualTo(testCurrency.currencyCode)
         assertThat(currencyDomain.symbol).isEqualTo(testCurrency.symbol)
-        assertThat(currencyDomain.displayName).isEqualTo(testCurrency.displayName)
+        assertThat(currencyDomain.displayName).isEqualTo(testCurrency.displayName.replaceFirstChar { it.uppercase() })
     }
 
     @Test
