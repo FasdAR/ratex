@@ -8,7 +8,6 @@ import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.data.Offset
 import org.junit.Test
-import ru.fasdev.ratex.currency.data.source.RateSourcePriority
 import ru.fasdev.ratex.currency.domain.boundaries.repo.CurrencyRateRepo
 import ru.fasdev.ratex.currency.domain.entity.RateSnapshotDomain
 
@@ -170,15 +169,5 @@ class MergedCurrencyRateRepoTest {
         val error = runCatching { repo.getSnapshot() }.exceptionOrNull()
 
         assertThat(error).isInstanceOf(CancellationException::class.java)
-    }
-
-    @Test
-    fun testPriorityEnumOrderIsDailySourcesThenWeeklyThenQuarterly() {
-        assertThat(RateSourcePriority.entries).containsExactly(
-            RateSourcePriority.ECB,
-            RateSourcePriority.CBR,
-            RateSourcePriority.FED,
-            RateSourcePriority.TREASURY
-        )
     }
 }

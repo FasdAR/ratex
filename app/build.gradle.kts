@@ -70,6 +70,25 @@ fun missingSigningValues(prefix: String): List<String> = listOf("STORE_FILE", "S
     .filter { signingValue(it) == null }
 //endregion
 
+//region Frankfurter block
+val frankfurterDefaultBaseUrl = "https://api.frankfurter.dev"
+
+/**
+ * Возвращает базовый URL Frankfurter API (без версии, путь `/v2/rates` добавляет код).
+ *
+ * Источники по приоритету: переменная окружения `RATEX_FRANKFURTER_BASE_URL`, затем gradle-свойство `frankfurterBaseUrl`,
+ * затем [flavorDefault] (значение окружения `dev`/`prod`).
+ *
+ * @param flavorDefault значение по умолчанию для текущего flavor.
+ * @return URL без хвостового `/`.
+ */
+fun frankfurterBaseUrl(flavorDefault: String): String = (
+    providers.environmentVariable("RATEX_FRANKFURTER_BASE_URL").orNull?.takeIf { it.isNotBlank() }
+        ?: providers.gradleProperty("frankfurterBaseUrl").orNull?.takeIf { it.isNotBlank() }
+        ?: flavorDefault
+    ).trimEnd('/')
+//endregion
+
 //endregion
 
 plugins {
@@ -98,9 +117,11 @@ android {
         create("dev") {
             dimension = "env"
             applicationIdSuffix = ".dev"
+            buildConfigField("String", "FRANKFURTER_BASE_URL", "\"${frankfurterBaseUrl(frankfurterDefaultBaseUrl)}\"")
         }
         create("prod") {
             dimension = "env"
+            buildConfigField("String", "FRANKFURTER_BASE_URL", "\"${frankfurterBaseUrl(frankfurterDefaultBaseUrl)}\"")
         }
     }
 
