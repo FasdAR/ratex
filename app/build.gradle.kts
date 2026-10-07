@@ -11,15 +11,13 @@ import java.util.Properties
  * @param args аргументы команды `git`, например `"rev-list", "--count", "HEAD"`.
  * @return обрезанный по краям stdout, либо `null`, если вывод пустой.
  */
-fun gitOutput(vararg args: String): String? {
-    return try {
-        providers.exec {
-            commandLine("git", *args)
-            isIgnoreExitValue = true
-        }.standardOutput.asText.get().trim().ifEmpty { null }
-    } catch (e: Exception) {
-        throw e
-    }
+fun gitOutput(vararg args: String): String? = try {
+    providers.exec {
+        commandLine("git", *args)
+        isIgnoreExitValue = true
+    }.standardOutput.asText.get().trim().ifEmpty { null }
+} catch (e: Exception) {
+    throw e
 }
 
 val appVersionName: String
@@ -54,12 +52,10 @@ val keystoreProperties = Properties().apply {
  * @param name имя параметра без префикса `RATEX_`, например `RELEASE_STORE_PASSWORD`.
  * @return значение или `null`, если оно нигде не задано или состоит из пробелов.
  */
-fun signingValue(name: String): String? {
-    return providers.environmentVariable("RATEX_$name").orNull
+fun signingValue(name: String): String? = providers.environmentVariable("RATEX_$name").orNull
+    ?.takeIf { it.isNotBlank() }
+    ?: keystoreProperties.getProperty(name)
         ?.takeIf { it.isNotBlank() }
-        ?: keystoreProperties.getProperty(name)
-            ?.takeIf { it.isNotBlank() }
-}
 
 /**
  * Возвращает имена параметров подписи, которые не заданы для указанного набора ключей.
@@ -69,11 +65,9 @@ fun signingValue(name: String): String? {
  * @param prefix `RELEASE` или `DEBUG`.
  * @return незаданные имена; пустой список означает, что ключ настроен полностью.
  */
-fun missingSigningValues(prefix: String): List<String> {
-    return listOf("STORE_FILE", "STORE_PASSWORD", "KEY_ALIAS", "KEY_PASSWORD")
-        .map { "${prefix}_$it" }
-        .filter { signingValue(it) == null }
-}
+fun missingSigningValues(prefix: String): List<String> = listOf("STORE_FILE", "STORE_PASSWORD", "KEY_ALIAS", "KEY_PASSWORD")
+    .map { "${prefix}_$it" }
+    .filter { signingValue(it) == null }
 //endregion
 
 //endregion
@@ -163,6 +157,27 @@ android {
         compose = true
         buildConfig = true
     }
+}
+
+val checkReleaseSigning = tasks.register("checkReleaseSigning") {
+    group = "verification"
+    description = "Fails if release signing keys are not configured"
+    doLast {
+        val missing = missingSigningValues("RELEASE")
+        if (missing.isNotEmpty()) {
+            throw GradleException(
+                "Release signing is not configured. Set env RATEX_<NAME> or keystore.properties <NAME> for: " +
+                    missing.joinToString()
+            )
+        }
+    }
+}
+
+val releaseTaskPattern = Regex("(assemble|package|bundle)(Dev|Prod)?Release")
+tasks.configureEach {
+    if (name.matches(releaseTaskPattern)) dependsOn(checkReleaseSigning)
+    // Без ключей release падает сразу, до компиляции, R8 и lint
+    if (name != checkReleaseSigning.name && name.contains("Release")) mustRunAfter(checkReleaseSigning)
 }
 
 ksp {

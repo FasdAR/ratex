@@ -2,9 +2,11 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** CI в GitHub Actions (ktlint, тесты, сборка) и публикация alpha/release APK в GitHub Releases по git-тегам, с версией из git, flavors `dev`/`prod`, build types `debug`/`release` и подписью из Secrets/локального файла.
+> **Статус:** реализовано в ветке `feature/05-delivery_app`. План обновлён под итоговый код: он содержит решения, принятые по ходу работы (см. «Ловушки» в конце). Чекбоксы оставлены пустыми как шаблон для повторного прохода.
 
-**Architecture:** Всё в одном модуле `:app`. Версия, flavors, R8 и подпись настраиваются в `app/build.gradle.kts`. Проверка «тег ↔ ветка» вынесена в bash-скрипт `.github/scripts/classify-tag.sh` с собственным тестом, чтобы её можно было прогнать локально. Два workflow: `ci.yml` (проверки) и `publish.yml` (публикация по тегу); общий шаг раскодирования keystore вынесен в composite action.
+**Goal:** CI в GitHub Actions (ktlint, Android lint, unit-тесты) и публикация в GitHub Releases по git-тегам: alpha (`devRelease`) и release (`prodRelease`), с версией из git, flavors `dev`/`prod`, build types `debug`/`release` и подписью из Secrets или локального файла. Pipeline собирает только release.
+
+**Architecture:** Один модуль `:app`. Версия, flavors, R8 и подпись настраиваются в `app/build.gradle.kts` (helpers в начале файла, выше `android {}`), без `buildSrc`, `build-logic` и script plugins. Проверка «тег ↔ ветка» и выбор типа релиза сделаны одним шагом `publish.yml` на bash (без отдельного скрипта). Два workflow: `ci.yml` (проверки) и `publish.yml` (публикация по тегу); раскодирование keystore в composite action.
 
 **Tech Stack:** Gradle 9.8 / AGP 9.4.1 (Kotlin DSL), GitHub Actions, `gh` CLI, bash, JDK 17.
 
@@ -13,54 +15,55 @@
 ## Global Constraints
 
 - Теги: alpha = `X.Y.Z-alpha` (коммит должен лежать в `develop`), release = `X.Y.Z` (коммит в `master`). Префикса `v` и номера `N` нет.
-- `versionName` = `git describe --tags` как есть; fallback без тегов `0.0.0-dev`. `versionCode` = `git rev-list --count HEAD`. Оба переопределяются Gradle-property (`appVersionName`, `appVersionCode`).
-- Flavor-измерение `env`: `dev` (`applicationIdSuffix = ".dev"`, имя «Ratex Dev»), `prod` (текущий `applicationId`, имя «Ratex»). Различий URL между flavors нет, URL в коде не трогаем.
+- Pipeline собирает **только release**: alpha = `devRelease` (`ru.fasdev.ratex.dev`), release = `prodRelease` (`ru.fasdev.ratex`). Debug-сборок и debug-ключей в pipeline нет. Alpha публикуется с `--prerelease`. Имя APK: `ratex-<env>-release-<tag>.apk`.
+- `versionName` = `git describe --tags --match "[0-9]*.[0-9]*.[0-9]*"`, fallback `0.0.0-dev`. `versionCode` = `git rev-list --count HEAD`, fallback `0`. Переопределение: `-PappVersionName`, `-PappVersionCode`. `gitOutput` не подавляет ошибки запуска `git` (`throw e`); код выхода `git` игнорируется.
+- Flavor-измерение `env`: `dev` (`applicationIdSuffix = ".dev"`, имя «Ratex Dev»), `prod` («Ratex»). Различий URL между flavors нет, URL в коде не трогаем.
 - `debug`: `applicationIdSuffix = ".debug"`, `isDebuggable = true`. `release`: `isMinifyEnabled = true`, `isShrinkResources = true`, `isDebuggable = false`.
-- Подпись: release-ключ и debug-ключ раздельные. Источники значений: env `RATEX_<NAME>` или `keystore.properties` в корне (ключ `<NAME>`). Имена: `RELEASE_STORE_FILE`, `RELEASE_STORE_PASSWORD`, `RELEASE_KEY_ALIAS`, `RELEASE_KEY_PASSWORD` и то же для `DEBUG_`.
-- Без release-ключа `assemble*Release` / `package*Release` / `bundle*Release` падают с понятной ошибкой, fallback на debug-подпись для release нет. `test`, `ktlintCheck`, debug-сборки работают без ключей. Debug без ключа использует `~/.android/debug.keystore`.
-- Alpha и release оба собираются как `prodRelease`; alpha публикуется с `--prerelease`. Flavor `dev` и debug-варианты в Releases не публикуются.
-- Имя APK в релизе: `ratex-<env>-<buildType>-<version>.apk`.
-- GitHub Secrets (8 шт.): `RELEASE_KEYSTORE_BASE64`, `RELEASE_STORE_PASSWORD`, `RELEASE_KEY_ALIAS`, `RELEASE_KEY_PASSWORD`, `DEBUG_KEYSTORE_BASE64`, `DEBUG_STORE_PASSWORD`, `DEBUG_KEY_ALIAS`, `DEBUG_KEY_PASSWORD`.
-- JDK 17 (Gradle daemon закреплён `gradle/gradle-daemon-jvm.properties`). Код `.kts` проходит `ktlintCheck` (`.editorconfig`: 4 пробела, 140 колонок).
-- Проектные правила (`AGENTS.md`): ветка фичи `feature/05-delivery_app` от `develop`; **коммитить, вливать, ставить теги и пушить агент может только по явной просьбе пользователя**. Шаги «Commit» ниже выполняются только если пользователь подтвердил коммиты; иначе пропускать, оставляя изменения в рабочем дереве. Теги агент не ставит ни при каких условиях.
-- После команд `gradlew` пользуемся командами из `AGENTS.md`; после добавления flavors локальные прогоны идут на `dev`, команда одного теста: `./gradlew :app:testDevDebugUnitTest --tests "..."` (CI гоняет `testProdDebugUnitTest`).
+- Подпись: параметры `RELEASE_STORE_FILE`, `RELEASE_STORE_PASSWORD`, `RELEASE_KEY_ALIAS`, `RELEASE_KEY_PASSWORD` и то же с `DEBUG_`. Источники: env `RATEX_<NAME>` (приоритет) или `signature/keystore.properties` (каталог `signature/` в `.gitignore`). `STORE_FILE` относительный путь разрешается от корня проекта.
+- Без release-ключа `assemble|package|bundle*Release` (а также `assemble` и `build`) падают с понятной ошибкой до компиляции и R8. Fallback на debug-подпись для release нет. `test`, `ktlintCheck`, debug-сборки работают без ключей. Debug без ключа использует `~/.android/debug.keystore`; debug-ключ нужен только локально.
+- GitHub Secrets (4 шт.): `RELEASE_KEYSTORE_BASE64`, `RELEASE_STORE_PASSWORD`, `RELEASE_KEY_ALIAS`, `RELEASE_KEY_PASSWORD`.
+- AGP 9 создаёт unit-тесты **только для debug-вариантов**: задач `test*ReleaseUnitTest` нет. CI гоняет `:app:testProdDebugUnitTest`; publish гоняет `:app:test<Dev|Prod>DebugUnitTest`. Это JVM-тесты, APK не собирается. Локально: `testDevDebugUnitTest`, `assembleDevDebug`.
+- Android lint в pipeline: `:app:lintProdRelease` (CI) и `:app:lint<Dev|Prod>Release` (publish); ключи не нужны, на текущем коде проходит (около 30 с, конфигурации `lint.xml` нет).
+- Отдельного скрипта и автотеста для проверки тега нет (решение владельца): формат тега гарантирует glob-фильтр триггера `publish.yml`, шаг только определяет тип по суффиксу `-alpha` и проверяет ветку.
+- JDK 17 (Gradle daemon закреплён `gradle/gradle-daemon-jvm.properties`). Код `.kts` проходит `ktlintCheck` (`.editorconfig`: 4 пробела, 140 колонок; функции с одним выражением в виде `= ...`).
+- Проектные правила (`AGENTS.md`): ветка фичи `feature/05-delivery_app` от `develop`; **коммитить, вливать, ставить теги и пушить агент может только по явной просьбе пользователя**. Шаги «Commit» выполнять только если пользователь подтвердил. Теги агент не ставит.
+- Для запуска Gradle вне sandbox (кэш `~/.gradle`) агент использует `dangerouslyDisableSandbox` на этих командах. Временные файлы и логи писать в scratchpad, а не в `$TMPDIR` (он различается в sandbox и вне него).
 
 ## Review Focus
 
-- Коммит, который одновременно лежит и в `develop`, и в `master` (общий предок): alpha и release на нём проходят проверку ветки (Task 4, тест).
-- Тег с «опасными» символами (`1.2.0-alpha;x`, `v1.2.0`, `1.2.0-alpha.1`, `1.2`, `1.2.0-beta`) не публикуется и не исполняется как команда, скрипт выходит с кодом 2 (Task 4, тест).
-- Release-сборка без ключей: понятная ошибка со списком недостающих значений; при этом `test`, `ktlintCheck`, `assembleProdDebug` без ключей работают (Task 3, шаги проверки).
-- Сборка без git-тегов и в репозитории без git: `versionName = 0.0.0-dev`, сборка не падает (Task 2).
-- Пароли с пробелами/спецсимволами в env и `keystore.properties` корректно читаются (Task 3, шаг проверки с паролем с пробелом).
+- Коммит, лежащий и в `develop`, и в `master` (общий предок): alpha и release на нём проходят проверку ветки (Task 4, шаг 5).
+- Теги с «опасными» символами (`1.2.0-alpha;touch x`): значение идёт через `env`, а не подставляется в `run`, поэтому не исполняется; посторонние форматы (`v1.2.0`, `1.2`) отсекает фильтр триггера (проверяется на первом реальном теге) (Task 4, шаг 5).
+- Release без ключей: понятная ошибка, проверка идёт первой задачей; при этом `test`, `ktlintCheck`, `assembleDevDebug` без ключей работают. Проверять **в чистой копии без `signature/`**: на машине владельца реальные ключи есть (Task 3).
+- Alpha собирается как `dev`, release как `prod`: имена задач, путь APK и `applicationId` соответствуют (Task 4).
+- Пароли с пробелами/спецсимволами через env корректно читаются (Task 3).
 
 ---
 
 ### Task 1: Flavors, build types, R8
 
 **Files:**
-- Modify: `app/build.gradle.kts:11-47` (блок `android { ... }`)
+- Modify: `app/build.gradle.kts` (блок `android { ... }`)
 - Create: `app/src/dev/res/values/strings.xml`
-- Modify: `app/proguard-rules.pro` (только если R8 потребует правил)
-- Modify: `AGENTS.md:12-16` (команды тестов)
+- Modify: `app/proguard-rules.pro` (только если R8 потребует правил; в реализации не потребовалось)
+- Modify: `AGENTS.md` (команды)
 
 **Interfaces:**
-- Produces: варианты `devDebug`, `devRelease`, `prodDebug`, `prodRelease`; Gradle-задачи `assemble{Dev,Prod}{Debug,Release}`, `test{Dev,Prod}{Debug,Release}UnitTest`. Release-варианты пока без подписи (подпись в Task 3).
+- Produces: варианты `devDebug`, `devRelease`, `prodDebug`, `prodRelease`; задачи `assemble{Dev,Prod}{Debug,Release}`, `test{Dev,Prod}DebugUnitTest`.
 
-- [ ] **Step 0: Создать ветку фичи (если пользователь подтвердил git-операции)**
+- [ ] **Step 0: Ветка фичи (если пользователь подтвердил git-операции)**
 
 ```bash
 git switch develop && git switch -c feature/05-delivery_app
 ```
-Незакоммиченное изменение `docs-ai/planning/05-delivery_app.md` переедет вместе с веткой.
 
-- [ ] **Step 1: Убедиться, что новых задач ещё нет (падающая «проверка»)**
+- [ ] **Step 1: Убедиться, что задач ещё нет**
 
 Run: `./gradlew :app:assembleProdDebug`
 Expected: FAIL, `Cannot locate tasks that match ':app:assembleProdDebug'`.
 
-- [ ] **Step 2: Добавить flavors и build types**
+- [ ] **Step 2: Flavors и build types**
 
-В `app/build.gradle.kts` внутри `android { ... }` заменить блок `buildTypes { ... }` и добавить `flavorDimensions`/`productFlavors` сразу после `defaultConfig { ... }`:
+В `android { ... }` после `defaultConfig { ... }`:
 
 ```kotlin
     flavorDimensions += "env"
@@ -73,7 +76,11 @@ Expected: FAIL, `Cannot locate tasks that match ':app:assembleProdDebug'`.
             dimension = "env"
         }
     }
+```
 
+`dimension = "env"` обязателен для каждого flavor (требование AGP, даже при одном измерении); имя `env` произвольное. Build types (подпись добавляется в Task 3):
+
+```kotlin
     buildTypes {
         debug {
             applicationIdSuffix = ".debug"
@@ -99,52 +106,42 @@ Create `app/src/dev/res/values/strings.xml`:
 ```
 (ресурс flavor перекрывает `app_name` из `main`; `prod` берёт «Ratex» из `main`).
 
-- [ ] **Step 4: Собрать debug-варианты и проверить applicationId**
+- [ ] **Step 4: Собрать debug и проверить applicationId**
 
 Run: `./gradlew :app:assembleDevDebug :app:assembleProdDebug`
 Expected: BUILD SUCCESSFUL.
 
 Run: `grep -h '"applicationId"' app/build/outputs/apk/dev/debug/output-metadata.json app/build/outputs/apk/prod/debug/output-metadata.json`
-Expected: `"applicationId": "ru.fasdev.ratex.dev.debug"` и `"applicationId": "ru.fasdev.ratex.debug"`.
+Expected: `ru.fasdev.ratex.dev.debug` и `ru.fasdev.ratex.debug`.
 
-- [ ] **Step 5: Прогнать unit-тесты на новых вариантах**
-
-Run: `./gradlew :app:testProdDebugUnitTest`
-Expected: BUILD SUCCESSFUL, все тесты проходят (число тестов то же, что до изменений).
+- [ ] **Step 5: Unit-тесты**
 
 Run: `./gradlew test`
-Expected: BUILD SUCCESSFUL (запускает тесты всех 4 вариантов; release-тесты идут на несминифицированном коде).
+Expected: BUILD SUCCESSFUL. Запускает тесты debug-вариантов (`testDevDebugUnitTest`, `testProdDebugUnitTest`); release unit-тестов в AGP 9 нет.
 
-- [ ] **Step 6: Собрать release-варианты (проверка R8)**
+- [ ] **Step 6: Release (проверка R8)**
 
 Run: `./gradlew :app:assembleProdRelease :app:assembleDevRelease`
-Expected: BUILD SUCCESSFUL. APK без подписи (`app-prod-release-unsigned.apk`), подпись добавится в Task 3.
+Expected: BUILD SUCCESSFUL (до Task 3 APK без подписи).
+Если R8 падает с `Missing classes detected`: дописать содержимое `app/build/outputs/mapping/prodRelease/missing_rules.txt` в `app/proguard-rules.pro`. Если падает `lintVital*`: исправить код, lint не отключать.
 
-Если упал R8 с `Missing classes detected while running R8`: открыть `app/build/outputs/mapping/prodRelease/missing_rules.txt`, дописать его содержимое в конец `app/proguard-rules.pro` и повторить сборку. Если упал `lintVital*`: исправить указанную проблему в коде, lint не отключать.
+- [ ] **Step 7: AGENTS.md, команды**
 
-- [ ] **Step 7: Обновить команды в AGENTS.md**
-
-В `AGENTS.md` заменить две строки с `testDebugUnitTest`:
+Заменить блок команд на:
 
 ```bash
+./gradlew assembleDevDebug                                               # сборка debug APK (dev); prod: assembleProdDebug
+./gradlew test                                                           # все unit-тесты
 ./gradlew :app:testDevDebugUnitTest --tests "package.ClassTest"          # один класс
 ./gradlew :app:testDevDebugUnitTest --tests "*ClassTest.someMethod"      # один метод
 ```
-и строку `./gradlew assembleDebug  # сборка debug APK` заменить на:
+
+- [ ] **Step 8: ktlint и commit**
+
+Run: `./gradlew ktlintFormat ktlintCheck` — Expected: BUILD SUCCESSFUL.
 
 ```bash
-./gradlew assembleProdDebug                                              # сборка debug APK (prod); dev: assembleDevDebug
-```
-
-- [ ] **Step 8: ktlint**
-
-Run: `./gradlew ktlintFormat ktlintCheck`
-Expected: BUILD SUCCESSFUL.
-
-- [ ] **Step 9: Commit**
-
-```bash
-git add app/build.gradle.kts app/src/dev app/proguard-rules.pro AGENTS.md docs/superpowers docs-ai/planning/05-delivery_app.md
+git add app/build.gradle.kts app/src/dev AGENTS.md
 git commit -m "feat: add dev/prod flavors, release minify"
 ```
 
@@ -153,36 +150,52 @@ git commit -m "feat: add dev/prod flavors, release minify"
 ### Task 2: Версионирование из git
 
 **Files:**
-- Modify: `app/build.gradle.kts` (верх файла и `defaultConfig`)
+- Modify: `app/build.gradle.kts` (helpers в начале файла)
 
 **Interfaces:**
-- Produces: в `app/build.gradle.kts` значения `appVersionName: String`, `appVersionCode: Int`; Gradle-property `appVersionName` / `appVersionCode` для переопределения (использует `publish.yml` в Task 5).
+- Produces: `fun gitOutput(vararg args: String): String?`, `val appVersionName: String`, `val appVersionCode: Int` (используются в `defaultConfig`); property `-PappVersionName` / `-PappVersionCode` (использует `publish.yml`).
 
-- [ ] **Step 1: Зафиксировать текущее (неверное) состояние**
+- [ ] **Step 1: Текущее состояние**
 
 Run: `./gradlew :app:assembleProdDebug && grep -E '"versionCode"|"versionName"' app/build/outputs/apk/prod/debug/output-metadata.json`
-Expected: `"versionCode": 1`, `"versionName": "1.0"` (захардкожено, это и меняем).
+Expected: `1` и `"1.0"` (захардкожено).
 
-- [ ] **Step 2: Добавить вычисление версии**
+- [ ] **Step 2: Helpers версии**
 
-В `app/build.gradle.kts` после блока `plugins { ... }` добавить:
+В начале `app/build.gradle.kts` (после `import`, **выше блока `android {}`**: `val` в скрипте инициализируются сверху вниз, значение, объявленное ниже `android {}`, там будет `null`; `by lazy` не помогает):
 
 ```kotlin
+//region Version block
+/**
+ * Выполняет `git` с переданными аргументами и возвращает его stdout.
+ *
+ * Код выхода игнорируется: например, `git describe` без тегов завершается с ошибкой и ничего не печатает.
+ *
+ * @param args аргументы команды `git`, например `"rev-list", "--count", "HEAD"`.
+ * @return обрезанный по краям stdout, либо `null`, если вывод пустой.
+ */
 fun gitOutput(vararg args: String): String? = try {
     providers.exec {
         commandLine("git", *args)
         isIgnoreExitValue = true
     }.standardOutput.asText.get().trim().ifEmpty { null }
 } catch (e: Exception) {
-    null
+    throw e
 }
 
-val appVersionName: String = providers.gradleProperty("appVersionName").orNull
-    ?: gitOutput("describe", "--tags", "--match", "[0-9]*.[0-9]*.[0-9]*")
-    ?: "0.0.0-dev"
-val appVersionCode: Int = providers.gradleProperty("appVersionCode").orNull?.toInt()
-    ?: gitOutput("rev-list", "--count", "HEAD")?.toIntOrNull()
-    ?: 1
+val appVersionName: String
+    get() {
+        return providers.gradleProperty("appVersionName").orNull
+            ?: gitOutput("describe", "--tags", "--match", "[0-9]*.[0-9]*.[0-9]*")
+            ?: "0.0.0-dev"
+    }
+val appVersionCode: Int
+    get() {
+        return providers.gradleProperty("appVersionCode").orNull?.toInt()
+            ?: gitOutput("rev-list", "--count", "HEAD")?.toIntOrNull()
+            ?: 0
+    }
+//endregion
 ```
 
 В `defaultConfig` заменить `versionCode = 1` и `versionName = "1.0"`:
@@ -191,44 +204,32 @@ val appVersionCode: Int = providers.gradleProperty("appVersionCode").orNull?.toI
         versionCode = appVersionCode
         versionName = appVersionName
 ```
+(`extra[...]` внутри `android {}` не использовать: там `extra` означает `extra` блока Android, а не проекта.)
 
-- [ ] **Step 3: Проверить без тегов (fallback и счётчик коммитов)**
+- [ ] **Step 3: Без тегов**
 
 Run: `./gradlew :app:assembleProdDebug && grep -E '"versionCode"|"versionName"' app/build/outputs/apk/prod/debug/output-metadata.json && git rev-list --count HEAD`
-Expected: `versionName` = `0.0.0-dev`, `versionCode` равен числу из `git rev-list --count HEAD`.
+Expected: `versionName` = `0.0.0-dev`, `versionCode` = число из `git rev-list`.
 
-- [ ] **Step 4: Проверить переопределение через property**
+- [ ] **Step 4: Переопределение**
 
 Run: `./gradlew :app:assembleProdDebug -PappVersionName=1.2.3-alpha -PappVersionCode=42 && grep -E '"versionCode"|"versionName"' app/build/outputs/apk/prod/debug/output-metadata.json`
-Expected: `"versionCode": 42`, `"versionName": "1.2.3-alpha"`.
+Expected: `42` и `1.2.3-alpha`.
 
-- [ ] **Step 5: Проверить `git describe` на клоне с тегом (теги в основном репозитории не создаём)**
+- [ ] **Step 5: `git describe` на клоне с тегом (теги в основном репозитории не создаём)**
 
 ```bash
-clone="$TMPDIR/ratex-ver"; rm -rf "$clone"
+S=<scratchpad>; clone="$S/ratex-ver"; rm -rf "$clone"
 git clone -q --no-hardlinks . "$clone"
-cp app/build.gradle.kts "$clone/app/build.gradle.kts"
-cp local.properties "$clone/local.properties"
+cp app/build.gradle.kts "$clone/app/build.gradle.kts"; cp -R app/src/dev "$clone/app/src/dev"; cp local.properties "$clone/local.properties"
 git -C "$clone" tag 1.2.0-alpha
 (cd "$clone" && ./gradlew :app:assembleProdDebug -q && grep -E '"versionCode"|"versionName"' app/build/outputs/apk/prod/debug/output-metadata.json)
 ```
-Expected: `"versionName": "1.2.0-alpha"` (коммит с тегом), `versionCode` = число коммитов в клоне.
+Expected: `"versionName": "1.2.0-alpha"`.
 
-- [ ] **Step 6: Проверить сборку вне git**
+- [ ] **Step 6: ktlint и commit**
 
-```bash
-nogit="$TMPDIR/ratex-nogit"; rm -rf "$nogit"; mkdir "$nogit"
-git archive HEAD | tar -x -C "$nogit"
-cp app/build.gradle.kts "$nogit/app/build.gradle.kts"; cp local.properties "$nogit/local.properties"
-(cd "$nogit" && ./gradlew :app:assembleProdDebug -q && grep -E '"versionCode"|"versionName"' app/build/outputs/apk/prod/debug/output-metadata.json)
-```
-Expected: BUILD SUCCESSFUL, `"versionCode": 1`, `"versionName": "0.0.0-dev"`.
-(Если в `$nogit` сборка падает по причинам, не связанным с версией, например `git archive` не включил `local.properties`, достаточно убедиться, что ошибка не из `gitOutput`.)
-
-- [ ] **Step 7: ktlint и commit**
-
-Run: `./gradlew ktlintFormat ktlintCheck`
-Expected: BUILD SUCCESSFUL.
+Run: `./gradlew ktlintFormat ktlintCheck` — Expected: BUILD SUCCESSFUL.
 
 ```bash
 git add app/build.gradle.kts
@@ -240,55 +241,80 @@ git commit -m "feat: derive versionName/versionCode from git"
 ### Task 3: Подпись и падение release без ключей
 
 **Files:**
-- Modify: `app/build.gradle.kts` (импорт, подпись, `signingConfigs`, `buildTypes.release`, задача проверки)
+- Modify: `app/build.gradle.kts` (helpers подписи, `signingConfigs`, `buildTypes`, задача проверки)
 - Modify: `.gitignore`
 
 **Interfaces:**
-- Consumes: блок `android { buildTypes { release { ... } } }` из Task 1.
-- Produces: функция `signingValue(name)`, env `RATEX_<NAME>` и `keystore.properties` (ключи `RELEASE_*`, `DEBUG_*`); Gradle-задача `checkReleaseSigning`. Контракт env-переменных используется composite action в Task 5.
+- Consumes: блок `buildTypes` из Task 1.
+- Produces: `signingValue(name)`, `missingSigningValues(prefix)`, задача `checkReleaseSigning`; контракт env `RATEX_<PREFIX>_{STORE_FILE,STORE_PASSWORD,KEY_ALIAS,KEY_PASSWORD}` (использует composite action в Task 5).
 
-- [ ] **Step 1: Убедиться, что сейчас release собирается без ключей (проверка падения ещё не работает)**
+- [ ] **Step 1: Проверить «до»**
 
 Run: `./gradlew :app:assembleProdRelease`
-Expected: BUILD SUCCESSFUL (APK `unsigned`). Это поведение мы убираем.
+Expected: BUILD SUCCESSFUL (APK без подписи). Это поведение убираем.
 
 - [ ] **Step 2: .gitignore**
 
-Дописать в `.gitignore`:
+Дописать:
 
 ```
 /keystore.properties
 *.jks
 *.keystore
+/signature
 ```
 
-- [ ] **Step 3: Чтение значений подписи**
+- [ ] **Step 3: Helpers подписи (в начале файла, рядом с блоком версии, выше `android {}`)**
 
-В начало `app/build.gradle.kts` добавить `import java.util.Properties` (перед `plugins`), а после блока вычисления версии добавить:
+Добавить `import java.util.Properties` и:
 
 ```kotlin
+//region Signature block
 val keystoreProperties = Properties().apply {
-    val file = rootProject.file("keystore.properties")
-    if (file.exists()) file.inputStream().use { load(it) }
+    val file = rootProject.file("signature/keystore.properties")
+    if (file.exists()) {
+        file.inputStream().use {
+            load(it)
+        }
+    }
 }
 
-fun signingValue(name: String): String? = providers.environmentVariable("RATEX_$name").orNull?.takeIf { it.isNotBlank() }
-    ?: keystoreProperties.getProperty(name)?.takeIf { it.isNotBlank() }
+/**
+ * Возвращает значение параметра подписи.
+ *
+ * Источники по приоритету: переменная окружения `RATEX_<name>`, затем ключ `<name>` в `keystore.properties`.
+ *
+ * @param name имя параметра без префикса `RATEX_`, например `RELEASE_STORE_PASSWORD`.
+ * @return значение или `null`, если оно нигде не задано или состоит из пробелов.
+ */
+fun signingValue(name: String): String? = providers.environmentVariable("RATEX_$name").orNull
+    ?.takeIf { it.isNotBlank() }
+    ?: keystoreProperties.getProperty(name)
+        ?.takeIf { it.isNotBlank() }
 
-fun missingSigningValues(prefix: String): List<String> =
-    listOf("STORE_FILE", "STORE_PASSWORD", "KEY_ALIAS", "KEY_PASSWORD")
-        .map { "${prefix}_$it" }
-        .filter { signingValue(it) == null }
+/**
+ * Возвращает имена параметров подписи, которые не заданы для указанного набора ключей.
+ *
+ * Полный набор: `<prefix>_STORE_FILE`, `<prefix>_STORE_PASSWORD`, `<prefix>_KEY_ALIAS`, `<prefix>_KEY_PASSWORD`.
+ *
+ * @param prefix `RELEASE` или `DEBUG`.
+ * @return незаданные имена; пустой список означает, что ключ настроен полностью.
+ */
+fun missingSigningValues(prefix: String): List<String> = listOf("STORE_FILE", "STORE_PASSWORD", "KEY_ALIAS", "KEY_PASSWORD")
+    .map { "${prefix}_$it" }
+    .filter { signingValue(it) == null }
+//endregion
 ```
 
-- [ ] **Step 4: signingConfigs и привязка к release**
+- [ ] **Step 4: signingConfigs и привязка к build types**
 
-В `android { ... }` перед `buildTypes` добавить:
+В `android { ... }` перед `buildTypes`:
 
 ```kotlin
     signingConfigs {
         create("release") {
-            if (missingSigningValues("RELEASE").isEmpty()) {
+            val hasReleaseConfig = missingSigningValues("RELEASE").isEmpty()
+            if (hasReleaseConfig) {
                 storeFile = rootProject.file(signingValue("RELEASE_STORE_FILE")!!)
                 storePassword = signingValue("RELEASE_STORE_PASSWORD")
                 keyAlias = signingValue("RELEASE_KEY_ALIAS")
@@ -296,7 +322,8 @@ fun missingSigningValues(prefix: String): List<String> =
             }
         }
         getByName("debug") {
-            if (missingSigningValues("DEBUG").isEmpty()) {
+            val hasDebugConfig = missingSigningValues("DEBUG").isEmpty()
+            if (hasDebugConfig) {
                 storeFile = rootProject.file(signingValue("DEBUG_STORE_FILE")!!)
                 storePassword = signingValue("DEBUG_STORE_PASSWORD")
                 keyAlias = signingValue("DEBUG_KEY_ALIAS")
@@ -306,15 +333,9 @@ fun missingSigningValues(prefix: String): List<String> =
     }
 ```
 
-В `buildTypes { release { ... } }` добавить строку:
+В `buildTypes`: в `debug` добавить `signingConfig = signingConfigs.getByName("debug").takeIf { missingSigningValues("DEBUG").isEmpty() }`, в `release` добавить `signingConfig = signingConfigs.getByName("release").takeIf { missingSigningValues("RELEASE").isEmpty() }`.
 
-```kotlin
-            signingConfig = signingConfigs.getByName("release").takeIf { missingSigningValues("RELEASE").isEmpty() }
-```
-
-- [ ] **Step 5: Задача проверки ключей**
-
-После блока `android { ... }` (рядом с `ksp { ... }`) добавить:
+- [ ] **Step 5: Задача проверки ключей (после блока `android {}`, перед `ksp {}`)**
 
 ```kotlin
 val checkReleaseSigning = tasks.register("checkReleaseSigning") {
@@ -334,200 +355,52 @@ val checkReleaseSigning = tasks.register("checkReleaseSigning") {
 val releaseTaskPattern = Regex("(assemble|package|bundle)(Dev|Prod)?Release")
 tasks.configureEach {
     if (name.matches(releaseTaskPattern)) dependsOn(checkReleaseSigning)
+    // Без ключей release падает сразу, до компиляции, R8 и lint
+    if (name != checkReleaseSigning.name && name.contains("Release")) mustRunAfter(checkReleaseSigning)
 }
 ```
 
-- [ ] **Step 6: Проверить падение без ключей**
+- [ ] **Step 6: Проверить падение без ключей (в чистой копии без `signature/`)**
 
-Run: `./gradlew :app:assembleProdRelease`
-Expected: FAIL, сообщение `Release signing is not configured... for: RELEASE_STORE_FILE, RELEASE_STORE_PASSWORD, RELEASE_KEY_ALIAS, RELEASE_KEY_PASSWORD`.
-
-Run: `./gradlew :app:assembleDevRelease`
-Expected: FAIL с тем же сообщением.
-
-- [ ] **Step 7: Проверить, что без ключей работают не-release задачи**
-
-Run: `./gradlew ktlintCheck :app:testProdDebugUnitTest :app:assembleProdDebug :app:assembleDevDebug`
-Expected: BUILD SUCCESSFUL.
-
-Run: `./gradlew test`
-Expected: BUILD SUCCESSFUL (release unit-тесты не требуют подписи).
-
-- [ ] **Step 8: Проверить подпись одноразовым ключом (env, пароль с пробелом)**
+На машине с реальными ключами в `signature/` проверка «без ключей» ничего не покажет. Делать в клоне:
 
 ```bash
-ks="$TMPDIR/test-release.jks"; rm -f "$ks"
+S=<scratchpad>; x="$S/exp"; rm -rf "$x"; git clone -q --no-hardlinks . "$x"
+cp app/build.gradle.kts "$x/app/"; cp local.properties "$x/"; cd "$x"
+./gradlew :app:assembleDevRelease -q 2>&1 | grep -m1 "Release signing"
+./gradlew :app:assembleProdRelease -q >/dev/null 2>&1; echo "exit=$?"
+./gradlew :app:assembleProdRelease --console=plain 2>&1 | grep -E "^> Task" | head -3
+./gradlew ktlintCheck :app:testProdDebugUnitTest :app:assembleDevDebug test -q >/dev/null 2>&1; echo "others exit=$?"
+```
+Expected: сообщение `Release signing is not configured ... RELEASE_STORE_FILE, RELEASE_STORE_PASSWORD, RELEASE_KEY_ALIAS, RELEASE_KEY_PASSWORD`; `exit=1`; первая и единственная задача `:app:checkReleaseSigning FAILED`; `others exit=0`.
+
+- [ ] **Step 7: Подпись одноразовым ключом (env, пароль с пробелом)**
+
+```bash
+ks="<scratchpad>/test-release.jks"; rm -f "$ks"
 keytool -genkeypair -keystore "$ks" -alias testkey -keyalg RSA -keysize 2048 -validity 30 \
   -storepass "pass word 1" -keypass "pass word 1" -dname "CN=test"
 RATEX_RELEASE_STORE_FILE="$ks" RATEX_RELEASE_STORE_PASSWORD="pass word 1" \
 RATEX_RELEASE_KEY_ALIAS=testkey RATEX_RELEASE_KEY_PASSWORD="pass word 1" \
   ./gradlew :app:assembleProdRelease
 ```
-Expected: BUILD SUCCESSFUL, APK `app/build/outputs/apk/prod/release/app-prod-release.apk` (без `unsigned`).
+Expected: BUILD SUCCESSFUL; `app/build/outputs/apk/prod/release/app-prod-release.apk` без `unsigned`.
 
-Run: `$ANDROID_HOME/build-tools/*/apksigner verify --print-certs app/build/outputs/apk/prod/release/app-prod-release.apk | head -3`
-(если `ANDROID_HOME` не задан, взять `sdk.dir` из `local.properties`; при выборе нескольких версий build-tools взять последнюю)
-Expected: `Verifies` и `CN=test`.
+Run: `<sdk.dir>/build-tools/<последняя>/apksigner verify --print-certs app/build/outputs/apk/prod/release/app-prod-release.apk | head -1`
+Expected: `Signer #1 certificate DN: CN=test`.
 
-- [ ] **Step 9: Проверить keystore.properties**
+- [ ] **Step 8: ktlint и commit**
 
-```bash
-cat > keystore.properties <<EOF
-RELEASE_STORE_FILE=$TMPDIR/test-release.jks
-RELEASE_STORE_PASSWORD=pass word 1
-RELEASE_KEY_ALIAS=testkey
-RELEASE_KEY_PASSWORD=pass word 1
-EOF
-./gradlew :app:assembleDevRelease
-rm keystore.properties
-```
-Expected: BUILD SUCCESSFUL. Затем `git status --short` не показывает `keystore.properties` и `.jks` (файл удалён, правило в `.gitignore` проверено шагом `git check-ignore keystore.properties`; повторить создание пустого файла и убедиться, что он игнорируется).
-
-- [ ] **Step 10: ktlint и commit**
-
-Run: `./gradlew ktlintFormat ktlintCheck`
-Expected: BUILD SUCCESSFUL.
+Run: `./gradlew ktlintFormat ktlintCheck` — Expected: BUILD SUCCESSFUL.
 
 ```bash
 git add app/build.gradle.kts .gitignore
-git commit -m "feat: sign release/debug from env or keystore.properties, fail release without keys"
+git commit -m "feat: sign release/debug from env or keystore file, fail release without keys"
 ```
 
 ---
 
-### Task 4: Скрипт «тег ↔ ветка» с тестом
-
-**Files:**
-- Create: `.github/scripts/classify-tag.sh`
-- Create: `.github/scripts/classify-tag_test.sh`
-
-**Interfaces:**
-- Produces: `.github/scripts/classify-tag.sh <tag> <commit-sha>`. stdout: `alpha` или `release`. Код выхода: 0 ок; 1 коммит не в нужной ветке или ветка не найдена; 2 тег не релизный. Переменные `DEVELOP_REF` (по умолчанию `origin/develop`) и `MASTER_REF` (по умолчанию `origin/master`). Используется в `publish.yml` (Task 5).
-
-- [ ] **Step 1: Написать тест (падает, пока скрипта нет)**
-
-Create `.github/scripts/classify-tag_test.sh`:
-
-```bash
-#!/usr/bin/env bash
-# Тест classify-tag.sh на временном git-репозитории: m1 (общий предок), d1 (только develop), m2 (только master).
-set -uo pipefail
-
-script="$(cd "$(dirname "$0")" && pwd)/classify-tag.sh"
-work="$(mktemp -d)"
-trap 'rm -rf "$work"' EXIT
-cd "$work"
-
-git init -q -b master .
-git config user.email test@example.com
-git config user.name test
-git commit -q --allow-empty -m m1
-m1=$(git rev-parse HEAD)
-git switch -q -c develop
-git commit -q --allow-empty -m d1
-d1=$(git rev-parse HEAD)
-git switch -q master
-git commit -q --allow-empty -m m2
-m2=$(git rev-parse HEAD)
-
-export DEVELOP_REF=develop MASTER_REF=master
-failures=0
-
-check() {
-  local name=$1 expected_code=$2 expected_out=$3 tag=$4 sha=$5 out code
-  out=$("$script" "$tag" "$sha" 2>/dev/null)
-  code=$?
-  if [[ $code -ne $expected_code || $out != "$expected_out" ]]; then
-    echo "FAIL: $name (code=$code out='$out', expected code=$expected_code out='$expected_out')"
-    failures=$((failures + 1))
-  else
-    echo "ok: $name"
-  fi
-}
-
-check "alpha on develop commit" 0 alpha 1.2.0-alpha "$d1"
-check "release on master commit" 0 release 1.2.0 "$m2"
-check "alpha on common ancestor" 0 alpha 1.2.0-alpha "$m1"
-check "release on common ancestor" 0 release 1.2.0 "$m1"
-check "alpha on master-only commit" 1 "" 1.2.0-alpha "$m2"
-check "release on develop-only commit" 1 "" 1.2.0 "$d1"
-check "v prefix is not a release tag" 2 "" v1.2.0 "$m2"
-check "alpha with counter is not a release tag" 2 "" 1.2.0-alpha.1 "$d1"
-check "two-part version is not a release tag" 2 "" 1.2 "$m2"
-check "beta is not a release tag" 2 "" 1.2.0-beta "$d1"
-check "shell metacharacters are rejected" 2 "" '1.2.0-alpha;touch pwned' "$d1"
-
-DEVELOP_REF=missing-branch check "missing ref fails" 1 "" 1.2.0-alpha "$d1"
-
-if [[ $failures -ne 0 ]]; then
-  echo "$failures check(s) failed"
-  exit 1
-fi
-echo "all checks passed"
-```
-
-Run: `chmod +x .github/scripts/classify-tag_test.sh && .github/scripts/classify-tag_test.sh`
-Expected: FAIL (скрипт `classify-tag.sh` не найден, проверки печатают `FAIL`, итог `check(s) failed`).
-
-- [ ] **Step 2: Реализовать скрипт**
-
-Create `.github/scripts/classify-tag.sh`:
-
-```bash
-#!/usr/bin/env bash
-# Определяет тип релиза по тегу и проверяет, что коммит лежит в нужной ветке.
-# Использование: classify-tag.sh <tag> <commit-sha>
-# stdout: "alpha" (X.Y.Z-alpha, коммит в develop) или "release" (X.Y.Z, коммит в master).
-# Коды выхода: 0 - ок; 1 - коммит не в нужной ветке; 2 - тег не релизный (пропустить).
-set -euo pipefail
-
-tag="${1:?tag is required}"
-sha="${2:?commit sha is required}"
-develop_ref="${DEVELOP_REF:-origin/develop}"
-master_ref="${MASTER_REF:-origin/master}"
-
-if [[ "$tag" =~ ^[0-9]+\.[0-9]+\.[0-9]+-alpha$ ]]; then
-  kind=alpha
-  ref="$develop_ref"
-elif [[ "$tag" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-  kind=release
-  ref="$master_ref"
-else
-  echo "Tag '$tag' is not a release tag, skipping" >&2
-  exit 2
-fi
-
-if ! git rev-parse --verify --quiet "$ref" >/dev/null; then
-  echo "Reference '$ref' not found; fetch full history (fetch-depth: 0)" >&2
-  exit 1
-fi
-
-if ! git merge-base --is-ancestor "$sha" "$ref"; then
-  echo "Tag '$tag' ($kind) must point to a commit on $ref, but $sha is not reachable from it" >&2
-  exit 1
-fi
-
-echo "$kind"
-```
-
-- [ ] **Step 3: Запустить тест**
-
-Run: `chmod +x .github/scripts/classify-tag.sh && .github/scripts/classify-tag_test.sh`
-Expected: все строки `ok:`, итог `all checks passed`, код выхода 0.
-
-Run: `shellcheck .github/scripts/*.sh` (если shellcheck установлен)
-Expected: без замечаний.
-
-- [ ] **Step 4: Commit**
-
-```bash
-git add .github/scripts
-git commit -m "ci: add tag/branch classification script with tests"
-```
-
----
-
-### Task 5: Workflows
+### Task 4: Workflows
 
 **Files:**
 - Create: `.github/actions/decode-keystore/action.yml`
@@ -535,10 +408,9 @@ git commit -m "ci: add tag/branch classification script with tests"
 - Create: `.github/workflows/publish.yml`
 
 **Interfaces:**
-- Consumes: env-контракт подписи `RATEX_<PREFIX>_{STORE_FILE,STORE_PASSWORD,KEY_ALIAS,KEY_PASSWORD}` (Task 3); property `appVersionName` (Task 2); `classify-tag.sh` (Task 4); задачи `:app:testProdReleaseUnitTest`, `:app:assembleProdRelease`, `:app:assembleDevDebug` (Task 1).
-- Produces: workflow `CI` (push/PR в `develop`, `master`) и `Publish` (push тега).
+- Consumes: env-контракт `RATEX_<PREFIX>_*` (Task 3); `-PappVersionName` (Task 2); задачи `test{Dev,Prod}DebugUnitTest`, `assemble{Dev,Prod}Release` (Task 1).
 
-- [ ] **Step 1: Composite action раскодирования keystore**
+- [ ] **Step 1: Composite action**
 
 Create `.github/actions/decode-keystore/action.yml`:
 
@@ -587,7 +459,7 @@ runs:
         } >> "$GITHUB_ENV"
 ```
 
-- [ ] **Step 2: CI workflow**
+- [ ] **Step 2: CI workflow (без APK, без секретов)**
 
 Create `.github/workflows/ci.yml`:
 
@@ -622,25 +494,11 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
-      - name: Decode debug keystore (skipped when secrets are unavailable, e.g. fork PRs)
-        uses: ./.github/actions/decode-keystore
-        with:
-          prefix: DEBUG
-          keystore-base64: ${{ secrets.DEBUG_KEYSTORE_BASE64 }}
-          store-password: ${{ secrets.DEBUG_STORE_PASSWORD }}
-          key-alias: ${{ secrets.DEBUG_KEY_ALIAS }}
-          key-password: ${{ secrets.DEBUG_KEY_PASSWORD }}
-
-      - name: Lint, unit tests, debug build
-        run: ./gradlew ktlintCheck :app:testProdDebugUnitTest :app:assembleDevDebug
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: ratex-dev-debug
-          path: app/build/outputs/apk/dev/debug/*.apk
+      - name: ktlint, Android lint and unit tests (JVM tests of the debug variant; AGP has no release unit tests; no APK is built, no keys needed)
+        run: ./gradlew ktlintCheck :app:lintProdRelease :app:testProdDebugUnitTest
 ```
 
-- [ ] **Step 3: Publish workflow**
+- [ ] **Step 3: Publish workflow (alpha = dev, release = prod)**
 
 Create `.github/workflows/publish.yml`:
 
@@ -669,27 +527,22 @@ jobs:
         env:
           TAG: ${{ github.ref_name }}
         run: |
-          set +e
-          kind=$(.github/scripts/classify-tag.sh "$TAG" "$GITHUB_SHA")
-          code=$?
-          set -e
-          case $code in
-            0) echo "kind=$kind" >> "$GITHUB_OUTPUT" ;;
-            2) echo "kind=skip" >> "$GITHUB_OUTPUT" ;;
-            *) exit "$code" ;;
+          case "$TAG" in
+            *-alpha) kind=alpha; ref=origin/develop ;;
+            *)       kind=release; ref=origin/master ;;
           esac
+          git merge-base --is-ancestor "$GITHUB_SHA" "$ref" \
+            || { echo "Tag '$TAG' ($kind) must point to a commit on $ref" >&2; exit 1; }
+          echo "kind=$kind" >> "$GITHUB_OUTPUT"
 
       - uses: actions/setup-java@v4
-        if: steps.classify.outputs.kind != 'skip'
         with:
           distribution: temurin
           java-version: 17
 
       - uses: gradle/actions/setup-gradle@v4
-        if: steps.classify.outputs.kind != 'skip'
 
       - name: Decode release keystore
-        if: steps.classify.outputs.kind != 'skip'
         uses: ./.github/actions/decode-keystore
         with:
           prefix: RELEASE
@@ -698,44 +551,70 @@ jobs:
           key-alias: ${{ secrets.RELEASE_KEY_ALIAS }}
           key-password: ${{ secrets.RELEASE_KEY_PASSWORD }}
 
-      - name: Lint, tests, signed release build
-        if: steps.classify.outputs.kind != 'skip'
+      - name: Select environment (alpha is dev, release is prod)
+        id: variant
+        env:
+          KIND: ${{ steps.classify.outputs.kind }}
+        run: |
+          if [ "$KIND" = "alpha" ]; then
+            echo "env=dev" >> "$GITHUB_OUTPUT"
+            echo "gradle=Dev" >> "$GITHUB_OUTPUT"
+          else
+            echo "env=prod" >> "$GITHUB_OUTPUT"
+            echo "gradle=Prod" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: ktlint, Android lint, unit tests (AGP has no release unit tests, JVM only, no debug APK), signed release build
         env:
           TAG: ${{ github.ref_name }}
-        run: ./gradlew ktlintCheck :app:testProdReleaseUnitTest :app:assembleProdRelease "-PappVersionName=$TAG"
+          VARIANT: ${{ steps.variant.outputs.gradle }}
+        run: ./gradlew ktlintCheck ":app:lint${VARIANT}Release" ":app:test${VARIANT}DebugUnitTest" ":app:assemble${VARIANT}Release" "-PappVersionName=$TAG"
 
       - name: Publish GitHub release
-        if: steps.classify.outputs.kind != 'skip'
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.ref_name }}
           KIND: ${{ steps.classify.outputs.kind }}
+          ENV: ${{ steps.variant.outputs.env }}
         run: |
-          apk="ratex-prod-release-$TAG.apk"
-          cp app/build/outputs/apk/prod/release/app-prod-release.apk "$apk"
+          apk="ratex-$ENV-release-$TAG.apk"
+          cp "app/build/outputs/apk/$ENV/release/app-$ENV-release.apk" "$apk"
           flags=()
           if [ "$KIND" = "alpha" ]; then flags+=(--prerelease); fi
           gh release create "$TAG" "$apk" --title "$TAG" --generate-notes --verify-tag "${flags[@]}"
 ```
 
-- [ ] **Step 4: Проверить синтаксис workflow и action**
+- [ ] **Step 4: Проверка синтаксиса**
 
-Run: `python3 -c "import yaml,sys; [yaml.safe_load(open(f)) for f in sys.argv[1:]]; print('yaml ok')" .github/workflows/ci.yml .github/workflows/publish.yml .github/actions/decode-keystore/action.yml`
-Expected: `yaml ok`.
+Run: `for f in .github/workflows/*.yml .github/actions/decode-keystore/action.yml; do ruby -ryaml -e 'YAML.load_file(ARGV[0]); puts "ok #{ARGV[0]}"' $f; done`
+Expected: три `ok`. (PyYAML может быть не установлен; `actionlint` и `shellcheck`, если стоят, прогнать тоже.)
 
-Run: `which actionlint && actionlint .github/workflows/*.yml`
-Expected: без замечаний; если `actionlint` не установлен, шаг пропустить и отметить это в отчёте.
+- [ ] **Step 5: Проверить шаг classify локально (только чтение)**
 
-- [ ] **Step 5: Проверить shell-логику шага classify локально**
+Вынуть `run` шага `classify` из YAML и выполнить как GitHub (`bash -eo pipefail`) на реальных ветках:
 
 ```bash
-export DEVELOP_REF=develop MASTER_REF=master GITHUB_SHA=$(git rev-parse develop) TAG=1.2.0-alpha GITHUB_OUTPUT="$TMPDIR/out"; : > "$GITHUB_OUTPUT"
-bash -c 'set +e; kind=$(.github/scripts/classify-tag.sh "$TAG" "$GITHUB_SHA"); code=$?; set -e; case $code in 0) echo "kind=$kind" >> "$GITHUB_OUTPUT" ;; 2) echo "kind=skip" >> "$GITHUB_OUTPUT" ;; *) exit "$code" ;; esac'
-cat "$GITHUB_OUTPUT"
+S=<scratchpad>
+ruby -ryaml -e 'y=YAML.load_file(".github/workflows/publish.yml"); puts y["jobs"]["publish"]["steps"].find{|s| s["id"]=="classify"}["run"]' > $S/classify-step.sh
+run() { out="$S/gho.txt"; : > "$out"; TAG=$1 GITHUB_SHA=$2 GITHUB_OUTPUT="$out" bash --noprofile --norc -eo pipefail $S/classify-step.sh; echo "tag=$1 exit=$? output=[$(cat $out)]"; }
+dev=$(git rev-parse origin/develop); mas=$(git rev-parse origin/master)
+run 1.2.0-alpha $dev          # exit=0 kind=alpha
+run 1.2.0 $dev                # exit=1, коммита develop нет в master
+run 1.2.0 $mas                # exit=0 kind=release
+run '1.2.0-alpha;touch pwned' $dev; ls pwned    # exit=1, файл pwned не создан
 ```
-Expected: `kind=alpha`. Повторить с `TAG=v1.2.0` → `kind=skip`; с `TAG=1.2.0` и `GITHUB_SHA` коммитом, которого нет в `master` (если таковой есть в `develop`), → код 1 и сообщение об ошибке.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 6: Прогнать команды pipeline локально с одноразовым ключом**
+
+Alpha (dev):
+```bash
+RATEX_RELEASE_STORE_FILE="$ks" RATEX_RELEASE_STORE_PASSWORD="pass word 1" RATEX_RELEASE_KEY_ALIAS=testkey RATEX_RELEASE_KEY_PASSWORD="pass word 1" \
+  ./gradlew ktlintCheck :app:lintDevRelease :app:testDevDebugUnitTest :app:assembleDevRelease -PappVersionName=1.2.0-alpha
+grep -E '"applicationId"|"versionName"' app/build/outputs/apk/dev/release/output-metadata.json
+```
+Expected: `ru.fasdev.ratex.dev`, `1.2.0-alpha`. Release (prod) аналогично с `:app:lintProdRelease :app:testProdDebugUnitTest :app:assembleProdRelease -PappVersionName=1.2.0` → `ru.fasdev.ratex`, `1.2.0`. CI-команда: `./gradlew ktlintCheck :app:lintProdRelease :app:testProdDebugUnitTest` проходит без ключей.
+
+- [ ] **Step 7: Commit**
 
 ```bash
 git add .github
@@ -744,65 +623,28 @@ git commit -m "ci: add CI and tag-based publish workflows"
 
 ---
 
-### Task 6: Документация
+### Task 5: Документация
 
 **Files:**
-- Modify: `AGENTS.md` (Git flow + новый раздел «Релизы»)
-- Create: `docs-ai/artifact/2026-10-06-delivery-app.md`
+- Modify: `AGENTS.md`
+- Create: `docs-ai/artifact/2026-10-06-delivery-app.md` (каталог в `.gitignore`, не коммитится)
 
-**Interfaces:**
-- Consumes: все предыдущие задачи (описывает их результат).
+- [ ] **Step 1: Git flow в AGENTS.md**
 
-- [ ] **Step 1: Править Git flow в AGENTS.md**
+Теги `vX.Y.Z` заменить на `X.Y.Z`; команда релиза: `git switch master && git merge --no-ff develop -m "Release X.Y.Z" && git tag X.Y.Z`.
 
-В `AGENTS.md`:
-- В списке веток заменить в строке про `master` `теги \`vX.Y.Z\`` на `теги \`X.Y.Z\``.
-- В блоке команд слияния заменить последнюю строку на:
+- [ ] **Step 2: Раздел «Релизы и сборки» в AGENTS.md (перед `## docs-ai`)**
 
-```bash
-git switch master && git merge --no-ff develop -m "Release X.Y.Z" && git tag X.Y.Z                # релиз
-```
+Содержание: окружения и варианты; версия из git и ограничение немонотонного `versionCode` (release с `master` не ставится поверх более нового alpha, сначала влить `develop` в `master`); схема тегов и что собирает pipeline (alpha = `devRelease`, release = `prodRelease`, только release, без debug-ключей); повтор alpha (удалить тег локально и на origin и GitHub release); подпись (`RATEX_<NAME>` или `signature/keystore.properties`, имена параметров, падение `assemble*Release`/`package*Release`/`bundle*Release`/`assemble`/`build` без ключа, fallback debug на `~/.android/debug.keystore`); агентам теги не ставить и не пушить.
 
-- [ ] **Step 2: Добавить раздел «Релизы» в AGENTS.md**
+- [ ] **Step 3: Артефакт сессии**
 
-Вставить перед разделом `## docs-ai`:
-
-````markdown
-## Релизы и сборки
-
-- Окружения (flavor `env`): `dev` (`ru.fasdev.ratex.dev`, «Ratex Dev») и `prod` (`ru.fasdev.ratex`, «Ratex»). Типы сборки: `debug` (суффикс `.debug`, логи, отладка) и `release` (R8, без отладки). Варианты: `devDebug`, `devRelease`, `prodDebug`, `prodRelease`.
-- Версия берётся из git: `versionName` = `git describe --tags`, `versionCode` = число коммитов. Без тегов `0.0.0-dev`.
-- Тестовый билд (pre-release): тег `X.Y.Z-alpha` на коммит из `develop`. Релиз: тег `X.Y.Z` на коммит из `master`. Префикса `v` и номера нет. GitHub Actions (`publish.yml`) проверит ветку, прогонит ktlint и тесты, соберёт подписанный `prodRelease` и опубликует его в GitHub Releases.
-- Повторный alpha той же версии: удалить тег (локально и на origin) и GitHub release, поставить заново.
-- Подпись: release- и debug-ключи берутся из env `RATEX_<NAME>` или `keystore.properties` (в `.gitignore`), имена `RELEASE_STORE_FILE`, `RELEASE_STORE_PASSWORD`, `RELEASE_KEY_ALIAS`, `RELEASE_KEY_PASSWORD` и `DEBUG_*`. Без release-ключа `assemble*Release` падает. Агентам теги не ставить и не пушить.
-````
-
-- [ ] **Step 3: Записать результат сессии**
-
-Create `docs-ai/artifact/2026-10-06-delivery-app.md` (папка в `.gitignore`, файл не коммитится) с разделами: «Что сделано» (flavors, версия из git, подпись, workflows, скрипт), «Решения» (теги без `v` и `N`, один alpha на версию, alpha = `prodRelease`, release без ключей падает, URL не трогали), «Ручные шаги владельца» и «Отложено» (URL dev/prod при появлении бэкенда, автоочистка alpha, Play). В «Ручных шагах» привести:
-
-```bash
-keytool -genkeypair -v -keystore release.jks -alias ratex -keyalg RSA -keysize 2048 -validity 10000
-keytool -genkeypair -v -keystore debug-ci.jks -alias ratex-debug -keyalg RSA -keysize 2048 -validity 10000
-base64 -i release.jks | pbcopy    # значение секрета RELEASE_KEYSTORE_BASE64; то же для debug-ci.jks -> DEBUG_KEYSTORE_BASE64
-```
-и список 8 секретов (GitHub → Settings → Secrets and variables → Actions), а также пример `keystore.properties` для локальной сборки:
-
-```properties
-RELEASE_STORE_FILE=/абсолютный/путь/release.jks
-RELEASE_STORE_PASSWORD=...
-RELEASE_KEY_ALIAS=ratex
-RELEASE_KEY_PASSWORD=...
-```
-Также указать проверку, оставленную на человека: поставить `prodRelease` APK на устройство и пройти основной сценарий (R8 не ловится unit-тестами), и первый запуск workflow на реальном теге (проверить, что Gradle находит JDK 17, который ставит `setup-java`).
+Разделы: «Что сделано», «Решения» (теги без `v` и `N`; alpha = `devRelease`, release = `prodRelease`; pipeline только release; unit-тесты через debug-вариант; release без ключей падает; URL не трогали; helpers выше `android {}`; `catch { throw e }` и fallback `versionCode = 0`; отказ от `buildSrc`/`build-logic`/script plugins), «Ручные шаги владельца» (keytool для release keystore, `base64 -i release.jks | pbcopy`, 4 секрета GitHub, `signature/keystore.properties` для локальной сборки), «Что не проверено» (R8 на устройстве `devRelease` и `prodRelease`; первый запуск workflow на теге: JDK 17 от `setup-java`, Android SDK для `compileSdk = 37` на раннере, права `GITHUB_TOKEN`; `actionlint`/`shellcheck`), «Отложено» (URL dev/prod при появлении бэкенда, автоочистка alpha, Play).
 
 - [ ] **Step 4: Финальная проверка**
 
-Run: `./gradlew ktlintCheck test && .github/scripts/classify-tag_test.sh`
-Expected: BUILD SUCCESSFUL и `all checks passed`.
-
-Run: `./gradlew :app:assembleProdRelease`
-Expected: FAIL с сообщением про release-подпись (ключей нет), это штатное поведение.
+Run: `./gradlew ktlintCheck :app:lintProdRelease test` — Expected: BUILD SUCCESSFUL.
+В чистой копии без `signature/`: `./gradlew :app:assembleProdRelease` — Expected: FAIL с сообщением про release-подпись.
 
 - [ ] **Step 5: Commit**
 
@@ -810,3 +652,15 @@ Expected: FAIL с сообщением про release-подпись (ключе
 git add AGENTS.md
 git commit -m "docs: describe releases, flavors and tag scheme"
 ```
+
+---
+
+## Ловушки, найденные при реализации
+
+1. **AGP 9 не создаёт release unit-тесты.** Задачи `testProdReleaseUnitTest` нет; использовать `test<Env>DebugUnitTest`.
+2. **`extra` внутри `android {}`** резолвится в `extra` блока Android, а не проекта. Читать значения напрямую из `val` на верхнем уровне скрипта.
+3. **Порядок объявлений в `.gradle.kts`:** `val` на верхнем уровне инициализируются сверху вниз; helpers с `val` должны стоять выше `android {}`. `by lazy` не спасает.
+4. **`mktemp` в sandbox** без `$TMPDIR` падает; скрипт-тест, не проверивший это, выполнился в самом репозитории и создал пустые коммиты. Скрипты, создающие временные репозитории, обязаны завершаться при ошибке `mktemp`/`cd`.
+5. **`$c:app/...` в zsh** трактуется как модификатор; писать `"${c}:app/..."`.
+6. **Проверка «без ключей»** на машине с реальными ключами в `signature/` ничего не показывает: проверять в чистой копии.
+7. **ktlint** требует expression body для функций из одного выражения (`fun f(): T = ...`).

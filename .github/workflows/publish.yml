@@ -22,27 +22,22 @@ jobs:
         env:
           TAG: ${{ github.ref_name }}
         run: |
-          set +e
-          kind=$(.github/scripts/classify-tag.sh "$TAG" "$GITHUB_SHA")
-          code=$?
-          set -e
-          case $code in
-            0) echo "kind=$kind" >> "$GITHUB_OUTPUT" ;;
-            2) echo "kind=skip" >> "$GITHUB_OUTPUT" ;;
-            *) exit "$code" ;;
+          case "$TAG" in
+            *-alpha) kind=alpha; ref=origin/develop ;;
+            *)       kind=release; ref=origin/master ;;
           esac
+          git merge-base --is-ancestor "$GITHUB_SHA" "$ref" \
+            || { echo "Tag '$TAG' ($kind) must point to a commit on $ref" >&2; exit 1; }
+          echo "kind=$kind" >> "$GITHUB_OUTPUT"
 
       - uses: actions/setup-java@v4
-        if: steps.classify.outputs.kind != 'skip'
         with:
           distribution: temurin
           java-version: 17
 
       - uses: gradle/actions/setup-gradle@v4
-        if: steps.classify.outputs.kind != 'skip'
 
       - name: Decode release keystore
-        if: steps.classify.outputs.kind != 'skip'
         uses: ./.github/actions/decode-keystore
         with:
           prefix: RELEASE
@@ -51,21 +46,34 @@ jobs:
           key-alias: ${{ secrets.RELEASE_KEY_ALIAS }}
           key-password: ${{ secrets.RELEASE_KEY_PASSWORD }}
 
-      - name: Lint, tests, signed release build
-        if: steps.classify.outputs.kind != 'skip'
+      - name: Select environment (alpha is dev, release is prod)
+        id: variant
+        env:
+          KIND: ${{ steps.classify.outputs.kind }}
+        run: |
+          if [ "$KIND" = "alpha" ]; then
+            echo "env=dev" >> "$GITHUB_OUTPUT"
+            echo "gradle=Dev" >> "$GITHUB_OUTPUT"
+          else
+            echo "env=prod" >> "$GITHUB_OUTPUT"
+            echo "gradle=Prod" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: ktlint, Android lint, unit tests (AGP has no release unit tests, JVM only, no debug APK), signed release build
         env:
           TAG: ${{ github.ref_name }}
-        run: ./gradlew ktlintCheck :app:testProdReleaseUnitTest :app:assembleProdRelease "-PappVersionName=$TAG"
+          VARIANT: ${{ steps.variant.outputs.gradle }}
+        run: ./gradlew ktlintCheck ":app:lint${VARIANT}Release" ":app:test${VARIANT}DebugUnitTest" ":app:assemble${VARIANT}Release" "-PappVersionName=$TAG"
 
       - name: Publish GitHub release
-        if: steps.classify.outputs.kind != 'skip'
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.ref_name }}
           KIND: ${{ steps.classify.outputs.kind }}
+          ENV: ${{ steps.variant.outputs.env }}
         run: |
-          apk="ratex-prod-release-$TAG.apk"
-          cp app/build/outputs/apk/prod/release/app-prod-release.apk "$apk"
+          apk="ratex-$ENV-release-$TAG.apk"
+          cp "app/build/outputs/apk/$ENV/release/app-$ENV-release.apk" "$apk"
           flags=()
           if [ "$KIND" = "alpha" ]; then flags+=(--prerelease); fi
           gh release create "$TAG" "$apk" --title "$TAG" --generate-notes --verify-tag "${flags[@]}"

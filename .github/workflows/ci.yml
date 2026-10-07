@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [develop, master]
+    branches: [master]
   pull_request:
     branches: [develop, master]
 
@@ -28,22 +28,5 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
-      - name: Decode debug keystore (skipped when secrets are unavailable, e.g. fork PRs)
-        uses: ./.github/actions/decode-keystore
-        with:
-          prefix: DEBUG
-          keystore-base64: ${{ secrets.DEBUG_KEYSTORE_BASE64 }}
-          store-password: ${{ secrets.DEBUG_STORE_PASSWORD }}
-          key-alias: ${{ secrets.DEBUG_KEY_ALIAS }}
-          key-password: ${{ secrets.DEBUG_KEY_PASSWORD }}
-
-      - name: Test tag classification script
-        run: .github/scripts/classify-tag_test.sh
-
-      - name: Lint, unit tests, debug build
-        run: ./gradlew ktlintCheck :app:testProdDebugUnitTest :app:assembleDevDebug
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: ratex-dev-debug
-          path: app/build/outputs/apk/dev/debug/*.apk
+      - name: ktlint, Android lint and unit tests (JVM tests of the debug variant; AGP has no release unit tests; no APK is built, no keys needed)
+        run: ./gradlew ktlintCheck :app:lintProdRelease :app:testProdDebugUnitTest

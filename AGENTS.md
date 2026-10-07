@@ -14,6 +14,7 @@ This file provides guidance to AI coding agents (Claude Code, etc.) when working
 ./gradlew :app:testDevDebugUnitTest --tests "package.ClassTest"          # один класс
 ./gradlew :app:testDevDebugUnitTest --tests "*ClassTest.someMethod"      # один метод
 ./gradlew ktlintCheck                                                    # проверка стиля (правила — в .editorconfig)
+./gradlew :app:lintDevRelease                                            # Android lint (в pipeline: lintProdRelease / lintDevRelease)
 ./gradlew ktlintFormat                                                   # автоисправление стиля
 ```
 
@@ -60,9 +61,9 @@ git switch master && git merge --no-ff develop -m "Release X.Y.Z" && git tag X.Y
 
 - Окружения (flavor `env`): `dev` (`ru.fasdev.ratex.dev`, «Ratex Dev») и `prod` (`ru.fasdev.ratex`, «Ratex»). Типы сборки: `debug` (суффикс `.debug`, логи, отладка) и `release` (R8, без отладки). Варианты: `devDebug`, `devRelease`, `prodDebug`, `prodRelease`.
 - Версия берётся из git: `versionName` = `git describe --tags --match "[0-9]*.[0-9]*.[0-9]*"`, `versionCode` = число коммитов (`git rev-list --count HEAD`). Без тегов `0.0.0-dev`. Счётчик коммитов не монотонен между ветками: release с `master` с меньшим числом коммитов, чем у ранее установленного alpha с `develop`, Android не поставит поверх (`INSTALL_FAILED_VERSION_DOWNGRADE`), нужно сначала влить `develop` в `master`.
-- Тестовый билд (pre-release): тег `X.Y.Z-alpha` на коммит из `develop`. Релиз: тег `X.Y.Z` на коммит из `master`. Префикса `v` и номера нет. GitHub Actions (`publish.yml`) проверит ветку, прогонит ktlint и тесты, соберёт подписанный `prodRelease` и опубликует его в GitHub Releases.
+- Тестовый билд (pre-release): тег `X.Y.Z-alpha` на коммит из `develop`. Релиз: тег `X.Y.Z` на коммит из `master`. Префикса `v` и номера нет. GitHub Actions (`publish.yml`) проверит ветку, прогонит ktlint, Android lint и тесты, соберёт подписанную release-сборку и опубликует её в GitHub Releases: для alpha это `devRelease` (`ru.fasdev.ratex.dev`), для релиза `prodRelease`. Pipeline собирает только release: debug-сборок и debug-ключей в нём нет.
 - Повторный alpha той же версии: удалить тег (локально и на origin) и GitHub release, поставить заново.
-- Подпись: release- и debug-ключи берутся из env `RATEX_<NAME>` или `keystore.properties` (в `.gitignore`), имена `RELEASE_STORE_FILE`, `RELEASE_STORE_PASSWORD`, `RELEASE_KEY_ALIAS`, `RELEASE_KEY_PASSWORD` и `DEBUG_*`. Без release-ключа падают `assemble*Release`, `package*Release`, `bundle*Release`, а также `assemble` и `build` (они включают release). Debug-ключ без настройки заменяется `~/.android/debug.keystore`. Агентам теги не ставить и не пушить.
+- Подпись: ключи (release для pipeline, debug только для локальной разработки) берутся из env `RATEX_<NAME>` или `signature/keystore.properties` (каталог `signature/` в `.gitignore`), имена `RELEASE_STORE_FILE`, `RELEASE_STORE_PASSWORD`, `RELEASE_KEY_ALIAS`, `RELEASE_KEY_PASSWORD` и `DEBUG_*`. Без release-ключа падают `assemble*Release`, `package*Release`, `bundle*Release`, а также `assemble` и `build` (они включают release). Debug-ключ без настройки заменяется `~/.android/debug.keystore`. Агентам теги не ставить и не пушить.
 
 ## docs-ai
 
