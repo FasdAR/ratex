@@ -12,7 +12,7 @@ class RateSourcePriorityTest {
         HttpClient(MockEngine { respond("") }).use { client ->
             val ids = RateSourcePriority.entries.map { it.create(client).id }
 
-            assertThat(ids).containsExactly("ecb", "cbr", "fed", "treasury")
+            assertThat(ids).containsExactly("frankfurter")
         }
     }
 }
