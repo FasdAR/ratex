@@ -65,8 +65,7 @@ git switch master && git merge --no-ff develop -m "Release X.Y.Z" && git tag X.Y
 - Повторный alpha той же версии: удалить тег (локально и на origin) и GitHub release, поставить заново.
 - Подпись: ключи (release для pipeline, debug только для локальной разработки) берутся из env `RATEX_<NAME>` или `signature/keystore.properties` (каталог `signature/` в `.gitignore`), имена `RELEASE_STORE_FILE`, `RELEASE_STORE_PASSWORD`, `RELEASE_KEY_ALIAS`, `RELEASE_KEY_PASSWORD` и `DEBUG_*`. Без release-ключа падают `assemble*Release`, `package*Release`, `bundle*Release`, а также `assemble` и `build` (они включают release). Debug-ключ без настройки заменяется `~/.android/debug.keystore`. Агентам теги не ставить и не пушить.
 
-## docs-ai
-
-В `docs-ai/` лежит информация о работе AI в проекте: что и почему было сделано, принятые решения, отложенные задачи. Правила ведения — в `docs-ai/README.md`.
-
-- После завершения задачи добавить запись результата сессии в `docs-ai/artifact`.
+## docs
+- В `docs/` лежит информация о задачах в проекте: что и почему было сделано, принятые решения, отложенные задачи. Правила ведения — в `docs/README.md`.
+- После завершения задачи добавить запись результата сессии в `docs/tasks/<number-task>_<name-task>/artifact-ai`.
+- 
